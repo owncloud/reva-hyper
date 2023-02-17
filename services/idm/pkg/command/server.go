@@ -85,28 +85,38 @@ func bootstrap(logger log.Logger, cfg *config.Config, srvcfg server.Config) erro
 	var err error
 
 	type svcUser struct {
-		Name     string
-		Password string
-		ID       string
+		Name      string
+		Password  string
+		ID        string
+		UidNumber int
+		GidNumber int
 	}
 
 	serviceUsers := []svcUser{
 		{
-			Name:     "admin",
-			Password: cfg.ServiceUserPasswords.OcisAdmin,
-			ID:       cfg.AdminUserID,
+			Name:      "admin",
+			Password:  cfg.ServiceUserPasswords.OcisAdmin,
+			ID:        cfg.AdminUserID,
+			UidNumber: 2000,
+			GidNumber: 2000,
 		},
 		{
-			Name:     "libregraph",
-			Password: cfg.ServiceUserPasswords.Idm,
+			Name:      "libregraph",
+			Password:  cfg.ServiceUserPasswords.Idm,
+			UidNumber: 2001,
+			GidNumber: 2001,
 		},
 		{
-			Name:     "idp",
-			Password: cfg.ServiceUserPasswords.Idp,
+			Name:      "idp",
+			Password:  cfg.ServiceUserPasswords.Idp,
+			UidNumber: 2002,
+			GidNumber: 2002,
 		},
 		{
-			Name:     "reva",
-			Password: cfg.ServiceUserPasswords.Reva,
+			Name:      "reva",
+			Password:  cfg.ServiceUserPasswords.Reva,
+			UidNumber: 2003,
+			GidNumber: 2003,
 		},
 	}
 

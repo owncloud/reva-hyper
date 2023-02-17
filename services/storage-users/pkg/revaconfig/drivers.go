@@ -17,6 +17,7 @@ func EOS(cfg *config.Config) map[string]interface{} {
 		"sec_protocol":           cfg.Drivers.EOS.SecProtocol,
 		"keytab":                 cfg.Drivers.EOS.Keytab,
 		"single_username":        cfg.Drivers.EOS.SingleUsername,
+		"user_layout":            cfg.Drivers.EOS.UserLayout,
 		"enable_logging":         cfg.Drivers.EOS.EnableLogging,
 		"show_hidden_sys_files":  cfg.Drivers.EOS.ShowHiddenSysFiles,
 		"force_single_user_mode": cfg.Drivers.EOS.ForceSingleUserMode,
@@ -46,6 +47,7 @@ func EOSHome(cfg *config.Config) map[string]interface{} {
 		"force_single_user_mode": cfg.Drivers.EOS.ForceSingleUserMode,
 		"use_keytab":             cfg.Drivers.EOS.UseKeytab,
 		"gatewaysvc":             cfg.Drivers.EOS.GatewaySVC,
+		"spaces_config":          cfg.Drivers.EOS.SpacesConfig,
 	}
 }
 
@@ -71,6 +73,7 @@ func EOSGRPC(cfg *config.Config) map[string]interface{} {
 		"use_keytab":             cfg.Drivers.EOS.UseKeytab,
 		"enable_home":            false,
 		"gatewaysvc":             cfg.Drivers.EOS.GatewaySVC,
+		"spaces_config":          cfg.Drivers.EOS.SpacesConfig,
 	}
 }
 

@@ -167,6 +167,17 @@ type S3Driver struct {
 	Endpoint  string `yaml:"endpoint"`
 	Bucket    string `yaml:"bucket"`
 }
+
+type SpacesDbConfig struct {
+	Enabled    bool   `mapstructure:"enabled" yaml:"enabled" env:"STORAGE_USERS_EOSFS_SPACES_ENABLED" desc:"Enables the spaces config for eosfs driver."`
+	DbUsername string `mapstructure:"db_username" yaml:"db_username" env:"STORAGE_USERS_EOSFS_SPACES_DBUSERNAME" desc:"eosfs storage space database username."`
+	DbPassword string `mapstructure:"db_password" yaml:"db_password" env:"STORAGE_USERS_EOSFS_SPACES_DBPASSWORD" desc:"eosfs storage space database password."`
+	DbHost     string `mapstructure:"db_host" yaml:"db_host" env:"STORAGE_USERS_EOSFS_SPACES_DBHOST" desc:"eosfs storage space database host."`
+	DbName     string `mapstructure:"db_name" yaml:"db_name" env:"STORAGE_USERS_EOSFS_SPACES_DBNAME" desc:"eosfs storage space database name."`
+	DbTable    string `mapstructure:"db_table" yaml:"db_table" env:"STORAGE_USERS_EOSFS_SPACES_DBTABLENAME" desc:"eosfs storage space database talbe name."`
+	DbPort     int    `mapstructure:"db_port" yaml:"db_port" env:"STORAGE_USERS_EOSFS_SPACES_DBPORT" desc:"eosfs storage space database port."`
+}
+
 type EOSDriver struct {
 	// Root is the absolute path to the location of the data
 	Root string `yaml:"root"`
@@ -192,7 +203,7 @@ type EOSDriver struct {
 	// SecProtocol specifies the xrootd security protocol to use between the server and EOS.
 	SecProtocol string `yaml:"sec_protocol"`
 	// Keytab specifies the location of the keytab to use to authenticate to EOS.
-	Keytab string `yaml:"keytab"`
+	Keytab string `yaml:"keytab" env:"STORAGE_USERS_EOSFS_KEYTAB"`
 	// SingleUsername is the username to use when SingleUserMode is enabled
 	SingleUsername string `yaml:"single_username"`
 	// Enables logging of the commands executed
@@ -204,13 +215,15 @@ type EOSDriver struct {
 	// ForceSingleUserMode will force connections to EOS to use SingleUsername
 	ForceSingleUserMode bool `yaml:"force_single_user_mode"`
 	// UseKeyTabAuth changes will authenticate requests by using an EOS keytab.
-	UseKeytab bool `yaml:"user_keytab"`
+	UseKeytab bool `yaml:"use_keytab"`
 	// gateway service to use for uid lookups
 	GatewaySVC string `yaml:"gateway_svc"`
 	//ShareFolder defines the name of the folder jailing all shares
-	ShareFolder string `yaml:"share_folder"`
-	GRPCURI     string
-	UserLayout  string
+	ShareFolder  string `yaml:"share_folder"`
+	GRPCURI      string
+	GRPCAuthKey  string         `yaml:"grpc_authkey" env:"STORAGE_USERS_EOSFS_GRPC_AUTHKEY" desc:"The token used to authenticate the grpc requests."`
+	UserLayout   string         `yaml:"user_layout" env:"STORAGE_USERS_EOSFS_USER_LAYOUT" desc:"Template string for the user storage layout in the user directory."`
+	SpacesConfig SpacesDbConfig `yaml:"spaces_config"`
 }
 
 type LocalDriver struct {

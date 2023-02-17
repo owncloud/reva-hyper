@@ -130,7 +130,7 @@ func spacesProviders(cfg *config.Config, logger log.Logger) map[string]map[strin
 			"spaces": map[string]interface{}{
 				"personal": map[string]interface{}{
 					"mount_point":   "/users",
-					"path_template": "/users/{{.Space.Owner.Id.OpaqueId}}",
+					"path_template": "/users/{{.Space.Owner.Username}}",
 				},
 				"project": map[string]interface{}{
 					"mount_point":   "/projects",

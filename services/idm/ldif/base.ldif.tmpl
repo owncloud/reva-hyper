@@ -36,6 +36,8 @@ objectClass: account
 objectClass: simpleSecurityObject
 uid: {{ .Name }}
 {{ end -}}
+uidNumber: {{ .UidNumber }}
+gidNumber: {{ .GidNumber }}
 userPassword:: {{ .Password }}
 
 {{ end -}}

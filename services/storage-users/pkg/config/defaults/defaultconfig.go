@@ -43,7 +43,8 @@ func DefaultConfig() *config.Config {
 		DataGatewayURL:   "https://localhost:9200/data",
 		TransferExpires:  86400,
 		UploadExpiration: 24 * 60 * 60,
-		Driver:           "ocis",
+		Driver:           "eos",
+		//Driver: "ocis",
 		Drivers: config.Drivers{
 			OwnCloudSQL: config.OwnCloudSQLDriver{
 				Root:                  filepath.Join(defaults.BaseDataPath(), "storage", "owncloud"),
@@ -77,6 +78,29 @@ func DefaultConfig() *config.Config {
 				PermissionsEndpoint:        "127.0.0.1:9191",
 				MaxAcquireLockCycles:       20,
 				LockCycleDurationFactor:    30,
+			},
+			EOS: config.EOSDriver{
+				// GRPC config
+				// GRPCURI:   "localhost:50051",
+				// MasterURL: "http://localhost:8000",
+				// Root:          "/ocis",
+
+				// Binary  config
+				UseKeytab:     true,
+				Keytab:        "/etc/eos/eos.keytab",
+				SecProtocol:   "sss",
+				MasterURL:     "root://localhost:1094",
+				XrdcopyBinary: "/usr/bin/xrdcopy",
+				Root:          "/o/c/is",
+				SpacesConfig: config.SpacesDbConfig{
+					Enabled:    true,
+					DbUsername: "root",
+					DbPassword: "",
+					DbHost:     "localhost",
+					DbName:     "eosspaces",
+					DbTable:    "projectspaces",
+					DbPort:     3306,
+				},
 			},
 		},
 		Events: config.Events{

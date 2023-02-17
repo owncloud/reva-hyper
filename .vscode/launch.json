@@ -58,7 +58,8 @@
                 "GATEWAY_STORAGE_USERS_MOUNT_ID": "storage-users-1",
                 "STORAGE_USERS_MOUNT_ID": "storage-users-1",
                 // graph application ID
-                "GRAPH_APPLICATION_ID": "application-1"
+                "GRAPH_APPLICATION_ID": "application-1",
+                "STORAGE_USERS_EOSFS_KEYTAB": "${env:HOME}/eos.keytab",
             }
         }
     ]
