@@ -18,7 +18,7 @@ type Config struct {
 
 	HTTP HTTP `yaml:"http"`
 
-	Endpoint Endpoint `yaml:"enpoint"`
+	Endpoint Endpoint `yaml:"endpoint"`
 
 	TokenManager *TokenManager `yaml:"token_manager"`
 
@@ -31,5 +31,5 @@ type Endpoint struct {
 	Method        string `yaml:"method" env:"INVITATIONS_PROVISIONING_METHOD" desc:"The method to use when making provisioning requests."`
 	BodyTemplate  string `yaml:"body_template" env:"INVITATIONS_PROVISIONING_BODY_TEMPLATE" desc:"The template to use as body of a provisioning request."`
 	Authorization string `yaml:"authorization" env:"INVITATIONS_PROVISIONING_AUTH" desc:"The authorization to use. Can be 'token' to reuse the access token or 'bearer' to send a static api token."`
-	Token         string `yaml:"authorization" env:"INVITATIONS_PROVISIONING_AUTH" desc:"The bearer token to send in provisioning requests."`
+	Token         string `yaml:"token" env:"INVITATIONS_PROVISIONING_AUTH_TOKEN" desc:"The bearer token to send in provisioning requests."`
 }

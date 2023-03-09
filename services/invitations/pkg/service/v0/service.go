@@ -110,7 +110,20 @@ func (s svc) Invite(ctx context.Context, invitation *invitations.Invitation) (*i
 	}
 	client := &http.Client{Transport: tr}
 
-	req, err := http.NewRequest(s.config.Endpoint.Method, urlWriter.String(), bytes.NewBufferString(bodyWriter.String()))
+	userRole := "guest"
+	educationUser := libregraph.EducationUser{
+		DisplayName:              &invitation.InvitedUserDisplayName,
+		Mail:                     &invitation.InvitedUserEmailAddress,
+		OnPremisesSamAccountName: &invitation.InvitedUserEmailAddress,
+		PrimaryRole:              &userRole,
+	}
+
+	jsonBody, err := json.Marshal(educationUser)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(s.config.Endpoint.Method, s.config.Endpoint.URL, bytes.NewBufferString(string(jsonBody)))
 	if err != nil {
 		return nil, err
 	}
@@ -128,6 +141,9 @@ func (s svc) Invite(ctx context.Context, invitation *invitations.Invitation) (*i
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error when sending user creation request, got %d response from remote", res.StatusCode)
 	}
 	defer res.Body.Close()
 
@@ -148,9 +164,7 @@ func (s svc) Invite(ctx context.Context, invitation *invitations.Invitation) (*i
 
 	response := &invitations.Invitation{
 		InvitedUser: invitedUser,
-	}
-	if res.StatusCode == http.StatusCreated {
-		response.Status = "Completed"
+		Status:      "Completed",
 	}
 
 	// optionally send an email
