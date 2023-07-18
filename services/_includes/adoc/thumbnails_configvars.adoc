@@ -4,7 +4,7 @@
 
 ifeval::[{show-deprecation} == true]
 
-[#deprecation-note-2023-07-13-18-20-07]
+[#deprecation-note-2023-07-18-10-29-19]
 [caption=]
 .Deprecation notes for the thumbnails service
 [width="100%",cols="~,~,~,~",options="header"]
@@ -241,7 +241,7 @@ Ignore untrusted SSL certificates when connecting to the CS3 source.
 
 a|`OCIS_REVA_GATEWAY` +
 `REVA_GATEWAY` +
-xref:deprecation-note-2023-07-13-18-20-07[Deprecation Note]
+xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]

@@ -4,7 +4,7 @@
 
 ifeval::[{show-deprecation} == true]
 
-[#deprecation-note-2023-07-13-18-20-07]
+[#deprecation-note-2023-07-18-10-29-19]
 [caption=]
 .Deprecation notes for the search service
 [width="100%",cols="~,~,~,~",options="header"]
@@ -163,7 +163,7 @@ The bind address of the GRPC service.
 
 a|`OCIS_REVA_GATEWAY` +
 `REVA_GATEWAY` +
-xref:deprecation-note-2023-07-13-18-20-07[Deprecation Note]
+xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -212,7 +212,7 @@ The clusterID of the event system. The event system is the message queuing servi
 a|`OCIS_ASYNC_UPLOADS` +
 `STORAGE_USERS_OCIS_ASYNC_UPLOADS` +
 `SEARCH_EVENTS_ASYNC_UPLOADS` +
-xref:deprecation-note-2023-07-13-18-20-07[Deprecation Note]
+xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
 a| [subs=-attributes]
 ++bool ++
 a| [subs=-attributes]

@@ -4,7 +4,7 @@
 
 ifeval::[{show-deprecation} == true]
 
-[#deprecation-note-2023-07-13-18-20-07]
+[#deprecation-note-2023-07-18-10-29-19]
 [caption=]
 .Deprecation notes for the policies service
 [width="100%",cols="~,~,~,~",options="header"]
@@ -138,7 +138,7 @@ Enable TLS for the connection to the events broker. The events broker is the oci
 
 a|`OCIS_REVA_GATEWAY` +
 `REVA_GATEWAY` +
-xref:deprecation-note-2023-07-13-18-20-07[Deprecation Note]
+xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
