@@ -4,7 +4,7 @@
 
 ifeval::[{show-deprecation} == true]
 
-[#deprecation-note-2023-07-18-10-29-19]
+[#deprecation-note-2023-07-19-04-51-48]
 [caption=]
 .Deprecation notes for the frontend service
 [width="100%",cols="~,~,~,~",options="header"]
@@ -226,7 +226,7 @@ Allow credentials for CORS.See following chapter for more details: *Access-Contr
 
 a|`OCIS_TRANSFER_SECRET` +
 `STORAGE_TRANSFER_SECRET` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -246,7 +246,7 @@ The secret to mint and validate jwt tokens.
 
 a|`OCIS_REVA_GATEWAY` +
 `REVA_GATEWAY` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -478,7 +478,7 @@ Path prefix for shares as part of an ocis resource. Note that the path must star
 
 a|`FRONTEND_OCS_PERSONAL_NAMESPACE` +
 `FRONTEND_OCS_HOME_NAMESPACE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]

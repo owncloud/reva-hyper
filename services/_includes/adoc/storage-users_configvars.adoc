@@ -4,7 +4,7 @@
 
 ifeval::[{show-deprecation} == true]
 
-[#deprecation-note-2023-07-18-10-29-19]
+[#deprecation-note-2023-07-19-04-51-48]
 [caption=]
 .Deprecation notes for the storage-users service
 [width="100%",cols="~,~,~,~",options="header"]
@@ -205,7 +205,7 @@ The secret to mint and validate jwt tokens.
 
 a|`OCIS_REVA_GATEWAY` +
 `REVA_GATEWAY` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -343,7 +343,7 @@ Maximum number of concurrent go-routines. Higher values can potentially get work
 
 a|`OCIS_ASYNC_UPLOADS` +
 `STORAGE_USERS_OCIS_ASYNC_UPLOADS` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++bool ++
 a| [subs=-attributes]
@@ -647,7 +647,7 @@ Whether to verify the server TLS certificates.
 a|`OCIS_EVENTS_TLS_ROOT_CA_CERTIFICATE` +
 `STORAGE_USERS_EVENTS_TLS_ROOT_CA_CERTIFICATE` +
 `STORAGE_USERS_EVENTS_TLS_ROOT_CA_CERT` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]

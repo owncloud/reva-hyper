@@ -4,7 +4,7 @@
 
 ifeval::[{show-deprecation} == true]
 
-[#deprecation-note-2023-07-18-10-29-19]
+[#deprecation-note-2023-07-19-04-51-48]
 [caption=]
 .Deprecation notes for the idp service
 [width="100%",cols="~,~,~,~",options="header"]
@@ -263,7 +263,7 @@ Disable or Enable HTTPS for the communication between the Proxy service and the 
 
 a|`OCIS_REVA_GATEWAY` +
 `REVA_GATEWAY` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -367,7 +367,7 @@ URL of the IDP endpoint.
 a|`OCIS_LDAP_INSECURE` +
 `LDAP_INSECURE` +
 `IDP_INSECURE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++bool ++
 a| [subs=-attributes]
@@ -477,7 +477,7 @@ Lifespan in seconds of a dynamically registered OIDC client.
 a|`OCIS_LDAP_URI` +
 `LDAP_URI` +
 `IDP_LDAP_URI` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -488,7 +488,7 @@ Url of the LDAP service to use as IDP.
 a|`OCIS_LDAP_CACERT` +
 `LDAP_CACERT` +
 `IDP_LDAP_TLS_CACERT` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -499,7 +499,7 @@ Path/File name for the root CA certificate (in PEM format) used to validate TLS 
 a|`OCIS_LDAP_BIND_DN` +
 `LDAP_BIND_DN` +
 `IDP_LDAP_BIND_DN` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -520,7 +520,7 @@ Password to use for authenticating the 'bind_dn'.
 a|`OCIS_LDAP_USER_BASE_DN` +
 `LDAP_USER_BASE_DN` +
 `IDP_LDAP_BASE_DN` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -531,7 +531,7 @@ Search base DN for looking up LDAP users.
 a|`OCIS_LDAP_USER_SCOPE` +
 `LDAP_USER_SCOPE` +
 `IDP_LDAP_SCOPE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -551,7 +551,7 @@ LDAP User attribute to use for login like 'uid'.
 a|`OCIS_LDAP_USER_SCHEMA_MAIL` +
 `LDAP_USER_SCHEMA_MAIL` +
 `IDP_LDAP_EMAIL_ATTRIBUTE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -562,7 +562,7 @@ LDAP User email attribute like 'mail'.
 a|`OCIS_LDAP_USER_SCHEMA_USERNAME` +
 `LDAP_USER_SCHEMA_USERNAME` +
 `IDP_LDAP_NAME_ATTRIBUTE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -573,7 +573,7 @@ LDAP User name attribute like 'displayName'.
 a|`OCIS_LDAP_USER_SCHEMA_ID` +
 `LDAP_USER_SCHEMA_ID` +
 `IDP_LDAP_UUID_ATTRIBUTE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -593,7 +593,7 @@ LDAP User uuid attribute type like 'text'.
 a|`OCIS_LDAP_USER_ENABLED_ATTRIBUTE` +
 `LDAP_USER_ENABLED_ATTRIBUTE` +
 `IDP_USER_ENABLED_ATTRIBUTE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -604,7 +604,7 @@ LDAP Attribute to use as a flag telling if the user is enabled or disabled.
 a|`OCIS_LDAP_USER_FILTER` +
 `LDAP_USER_FILTER` +
 `IDP_LDAP_FILTER` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -615,7 +615,7 @@ LDAP filter to add to the default filters for user search like '(objectclass=own
 a|`OCIS_LDAP_USER_OBJECTCLASS` +
 `LDAP_USER_OBJECTCLASS` +
 `IDP_LDAP_OBJECTCLASS` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]

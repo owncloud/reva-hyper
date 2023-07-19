@@ -4,7 +4,7 @@
 
 ifeval::[{show-deprecation} == true]
 
-[#deprecation-note-2023-07-18-10-29-19]
+[#deprecation-note-2023-07-19-04-51-48]
 [caption=]
 .Deprecation notes for the webdav service
 [width="100%",cols="~,~,~,~",options="header"]
@@ -263,7 +263,7 @@ CS3 path layout to use when forwarding /webdav requests
 
 a|`OCIS_REVA_GATEWAY` +
 `REVA_GATEWAY` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -273,7 +273,7 @@ CS3 gateway used to look up user metadata
 
 a|`OCIS_REVA_GATEWAY_TLS_MODE` +
 `REVA_GATEWAY_TLS_MODE` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]
@@ -283,7 +283,7 @@ TLS mode for grpc connection to the CS3 gateway endpoint. Possible values are 'o
 
 a|`OCIS_REVA_GATEWAY_TLS_CACERT` +
 `REVA_GATEWAY_TLS_CACERT` +
-xref:deprecation-note-2023-07-18-10-29-19[Deprecation Note]
+xref:deprecation-note-2023-07-19-04-51-48[Deprecation Note]
 a| [subs=-attributes]
 ++string ++
 a| [subs=-attributes]

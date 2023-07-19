@@ -33,7 +33,7 @@ a| [subs=-attributes]
 ++false ++
 
 a| [subs=-attributes]
-The default role assignments the demo users should be setup.
+Flag to enable or disable the creation of the demo users.
 
 a| `IDM_TRACING_COLLECTOR`
 
@@ -108,7 +108,7 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++uid=reva,ou=sysusers,o=libregraph-idm ++
+++uid=idp,ou=sysusers,o=libregraph-idm ++
 
 a| [subs=-attributes]
 LDAP DN to use for simple bind authentication with the target LDAP server.
@@ -147,7 +147,7 @@ a| [subs=-attributes]
 ++~/.ocis/idm/ldap.crt ++
 
 a| [subs=-attributes]
-Path/File name for the root CA certificate (in PEM format) used to validate TLS server certificates of the LDAP service. If not defined, the root directory derives from $OCIS_BASE_DATA_PATH:/idm.
+Path/File name for the root CA certificate (in PEM format) used to validate TLS server certificates of the LDAP service. If not defined, the root directory derives from $OCIS_BASE_DATA_PATH:/idp.
 
 a| `LDAP_DISABLED_USERS_GROUP_DN`
 
@@ -280,7 +280,7 @@ a| [subs=-attributes]
 ++ownclouduuid ++
 
 a| [subs=-attributes]
-LDAP Attribute to use as the unique id for groups. This should be a stable globally unique ID like a UUID.
+LDAP Attribute to use as the unique id for groups. This should be a stable globally unique id (e.g. a UUID).
 
 a| `LDAP_GROUP_SCHEMA_ID_IS_OCTETSTRING`
 
@@ -296,7 +296,7 @@ a| [subs=-attributes]
 ++false ++
 
 a| [subs=-attributes]
-Set this to true if the defined 'id' attribute for groups is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the group ID's.
+Set this to true if the defined 'id' attribute for groups is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the group IDs.
 
 a| `LDAP_GROUP_SCHEMA_MAIL`
 
@@ -345,7 +345,7 @@ a| [subs=-attributes]
 ++sub ++
 
 a| [subs=-attributes]
-LDAP search scope to use when looking up groups. Supported scopes are 'base', 'one' and 'sub'.
+LDAP search scope to use when looking up groups. Supported values are 'base', 'one' and 'sub'.
 
 a| `LDAP_INSECURE`
 
@@ -381,7 +381,7 @@ a| [subs=-attributes]
 ++ldaps://localhost:9235 ++
 
 a| [subs=-attributes]
-URI of the LDAP Server to connect to. Supported URI schemes are 'ldaps://' and 'ldap://'
+Url of the LDAP service to use as IDP.
 
 a| `LDAP_USER_BASE_DN`
 
@@ -416,7 +416,7 @@ a| [subs=-attributes]
 ++ownCloudUserEnabled ++
 
 a| [subs=-attributes]
-LDAP attribute to use as a flag telling if the user is enabled or disabled.
+LDAP Attribute to use as a flag telling if the user is enabled or disabled.
 
 a| `LDAP_USER_FILTER`
 
@@ -452,7 +452,7 @@ a| [subs=-attributes]
 ++inetOrgPerson ++
 
 a| [subs=-attributes]
-The object class to use for users in the default user search filter ('inetOrgPerson').
+LDAP User ObjectClass like 'inetOrgPerson'.
 
 a| `LDAP_USER_SCHEMA_DISPLAYNAME`
 
@@ -483,10 +483,10 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++ownclouduuid ++
+++ownCloudUUID ++
 
 a| [subs=-attributes]
-LDAP Attribute to use as the unique id for users. This should be a stable globally unique id like a UUID.
+LDAP User UUID attribute like 'uid'.
 
 a| `LDAP_USER_SCHEMA_ID_IS_OCTETSTRING`
 
@@ -502,7 +502,7 @@ a| [subs=-attributes]
 ++false ++
 
 a| [subs=-attributes]
-Set this to true if the defined 'ID' attribute for users is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the user ID's.
+Set this to true if the defined 'ID' attribute for users is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the user IDs.
 
 a| `LDAP_USER_SCHEMA_MAIL`
 
@@ -520,7 +520,7 @@ a| [subs=-attributes]
 ++mail ++
 
 a| [subs=-attributes]
-LDAP Attribute to use for the email address of users.
+LDAP User email attribute like 'mail'.
 
 a| `LDAP_USER_SCHEMA_USERNAME`
 
@@ -535,10 +535,10 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++uid ++
+++displayName ++
 
 a| [subs=-attributes]
-LDAP Attribute to use for username of users.
+LDAP User name attribute like 'displayName'.
 
 a| `LDAP_USER_SCHEMA_USER_TYPE`
 
@@ -587,7 +587,7 @@ a| [subs=-attributes]
 ++ ++
 
 a| [subs=-attributes]
-ID of the user who collects all necessary information for deletion. Consider that the UUID can be encoded in some LDAP deployment configurations like in .ldif files. These need to be decoded beforehand.
+ID of the user that should receive admin privileges. Consider that the UUID can be encoded in some LDAP deployment configurations like in .ldif files. These need to be decoded beforehand.
 
 a| `OCIS_ASYNC_UPLOADS`
 
@@ -670,7 +670,7 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++noop ++
+++memory ++
 
 a| [subs=-attributes]
 The type of the cache store. Supported values are: 'memory', 'ocmem', 'etcd', 'redis', 'redis-sentinel', 'nats-js', 'noop'. See the text description for details.
@@ -718,10 +718,10 @@ a| [subs=-attributes]
 ++Duration ++
 
 a| [subs=-attributes]
-++5m0s ++
+++24m0s ++
 
 a| [subs=-attributes]
-Default time to live for user info in the user info cache. Only applied when access tokens has no expiration. The duration can be set as number followed by a unit identifier like s, m or h. Defaults to '300s' (300 seconds).
+Default time to live for user info in the user info cache. Only applied when access tokens has no expiration. The duration can be set as number followed by a unit identifier like s, m or h. Defaults to '10s' (10 seconds).
 
 a| `OCIS_CORS_ALLOW_CREDENTIALS`
 
@@ -741,7 +741,7 @@ a| [subs=-attributes]
 ++bool ++
 
 a| [subs=-attributes]
-++true ++
+++false ++
 
 a| [subs=-attributes]
 Allow credentials for CORS.See following chapter for more details: *Access-Control-Allow-Credentials* at \https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Credentials.
@@ -764,7 +764,7 @@ a| [subs=-attributes]
 ++[]string ++
 
 a| [subs=-attributes]
-++[Authorization Origin Content-Type Accept X-Requested-With X-Request-Id Ocs-Apirequest] ++
+++[] ++
 
 a| [subs=-attributes]
 A blank or comma-separated list of allowed CORS headers. See following chapter for more details: *Access-Control-Request-Headers* at \https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Request-Headers.
@@ -787,7 +787,7 @@ a| [subs=-attributes]
 ++[]string ++
 
 a| [subs=-attributes]
-++[GET] ++
+++[] ++
 
 a| [subs=-attributes]
 A comma-separated list of allowed CORS methods. See following chapter for more details: *Access-Control-Request-Method* at \https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Request-Method
@@ -892,7 +892,7 @@ a| [subs=-attributes]
 ++false ++
 
 a| [subs=-attributes]
-Enable TLS for the connection to the events broker. The events broker is the ocis service which receives and delivers events between the services.
+Enable TLS for the connection to the events broker. The events broker is the ocis service which receives and delivers events between the services..
 
 a| `OCIS_EVENTS_ENDPOINT`
 
@@ -940,7 +940,7 @@ a| [subs=-attributes]
 ++ ++
 
 a| [subs=-attributes]
-The root CA certificate used to validate the server's TLS certificate. If provided ANTIVIRUS_EVENTS_TLS_INSECURE will be seen as false.
+The root CA certificate used to validate the server's TLS certificate. If provided SHARING_EVENTS_TLS_INSECURE will be seen as false.
 
 a| `OCIS_GRPC_CLIENT_TLS_CACERT`
 
@@ -1108,7 +1108,7 @@ a| [subs=-attributes]
 ++false ++
 
 a| [subs=-attributes]
-Whether to verify the server TLS certificates.
+Whether the NATS server should skip the client certificate verification during the TLS handshake.
 
 a| `OCIS_JWT_SECRET`
 
@@ -1174,7 +1174,7 @@ a| [subs=-attributes]
 ++ ++
 
 a| [subs=-attributes]
-The client ID to authenticate with keycloak.
+The client id to authenticate with keycloak.
 
 a| `OCIS_KEYCLOAK_CLIENT_REALM`
 
@@ -1249,7 +1249,7 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++uid=reva,ou=sysusers,o=libregraph-idm ++
+++uid=idp,ou=sysusers,o=libregraph-idm ++
 
 a| [subs=-attributes]
 LDAP DN to use for simple bind authentication with the target LDAP server.
@@ -1270,7 +1270,7 @@ a| [subs=-attributes]
 ++~/.ocis/idm/ldap.crt ++
 
 a| [subs=-attributes]
-Path/File name for the root CA certificate (in PEM format) used to validate TLS server certificates of the LDAP service. If not defined, the root directory derives from $OCIS_BASE_DATA_PATH:/idm.
+Path/File name for the root CA certificate (in PEM format) used to validate TLS server certificates of the LDAP service. If not defined, the root directory derives from $OCIS_BASE_DATA_PATH:/idp.
 
 a| `OCIS_LDAP_DISABLED_USERS_GROUP_DN`
 
@@ -1403,7 +1403,7 @@ a| [subs=-attributes]
 ++ownclouduuid ++
 
 a| [subs=-attributes]
-LDAP Attribute to use as the unique id for groups. This should be a stable globally unique ID like a UUID.
+LDAP Attribute to use as the unique id for groups. This should be a stable globally unique id (e.g. a UUID).
 
 a| `OCIS_LDAP_GROUP_SCHEMA_ID_IS_OCTETSTRING`
 
@@ -1420,7 +1420,7 @@ a| [subs=-attributes]
 ++false ++
 
 a| [subs=-attributes]
-Set this to true if the defined 'id' attribute for groups is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the group ID's.
+Set this to true if the defined 'id' attribute for groups is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the group IDs.
 
 a| `OCIS_LDAP_GROUP_SCHEMA_MAIL`
 
@@ -1469,7 +1469,7 @@ a| [subs=-attributes]
 ++sub ++
 
 a| [subs=-attributes]
-LDAP search scope to use when looking up groups. Supported scopes are 'base', 'one' and 'sub'.
+LDAP search scope to use when looking up groups. Supported values are 'base', 'one' and 'sub'.
 
 a| `OCIS_LDAP_INSECURE`
 
@@ -1520,7 +1520,7 @@ a| [subs=-attributes]
 ++ldaps://localhost:9235 ++
 
 a| [subs=-attributes]
-URI of the LDAP Server to connect to. Supported URI schemes are 'ldaps://' and 'ldap://'
+Url of the LDAP service to use as IDP.
 
 a| `OCIS_LDAP_USER_BASE_DN`
 
@@ -1555,7 +1555,7 @@ a| [subs=-attributes]
 ++ownCloudUserEnabled ++
 
 a| [subs=-attributes]
-LDAP attribute to use as a flag telling if the user is enabled or disabled.
+LDAP Attribute to use as a flag telling if the user is enabled or disabled.
 
 a| `OCIS_LDAP_USER_FILTER`
 
@@ -1591,7 +1591,7 @@ a| [subs=-attributes]
 ++inetOrgPerson ++
 
 a| [subs=-attributes]
-The object class to use for users in the default user search filter ('inetOrgPerson').
+LDAP User ObjectClass like 'inetOrgPerson'.
 
 a| `OCIS_LDAP_USER_SCHEMA_DISPLAYNAME`
 
@@ -1622,10 +1622,10 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++ownclouduuid ++
+++ownCloudUUID ++
 
 a| [subs=-attributes]
-LDAP Attribute to use as the unique id for users. This should be a stable globally unique id like a UUID.
+LDAP User UUID attribute like 'uid'.
 
 a| `OCIS_LDAP_USER_SCHEMA_ID_IS_OCTETSTRING`
 
@@ -1642,7 +1642,7 @@ a| [subs=-attributes]
 ++false ++
 
 a| [subs=-attributes]
-Set this to true if the defined 'ID' attribute for users is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the user ID's.
+Set this to true if the defined 'ID' attribute for users is of the 'OCTETSTRING' syntax. This is e.g. required when using the 'objectGUID' attribute of Active Directory for the user IDs.
 
 a| `OCIS_LDAP_USER_SCHEMA_MAIL`
 
@@ -1660,7 +1660,7 @@ a| [subs=-attributes]
 ++mail ++
 
 a| [subs=-attributes]
-LDAP Attribute to use for the email address of users.
+LDAP User email attribute like 'mail'.
 
 a| `OCIS_LDAP_USER_SCHEMA_USERNAME`
 
@@ -1675,10 +1675,10 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++uid ++
+++displayName ++
 
 a| [subs=-attributes]
-LDAP Attribute to use for username of users.
+LDAP User name attribute like 'displayName'.
 
 a| `OCIS_LDAP_USER_SCHEMA_USER_TYPE`
 
@@ -1951,7 +1951,7 @@ a| [subs=-attributes]
 ++https://localhost:9200 ++
 
 a| [subs=-attributes]
-The identity provider value to set in the group IDs of the CS3 group objects for groups returned by this group provider.
+The OIDC issuer URL to use.
 
 a| `OCIS_PERSISTENT_STORE`
 
@@ -1964,7 +1964,7 @@ a| [subs=-attributes]
 ++string ++
 
 a| [subs=-attributes]
-++memory ++
+++ ++
 
 a| [subs=-attributes]
 The type of the store. Supported values are: 'memory', 'ocmem', 'etcd', 'redis', 'redis-sentinel', 'nats-js', 'noop'. See the text description for details.
@@ -2012,7 +2012,7 @@ a| [subs=-attributes]
 ++Duration ++
 
 a| [subs=-attributes]
-++336h0m0s ++
+++0s ++
 
 a| [subs=-attributes]
 Time to live for events in the store. The duration can be set as number followed by a unit identifier like s, m or h. Defaults to '336h' (2 weeks).
