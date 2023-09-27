@@ -9,7 +9,7 @@ Feature: edit user
   Background:
     Given user "Alice" has been created with default attributes and without skeleton files
     And the administrator has assigned the role "Admin" to user "Alice" using the Graph API
-    And the user "Alice" has created a new user using the Graph API with the following settings:
+    And the user "Alice" has created a new user with the following attributes using the Graph API:
       | userName    | Brian             |
       | displayName | Brian Murphy      |
       | email       | brian@example.com |
@@ -71,7 +71,7 @@ Feature: edit user
 
 
   Scenario: admin user changes the name of a user to the name of an existing disabled user
-    Given the user "Alice" has created a new user using the Graph API with the following settings:
+    Given the user "Alice" has created a new user with the following attributes using the Graph API:
       | userName    | sam             |
       | displayName | sam             |
       | email       | sam@example.com |
@@ -97,7 +97,7 @@ Feature: edit user
 
 
   Scenario: admin user changes the name of a user to the name of a previously deleted user
-    Given the user "Alice" has created a new user using the Graph API with the following settings:
+    Given the user "Alice" has created a new user with the following attributes using the Graph API:
       | userName    | sam             |
       | displayName | sam             |
       | email       | sam@example.com |
@@ -150,7 +150,7 @@ Feature: edit user
 
   Scenario Outline: normal user should not be able to edit another user's email
     Given the administrator has assigned the role "<userRole>" to user "Brian" using the Graph API
-    And the user "Alice" has created a new user using the Graph API with the following settings:
+    And the user "Alice" has created a new user with the following attributes using the Graph API:
       | userName    | Carol             |
       | displayName | Carol King        |
       | email       | carol@example.com |
@@ -243,7 +243,7 @@ Feature: edit user
 
   Scenario Outline: normal user should not be able to edit another user's display name
     Given the administrator has assigned the role "<userRole>" to user "Brian" using the Graph API
-    And the user "Alice" has created a new user using the Graph API with the following settings:
+    And the user "Alice" has created a new user with the following attributes using the Graph API:
       | userName    | Carol             |
       | displayName | Carol King        |
       | email       | carol@example.com |
@@ -291,7 +291,7 @@ Feature: edit user
 
   Scenario Outline: normal user should not be able to reset the password of another user
     Given the administrator has assigned the role "<userRole>" to user "Brian" using the Graph API
-    And the user "Alice" has created a new user using the Graph API with the following settings:
+    And the user "Alice" has created a new user with the following attributes using the Graph API:
       | userName    | Carol             |
       | displayName | Carol King        |
       | email       | carol@example.com |

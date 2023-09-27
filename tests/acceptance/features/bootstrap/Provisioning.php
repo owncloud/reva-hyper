@@ -405,7 +405,7 @@ trait Provisioning {
 	}
 
 	/**
-	 * @Given the user :byUser has created a new user using the Graph API with the following settings:
+	 * @Given the user :byUser has created a new user with the following attributes using the Graph API:
 	 *
 	 * @param string $byUser
 	 * @param TableNode $table

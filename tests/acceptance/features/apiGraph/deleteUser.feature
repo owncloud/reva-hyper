@@ -12,7 +12,7 @@ Feature: delete user
 
   Scenario Outline: admin user deletes a user
     Given the administrator has assigned the role "Admin" to user "Alice" using the Graph API
-    And the user "Alice" has created a new user using the Graph API with the following settings:
+    And the user "Alice" has created a new user with the following attributes using the Graph API:
       | userName    | <userName>    |
       | displayName | <displayName> |
       | email       | <email>       |

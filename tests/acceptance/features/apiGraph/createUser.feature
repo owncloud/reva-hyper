@@ -12,7 +12,7 @@ Feature: create user
   @issue-3516
   Scenario Outline: admin creates a user
     Given the administrator has assigned the role "Admin" to user "Alice" using the Graph API
-    When the user "Alice" creates a new user using GraphAPI with the following settings:
+    When the user "Alice" creates a new user with the following attributes using GraphAPI:
       | userName       | <userName>    |
       | displayName    | <displayName> |
       | email          | <email>       |
@@ -39,7 +39,7 @@ Feature: create user
 
   Scenario: user cannot be created with empty name
     Given the administrator has assigned the role "Admin" to user "Alice" using the Graph API
-    When the user "Alice" creates a new user using GraphAPI with the following settings:
+    When the user "Alice" creates a new user with the following attributes using GraphAPI:
       | userName       |              |
       | displayName    | emptyName    |
       | email          | @example.org |
@@ -50,7 +50,7 @@ Feature: create user
 
   Scenario Outline: user without admin right cannot create a user
     Given the administrator has assigned the role "<role>" to user "Alice" using the Graph API
-    When the user "Alice" creates a new user using GraphAPI with the following settings:
+    When the user "Alice" creates a new user with the following attributes using GraphAPI:
       | userName       | user         |
       | displayName    | user         |
       | email          | @example.org |
@@ -69,7 +69,7 @@ Feature: create user
     Given user "Brian" has been created with default attributes and without skeleton files
     And the administrator has assigned the role "Admin" to user "Alice" using the Graph API
     And the user "Alice" has disabled user "Brian" using the Graph API
-    When the user "Alice" creates a new user using GraphAPI with the following settings:
+    When the user "Alice" creates a new user with the following attributes using GraphAPI:
       | userName       | Brian                 |
       | displayName    | This is another Brian |
       | email          | brian@example.com     |
@@ -82,7 +82,7 @@ Feature: create user
     Given user "Brian" has been created with default attributes and without skeleton files
     And the administrator has assigned the role "Admin" to user "Alice" using the Graph API
     And the user "Alice" has deleted a user "Brian" using the Graph API
-    When the user "Alice" creates a new user using GraphAPI with the following settings:
+    When the user "Alice" creates a new user with the following attributes using GraphAPI:
       | userName       | Brian                 |
       | displayName    | This is another Brian |
       | email          | brian@example.com     |
@@ -96,7 +96,7 @@ Feature: create user
   Scenario Outline: create user with setting OCIS no restriction on the user name
     Given the config "GRAPH_USERNAME_MATCH" has been set to "none"
     And the administrator has assigned the role "Admin" to user "Alice" using the Graph API
-    When the user "Alice" creates a new user using GraphAPI with the following settings:
+    When the user "Alice" creates a new user with the following attributes using GraphAPI:
       | userName       | <userName>      |
       | displayName    | test user       |
       | email          | new@example.org |
@@ -113,7 +113,7 @@ Feature: create user
   @env-config
   Scenario: create user with setting OCIS not to assign the default user role
     Given the config "GRAPH_ASSIGN_DEFAULT_USER_ROLE" has been set to "false"
-    When the user "admin" creates a new user using GraphAPI with the following settings:
+    When the user "admin" creates a new user with the following attributes using GraphAPI:
       | userName       | sam             |
       | displayName    | test user       |
       | email          | new@example.org |
@@ -129,7 +129,7 @@ Feature: create user
   @env-config
   Scenario: create user with setting OCIS assign the default user role
     Given the config "GRAPH_ASSIGN_DEFAULT_USER_ROLE" has been set to "true"
-    When the user "admin" creates a new user using GraphAPI with the following settings:
+    When the user "admin" creates a new user with the following attributes using GraphAPI:
       | userName       | sam             |
       | displayName    | test user       |
       | email          | new@example.org |
@@ -141,7 +141,7 @@ Feature: create user
 
 
   Scenario: user is created with the default User role
-    When the user "admin" creates a new user using GraphAPI with the following settings:
+    When the user "admin" creates a new user with the following attributes using GraphAPI:
       | userName       | sam             |
       | displayName    | test user       |
       | email          | new@example.org |

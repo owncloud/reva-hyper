@@ -725,7 +725,7 @@ class GraphContext implements Context {
 	}
 
 	/**
-	 * @When /^the user "([^"]*)" creates a new user using GraphAPI with the following settings:$/
+	 * @When /^the user "([^"]*)" creates a new user with the following attributes using GraphAPI:$/
 	 *
 	 * @param string $user
 	 * @param TableNode $table
