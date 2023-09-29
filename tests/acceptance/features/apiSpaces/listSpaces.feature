@@ -12,7 +12,7 @@ Feature: List and create spaces
 
 
   Scenario: ordinary user can request information about their Space via the Graph API
-    When user "Alice" lists all available spaces via the GraphApi
+    When user "Alice" lists all available spaces via the Graph API
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Alice Hansen" and match
     """
@@ -82,7 +82,7 @@ Feature: List and create spaces
     And user "Brian" has created folder "folder"
     And user "Brian" has shared folder "folder" with user "Alice" with permissions "31"
     And user "Alice" has accepted share "/folder" offered by user "Brian"
-    When user "Alice" lists all available spaces via the GraphApi with query "$filter=driveType eq 'personal'"
+    When user "Alice" lists all available spaces via the Graph API with query "$filter=driveType eq 'personal'"
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Alice Hansen" and match
     """
@@ -151,7 +151,7 @@ Feature: List and create spaces
   Scenario: ordinary user will not see any space when using a filter for project
     Given the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
     And user "Alice" has created a space "my project" of type "project" with quota "20"
-    When user "Alice" lists all available spaces via the GraphApi with query "$filter=driveType eq 'project'"
+    When user "Alice" lists all available spaces via the Graph API with query "$filter=driveType eq 'project'"
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "my project" and match
     """
@@ -182,13 +182,13 @@ Feature: List and create spaces
 
 
   Scenario: ordinary user can access their space via the webDav API
-    When user "Alice" lists all available spaces via the GraphApi
+    When user "Alice" lists all available spaces via the Graph API
     And user "Alice" lists the content of the space with the name "Alice Hansen" using the WebDav Api
     Then the HTTP status code should be "207"
 
 
   Scenario: user can list his personal space via multiple endpoints
-    When user "Alice" lists all available spaces via the GraphApi with query "$filter=driveType eq 'personal'"
+    When user "Alice" lists all available spaces via the Graph API with query "$filter=driveType eq 'personal'"
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Alice Hansen" owned by "Alice" and match
     """
@@ -245,7 +245,7 @@ Feature: List and create spaces
       }
     }
     """
-    When user "Alice" looks up the single space "Alice Hansen" via the GraphApi by using its id
+    When user "Alice" looks up the single space "Alice Hansen" via the Graph API by using its id
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Alice Hansen" and match
     """
@@ -348,7 +348,7 @@ Feature: List and create spaces
       }
     }
     """
-    When user "Alice" looks up the single space "Project Venus" via the GraphApi by using its id
+    When user "Alice" looks up the single space "Project Venus" via the Graph API by using its id
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Project Venus" and match
     """
@@ -419,7 +419,7 @@ Feature: List and create spaces
 
   Scenario Outline: user cannot list space by id if he is not member of the space
     Given the administrator has assigned the role "<role>" to user "Alice" using the Graph API
-    And user "Admin" has created a space "Project Venus" with the default quota using the GraphApi
+    And user "Admin" has created a space "Project Venus" with the default quota using the Graph API
     When user "Alice" tries to look up the single space "Project Venus" owned by the user "Admin" by using its id
     Then the HTTP status code should be "404"
     And the json responded should not contain a space with name "Project Venus"

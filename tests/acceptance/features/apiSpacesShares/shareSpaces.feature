@@ -13,7 +13,7 @@ Feature: Share spaces
       | Brian    |
       | Bob      |
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "share space" with the default quota using the GraphApi
+    And user "Alice" has created a space "share space" with the default quota using the Graph API
     And using spaces DAV path
 
 
@@ -195,8 +195,8 @@ Feature: Share spaces
 
   Scenario Outline: user shares a space with a group
     Given group "group2" has been created
-    And the administrator has added a user "Brian" to the group "group2" using GraphApi
-    And the administrator has added a user "Bob" to the group "group2" using GraphApi
+    And the administrator has added a user "Brian" to the group "group2" using the Graph API
+    And the administrator has added a user "Bob" to the group "group2" using the Graph API
     When user "Alice" shares a space "share space" with settings:
       | shareWith | group2 |
       | shareType | 8      |
@@ -213,7 +213,7 @@ Feature: Share spaces
 
   Scenario Outline: user has no access to the space if access for the group has been removed
     Given group "group2" has been created
-    And the administrator has added a user "Brian" to the group "group2" using GraphApi
+    And the administrator has added a user "Brian" to the group "group2" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith | group2 |
       | shareType | 8      |
@@ -230,8 +230,8 @@ Feature: Share spaces
 
   Scenario: user has no access to the space if he has been removed from the group
     Given group "group2" has been created
-    And the administrator has added a user "Brian" to the group "group2" using GraphApi
-    And the administrator has added a user "Bob" to the group "group2" using GraphApi
+    And the administrator has added a user "Brian" to the group "group2" using the Graph API
+    And the administrator has added a user "Bob" to the group "group2" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith | group2 |
       | shareType | 8      |
@@ -246,8 +246,8 @@ Feature: Share spaces
 
   Scenario: users don't have access to the space if the group has been deleted
     Given group "group2" has been created
-    And the administrator has added a user "Brian" to the group "group2" using GraphApi
-    And the administrator has added a user "Bob" to the group "group2" using GraphApi
+    And the administrator has added a user "Brian" to the group "group2" using the Graph API
+    And the administrator has added a user "Bob" to the group "group2" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith | group2 |
       | shareType | 8      |
@@ -260,7 +260,7 @@ Feature: Share spaces
 
   Scenario: user increases permissions for one member of the group or for the entire group
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith | sales  |
       | shareType | 8      |
@@ -277,7 +277,7 @@ Feature: Share spaces
 
   Scenario: user increases permissions for the group, so the user's permissions are increased
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith | Brian  |
       | role      | viewer |
@@ -308,7 +308,7 @@ Feature: Share spaces
 
   Scenario Outline: space Admin can share a space to the group with an expiration date
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     When user "Alice" shares a space "share space" with settings:
       | shareWith  | sales                    |
       | shareType  | 8                        |
@@ -343,7 +343,7 @@ Feature: Share spaces
 
   Scenario Outline: update the expiration date of a space in group share
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith  | sales                    |
       | shareType  | 8                        |
@@ -383,7 +383,7 @@ Feature: Share spaces
 
   Scenario Outline: delete the expiration date of a space in group share
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith  | sales                    |
       | shareType  | 8                        |
@@ -420,7 +420,7 @@ Feature: Share spaces
 
   Scenario Outline: check the end of expiration of a space in group share
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     And user "Alice" has shared a space "share space" with settings:
       | shareWith  | sales                    |
       | shareType  | 8                        |
@@ -453,7 +453,7 @@ Feature: Share spaces
 
   Scenario: user cannot share the personal space to a group
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     And user "Alice" shares a space "Alice Hansen" with settings:
       | shareWith | sales   |
       | shareType | 8       |

@@ -502,8 +502,8 @@ class SpacesContext implements Context {
 	}
 
 	/**
-	 * @When /^user "([^"]*)" lists all available spaces via the GraphApi$/
-	 * @When /^user "([^"]*)" lists all available spaces via the GraphApi with query "([^"]*)"$/
+	 * @When /^user "([^"]*)" lists all available spaces via the Graph API$/
+	 * @When /^user "([^"]*)" lists all available spaces via the Graph API with query "([^"]*)"$/
 	 *
 	 * @param string $user
 	 * @param string $query
@@ -529,9 +529,9 @@ class SpacesContext implements Context {
 	/**
 	 * The method is used on the administration setting tab, which only the Admin user and the Space admin user have access to
 	 *
-	 * @When /^user "([^"]*)" lists all spaces via the GraphApi$/
-	 * @When /^user "([^"]*)" lists all spaces via the GraphApi with query "([^"]*)"$/
-	 * @When /^user "([^"]*)" tries to list all spaces via the GraphApi$/
+	 * @When /^user "([^"]*)" lists all spaces via the Graph API$/
+	 * @When /^user "([^"]*)" lists all spaces via the Graph API with query "([^"]*)"$/
+	 * @When /^user "([^"]*)" tries to list all spaces via the Graph API$/
 	 *
 	 * @param string $user
 	 * @param string $query
@@ -555,7 +555,7 @@ class SpacesContext implements Context {
 	}
 
 	/**
-	 * @When /^user "([^"]*)" looks up the single space "([^"]*)" via the GraphApi by using its id$/
+	 * @When /^user "([^"]*)" looks up the single space "([^"]*)" via the Graph API by using its id$/
 	 * @When /^user "([^"]*)" tries to look up the single space "([^"]*)" owned by the user "([^"]*)" by using its id$/
 	 *
 	 * @param string $user
@@ -1474,7 +1474,7 @@ class SpacesContext implements Context {
 	}
 
 	/**
-	 * @Given /^user "([^"]*)" has created a space "([^"]*)" with the default quota using the GraphApi$/
+	 * @Given /^user "([^"]*)" has created a space "([^"]*)" with the default quota using the Graph API$/
 	 *
 	 * @param string $user
 	 * @param string $spaceName

@@ -140,7 +140,7 @@ class TagContext implements Context {
 	}
 
 	/**
-	 * @When user :user lists all available tag(s) via the GraphApi
+	 * @When user :user lists all available tag(s) via the Graph API
 	 *
 	 * @param string $user
 	 *

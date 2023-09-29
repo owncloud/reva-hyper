@@ -14,7 +14,7 @@ Feature: Share a file or folder that is inside a space
       | Bob      |
     And using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "share sub-item" with the default quota using the GraphApi
+    And user "Alice" has created a space "share sub-item" with the default quota using the Graph API
     And user "Alice" has created a folder "folder" in space "share sub-item"
     And user "Alice" has uploaded a file inside space "share sub-item" with content "some content" to "file.txt"
     And using new DAV path
@@ -103,7 +103,7 @@ Feature: Share a file or folder that is inside a space
 
   Scenario: user shares the folder to the group
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     When user "Alice" creates a share inside of space "share sub-item" with settings:
       | path       | folder                   |
       | shareWith  | sales                    |
@@ -161,7 +161,7 @@ Feature: Share a file or folder that is inside a space
   @issue-5823
   Scenario: check the end of expiration date in group share
     Given group "sales" has been created
-    And the administrator has added a user "Brian" to the group "sales" using GraphApi
+    And the administrator has added a user "Brian" to the group "sales" using the Graph API
     And user "Alice" has created a share inside of space "share sub-item" with settings:
       | path       | folder                   |
       | shareWith  | sales                    |

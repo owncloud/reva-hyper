@@ -13,7 +13,7 @@ Feature: Remove files, folder
       | Brian    |
     And using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "delete objects" with the default quota using the GraphApi
+    And user "Alice" has created a space "delete objects" with the default quota using the Graph API
     And user "Alice" has created a folder "folderForDeleting/sub1/sub2" in space "delete objects"
     And user "Alice" has uploaded a file inside space "delete objects" with content "some content" to "text.txt"
 

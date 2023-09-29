@@ -22,7 +22,7 @@ Feature: Space management
 
 
   Scenario: space admin user can see another project space even if he is not member of the space
-    When user "Brian" lists all spaces via the GraphApi with query "$filter=driveType eq 'project'"
+    When user "Brian" lists all spaces via the Graph API with query "$filter=driveType eq 'project'"
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Project" and match
     """
@@ -53,7 +53,7 @@ Feature: Space management
 
 
   Scenario: space admin user can see another personal spaces
-    When user "Brian" lists all spaces via the GraphApi with query "$filter=driveType eq 'personal'"
+    When user "Brian" lists all spaces via the Graph API with query "$filter=driveType eq 'personal'"
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Alice Hansen" and match
     """
@@ -84,7 +84,7 @@ Feature: Space management
 
 
   Scenario: user without space admin permission cannot see another spaces
-    When user "Carol" tries to list all spaces via the GraphApi
+    When user "Carol" tries to list all spaces via the Graph API
     Then the HTTP status code should be "200"
     And the json responded should not contain a space with name "Project"
     And the json responded should not contain a space with name "Alice Hansen"

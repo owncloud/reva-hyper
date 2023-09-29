@@ -222,7 +222,7 @@ Feature: antivirus
   Scenario Outline: upload a file with virus to a project space
     Given using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     And user "Alice" has created a folder "uploadFolder" in space "new-space"
     When user "Alice" uploads a file "filesForUpload/filesWithVirus/<filename>" to "/uploadFolder/<newfilename>" in space "new-space" using the WebDAV API
     Then the HTTP status code should be "201"
@@ -248,7 +248,7 @@ Feature: antivirus
     Given using spaces DAV path
     And user "Brian" has been created with default attributes and without skeleton files
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     And user "Alice" has shared a space "new-space" with settings:
       | shareWith | Brian  |
       | role      | editor |
@@ -469,7 +469,7 @@ Feature: antivirus
   Scenario: try to overwrite the .space/readme.md file
     Given using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     And user "Alice" has created a folder ".space" in space "new-space"
     And user "Alice" has uploaded a file inside space "new-space" with content "Here you can add a description for this Space." to ".space/readme.md"
     And user "Alice" has uploaded a file inside space "new-space" with content "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*" to ".space/readme.md"
@@ -484,7 +484,7 @@ Feature: antivirus
     Given using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
     And user "Brian" has been created with default attributes and without skeleton files
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     And user "Alice" has shared a space "new-space" with settings:
       | shareWith | Brian  |
       | role      | editor |
@@ -504,7 +504,7 @@ Feature: antivirus
     Given using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
     And user "Brian" has been created with default attributes and without skeleton files
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     And user "Alice" has shared a space "new-space" with settings:
       | shareWith | Brian  |
       | role      | editor |

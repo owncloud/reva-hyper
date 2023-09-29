@@ -13,7 +13,7 @@ Feature: Email notification
 
   Scenario: user gets an email notification when someone shares a project space
     Given the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     When user "Alice" shares a space "new-space" with settings:
       | shareWith | Brian  |
       | role      | Editor |
@@ -48,7 +48,7 @@ Feature: Email notification
     And group "group1" has been created
     And user "Brian" has been added to group "group1"
     And user "Carol" has been added to group "group1"
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     When user "Alice" shares a space "new-space" with settings:
       | shareWith | group1 |
       | shareType | 8      |
@@ -136,7 +136,7 @@ Feature: Email notification
     And user "Carol" has been added to group "group1"
     And user "Brian" has switched the system language to "es"
     And user "Carol" has switched the system language to "de"
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     When user "Alice" has shared a space "new-space" with settings:
       | shareWith | group1 |
       | role      | viewer |
@@ -161,7 +161,7 @@ Feature: Email notification
 
   Scenario: user gets an email notification when space admin unshares a space
     Given the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "new-space" with the default quota using the GraphApi
+    And user "Alice" has created a space "new-space" with the default quota using the Graph API
     And user "Alice" has shared a space "new-space" with settings:
       | shareWith | Brian  |
       | role      | editor |

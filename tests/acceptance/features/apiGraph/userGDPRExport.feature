@@ -855,7 +855,7 @@ Feature: user GDPR (General Data Protection Regulation) report
   Scenario: generate a GDPR report and check events when a space is shared
     Given user "Brian" has been created with default attributes and without skeleton files
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "GDPR Space" with the default quota using the GraphApi
+    And user "Alice" has created a space "GDPR Space" with the default quota using the Graph API
     And user "Alice" has shared a space "GDPR Space" with settings:
       | shareWith | Brian  |
       | role      | viewer |
@@ -958,7 +958,7 @@ Feature: user GDPR (General Data Protection Regulation) report
 
   Scenario: generate a GDPR report and check events when a space is created
     Given the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "GDPR Space" with the default quota using the GraphApi
+    And user "Alice" has created a space "GDPR Space" with the default quota using the Graph API
     When user "Alice" exports her GDPR report to "/.personal_data_export.json" using the Graph API
     And user "Alice" downloads the content of GDPR report ".personal_data_export.json"
     Then the HTTP status code of responses on each endpoint should be "201, 200" respectively

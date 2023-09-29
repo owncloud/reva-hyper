@@ -725,7 +725,7 @@ class GraphContext implements Context {
 	}
 
 	/**
-	 * @When /^the user "([^"]*)" creates a new user with the following attributes using GraphAPI:$/
+	 * @When /^the user "([^"]*)" creates a new user with the following attributes using the Graph API:$/
 	 *
 	 * @param string $user
 	 * @param TableNode $table
@@ -785,7 +785,7 @@ class GraphContext implements Context {
 	}
 
 	/**
-	 * @Given /^the administrator has added a user "([^"]*)" to the group "([^"]*)" using GraphApi$/
+	 * @Given /^the administrator has added a user "([^"]*)" to the group "([^"]*)" using the Graph API$/
 	 *
 	 * @param string $user
 	 * @param string $group

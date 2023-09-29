@@ -22,7 +22,7 @@ Feature: State of the quota
   Scenario Outline: quota information is returned in the list of spaces returned via the Graph API
     Given user "Alice" has created a space "<spaceName>" of type "project" with quota "100"
     When user "Alice" uploads a file inside space "<spaceName>" with content "<fileContent>" to "test.txt" using the WebDAV API
-    And user "Alice" lists all available spaces via the GraphApi
+    And user "Alice" lists all available spaces via the Graph API
     Then the JSON response should contain space called "<spaceName>" and match
     """
      {

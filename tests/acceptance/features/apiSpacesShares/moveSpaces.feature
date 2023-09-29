@@ -13,7 +13,7 @@ Feature: move (rename) file
 
   Scenario Outline: moving a file within same space project with role manager and editor
     Given the administrator has assigned the role "Space Admin" to user "Brian" using the Graph API
-    And user "Brian" has created a space "Project" with the default quota using the GraphApi
+    And user "Brian" has created a space "Project" with the default quota using the Graph API
     And user "Brian" has created a folder "newfolder" in space "Project"
     And user "Brian" has uploaded a file inside space "Project" with content "some content" to "insideSpace.txt"
     And user "Brian" has shared a space "Project" with settings:
@@ -33,7 +33,7 @@ Feature: move (rename) file
 
   Scenario: moving a file within same space project with role viewer
     Given the administrator has assigned the role "Space Admin" to user "Brian" using the Graph API
-    And user "Brian" has created a space "Project" with the default quota using the GraphApi
+    And user "Brian" has created a space "Project" with the default quota using the Graph API
     And user "Brian" has created a folder "newfolder" in space "Project"
     And user "Brian" has uploaded a file inside space "Project" with content "some content" to "insideSpace.txt"
     And user "Brian" has shared a space "Project" with settings:
@@ -49,8 +49,8 @@ Feature: move (rename) file
 
   Scenario Outline: user moves a file from a space project with different a role to a space project with different role
     Given the administrator has assigned the role "Space Admin" to user "Brian" using the Graph API
-    And user "Brian" has created a space "Project1" with the default quota using the GraphApi
-    And user "Brian" has created a space "Project2" with the default quota using the GraphApi
+    And user "Brian" has created a space "Project1" with the default quota using the Graph API
+    And user "Brian" has created a space "Project2" with the default quota using the Graph API
     And user "Brian" has uploaded a file inside space "Project1" with content "Project1 content" to "project1.txt"
     And user "Brian" has shared a space "Project2" with settings:
       | shareWith | Alice     |

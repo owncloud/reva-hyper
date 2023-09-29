@@ -13,7 +13,7 @@ Feature: Report test
       | Brian    |
     And using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "find data" with the default quota using the GraphApi
+    And user "Alice" has created a space "find data" with the default quota using the Graph API
     And user "Alice" has created a folder "folderMain/SubFolder1/subFOLDER2" in space "find data"
     And user "Alice" has uploaded a file inside space "find data" with content "some content" to "folderMain/SubFolder1/subFOLDER2/insideTheFolder.txt"
     And using new DAV path

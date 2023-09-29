@@ -15,7 +15,7 @@ Feature: A manager of the space can edit public link
       | Brian    |
     And using spaces DAV path
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
-    And user "Alice" has created a space "edit space" with the default quota using the GraphApi
+    And user "Alice" has created a space "edit space" with the default quota using the Graph API
     And user "Alice" has created a public link share of the space "edit space" with settings:
       | permissions | 1                        |
       | password    | qwerty                   |

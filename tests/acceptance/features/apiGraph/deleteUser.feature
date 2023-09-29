@@ -149,7 +149,7 @@ Feature: delete user
     And user "Brian" has been created with default attributes and without skeleton files
     When the user "Alice" deletes a user "Brian" using the Graph API
     Then the HTTP status code should be "204"
-    When user "Alice" lists all spaces via the GraphApi with query "$filter=driveType eq 'personal'"
+    When user "Alice" lists all spaces via the Graph API with query "$filter=driveType eq 'personal'"
     Then the json responded should not contain a space with name "Brian Murphy"
 
 
