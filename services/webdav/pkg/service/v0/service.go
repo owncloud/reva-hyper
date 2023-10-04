@@ -243,6 +243,7 @@ func (g Webdav) SpacesThumbnail(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
+		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_Cs3Source{
 			Cs3Source: &thumbnailsmsg.CS3Source{
 				Path:          fullPath,
@@ -335,6 +336,7 @@ func (g Webdav) Thumbnail(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
+		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_Cs3Source{
 			Cs3Source: &thumbnailsmsg.CS3Source{
 				Path:          fullPath,
@@ -375,6 +377,7 @@ func (g Webdav) PublicThumbnail(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
+		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_WebdavSource{
 			WebdavSource: &thumbnailsmsg.WebdavSource{
 				Url:             g.config.OcisPublicURL + r.URL.RequestURI(),
@@ -416,6 +419,7 @@ func (g Webdav) PublicThumbnailHead(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
+		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_WebdavSource{
 			WebdavSource: &thumbnailsmsg.WebdavSource{
 				Url:             g.config.OcisPublicURL + r.URL.RequestURI(),

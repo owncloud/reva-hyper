@@ -38,7 +38,13 @@ func (s InMemory) BuildKey(r Request) string {
 	parts := []string{
 		r.Checksum,
 		r.Resolution.String(),
-		strings.Join(r.Types, ","),
 	}
+
+	if r.Characteristic != "" {
+		parts = append(parts, r.Characteristic)
+	}
+
+	parts = append(parts, strings.Join(r.Types, ","))
+
 	return strings.Join(parts, "+")
 }

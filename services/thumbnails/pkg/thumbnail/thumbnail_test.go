@@ -4,8 +4,10 @@ import (
 	"image"
 	"os"
 	"path/filepath"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/services/thumbnails/pkg/thumbnail/storage"
@@ -118,13 +120,15 @@ func TestPrepareRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := PrepareRequest(tt.args.width, tt.args.height, tt.args.tType, tt.args.checksum)
+			got, err := PrepareRequest(tt.args.width, tt.args.height, tt.args.tType, tt.args.checksum, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("PrepareRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("PrepareRequest() got = %v, want %v", got, tt.want)
+
+			// func's are not reflactable, ignore
+			if diff := cmp.Diff(tt.want, got, cmpopts.IgnoreFields(Request{}, "Processor")); diff != "" {
+				t.Errorf("PrepareRequest(): %v", diff)
 			}
 		})
 	}

@@ -16,6 +16,10 @@ import (
 	"github.com/cs3org/reva/v2/pkg/storagespace"
 	"github.com/cs3org/reva/v2/pkg/utils"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/pkg/errors"
+	merrors "go-micro.dev/v4/errors"
+	"google.golang.org/grpc/metadata"
+
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	thumbnailssvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/thumbnails/v0"
 	"github.com/owncloud/ocis/v2/services/thumbnails/pkg/preprocessor"
@@ -23,9 +27,6 @@ import (
 	tjwt "github.com/owncloud/ocis/v2/services/thumbnails/pkg/service/jwt"
 	"github.com/owncloud/ocis/v2/services/thumbnails/pkg/thumbnail"
 	"github.com/owncloud/ocis/v2/services/thumbnails/pkg/thumbnail/imgsource"
-	"github.com/pkg/errors"
-	merrors "go-micro.dev/v4/errors"
-	"google.golang.org/grpc/metadata"
 )
 
 // NewService returns a service implementation for Service.
@@ -124,7 +125,7 @@ func (g Thumbnail) handleCS3Source(ctx context.Context, req *thumbnailssvc.GetTh
 	if tType == "" {
 		tType = req.GetThumbnailType().String()
 	}
-	tr, err := thumbnail.PrepareRequest(int(req.Width), int(req.Height), tType, sRes.GetInfo().GetChecksum().GetSum())
+	tr, err := thumbnail.PrepareRequest(int(req.Width), int(req.Height), tType, sRes.GetInfo().GetChecksum().GetSum(), req.Processor)
 	if err != nil {
 		return "", merrors.BadRequest(g.serviceID, err.Error())
 	}
@@ -207,7 +208,7 @@ func (g Thumbnail) handleWebdavSource(ctx context.Context, req *thumbnailssvc.Ge
 	if tType == "" {
 		tType = req.GetThumbnailType().String()
 	}
-	tr, err := thumbnail.PrepareRequest(int(req.Width), int(req.Height), tType, sRes.GetInfo().GetChecksum().GetSum())
+	tr, err := thumbnail.PrepareRequest(int(req.Width), int(req.Height), tType, sRes.GetInfo().GetChecksum().GetSum(), req.Processor)
 	if err != nil {
 		return "", merrors.BadRequest(g.serviceID, err.Error())
 	}

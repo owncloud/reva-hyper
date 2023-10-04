@@ -47,9 +47,11 @@ message GetThumbnailRequest {
     int32 width = 3;
     // The height of the thumbnail
     int32 height = 4;
+    // Indicates which image processor to use
+    string processor = 5;
     oneof source {
-      ocis.messages.thumbnails.v0.WebdavSource webdav_source = 5;
-      ocis.messages.thumbnails.v0.CS3Source cs3_source = 6;
+      ocis.messages.thumbnails.v0.WebdavSource webdav_source = 6;
+      ocis.messages.thumbnails.v0.CS3Source cs3_source = 7;
     }
 }
 

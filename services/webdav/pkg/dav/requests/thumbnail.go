@@ -36,6 +36,8 @@ type ThumbnailRequest struct {
 	Height int32
 	// In case of a public share the public link token.
 	PublicLinkToken string
+	// Indicates which image processor to use
+	Processor string
 	// The Identifier from the requested URL
 	Identifier string
 }
@@ -73,6 +75,7 @@ func ParseThumbnailRequest(r *http.Request) (*ThumbnailRequest, error) {
 		Extension:       filepath.Ext(fp),
 		Width:           int32(width),
 		Height:          int32(height),
+		Processor:       q.Get("processor"),
 		PublicLinkToken: chi.URLParam(r, "token"),
 		Identifier:      id,
 	}, nil
