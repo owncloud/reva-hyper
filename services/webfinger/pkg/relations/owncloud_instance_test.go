@@ -10,15 +10,15 @@ import (
 )
 
 func TestOwnCloudInstanceErr(t *testing.T) {
-	_, err := OwnCloudInstance([]config.Instance{}, "http://\n\rinvalid")
+	_, err := OwnCloudInstance([]config.Instance{}, "http://\n\rinvalid", "http://\n\rinvalid/realms/ocis")
 	if err == nil {
 		t.Errorf("provider did not err on invalid url: %v", err)
 	}
-	_, err = OwnCloudInstance([]config.Instance{{Regex: "("}}, "http://docis.tld")
+	_, err = OwnCloudInstance([]config.Instance{{Regex: "("}}, "http://docis.tld", "http://docis.tld/realms/ocis")
 	if err == nil {
 		t.Errorf("provider did not err on invalid regex: %v", err)
 	}
-	_, err = OwnCloudInstance([]config.Instance{{Href: "{{invalid}}ee"}}, "http://docis.tld")
+	_, err = OwnCloudInstance([]config.Instance{{Href: "{{invalid}}ee"}}, "http://docis.tld", "http://docis.tld/realms/ocis")
 	if err == nil {
 		t.Errorf("provider did not err on invalid href template: %v", err)
 	}
@@ -33,7 +33,7 @@ func TestOwnCloudInstanceAddLink(t *testing.T) {
 			"foo": "bar",
 		},
 		Break: true,
-	}}, "http://docis.tld")
+	}}, "http://docis.tld", "http://docis.tld/realms/ocis")
 	if err != nil {
 		t.Error(err)
 	}

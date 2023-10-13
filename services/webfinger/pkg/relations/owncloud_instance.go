@@ -30,7 +30,7 @@ type ownCloudInstance struct {
 }
 
 // OwnCloudInstance adds one or more ownCloud instance relations
-func OwnCloudInstance(instances []config.Instance, ocisURL string) (service.RelationProvider, error) {
+func OwnCloudInstance(instances []config.Instance, ocisURL string, issuer string) (service.RelationProvider, error) {
 	compiledInstances := make([]compiledInstance, 0, len(instances))
 	var err error
 	for _, instance := range instances {
@@ -46,7 +46,7 @@ func OwnCloudInstance(instances []config.Instance, ocisURL string) (service.Rela
 		compiledInstances = append(compiledInstances, compiled)
 	}
 
-	u, err := url.Parse(ocisURL)
+	u, err := url.Parse(issuer)
 	if err != nil {
 		return nil, err
 	}
