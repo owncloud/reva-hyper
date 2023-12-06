@@ -340,3 +340,10 @@ func S3NGNoEvents(cfg *config.Config) map[string]interface{} {
 		},
 	}
 }
+
+// LocalHome is the config mapping for the LocalHome storage driver
+func Posix(cfg *config.Config) map[string]interface{} {
+	return map[string]interface{}{
+		"root": "/home/kf/tmp/posix-storage/",
+	}
+}
