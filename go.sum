@@ -1021,8 +1021,13 @@ github.com/crewjam/saml v0.4.14 h1:g9FBNx62osKusnFzs3QTN5L9CVA/Egfgm+stJShzw/c=
 github.com/crewjam/saml v0.4.14/go.mod h1:UVSZCf18jJkk6GpWNVqcyQJMD5HsRugBPf4I1nl2mME=
 github.com/cs3org/go-cs3apis v0.0.0-20231023073225-7748710e0781 h1:BUdwkIlf8IS2FasrrPg8gGPHQPOrQ18MS1Oew2tmGtY=
 github.com/cs3org/go-cs3apis v0.0.0-20231023073225-7748710e0781/go.mod h1:UXha4TguuB52H14EMoSsCqDj7k8a/t7g4gVP+bgY5LY=
+<<<<<<< HEAD
 github.com/cs3org/reva/v2 v2.17.1-0.20231219093515-da04bc32d9fb h1:YH5k1nDJ5tm4gqUykeniDl83Bva5EMH8D2uA++M+ziY=
 github.com/cs3org/reva/v2 v2.17.1-0.20231219093515-da04bc32d9fb/go.mod h1:QW31Q1IQ9ZCJMFv3u8/SdHSyLfCcSVNcRbqIJj+Y+7o=
+=======
+github.com/cs3org/reva/v2 v2.17.1-0.20231219090305-faa4d94d6fea h1:rUCShAMk7xWT7XpjVvgJb+yz5JF4V7+PwxLGzswooPU=
+github.com/cs3org/reva/v2 v2.17.1-0.20231219090305-faa4d94d6fea/go.mod h1:QW31Q1IQ9ZCJMFv3u8/SdHSyLfCcSVNcRbqIJj+Y+7o=
+>>>>>>> 0c68af5369 (bump reva)
 github.com/cyberdelia/templates v0.0.0-20141128023046-ca7fffd4298c/go.mod h1:GyV+0YP4qX0UQ7r2MoYZ+AvYDp12OF5yg4q8rGnyNh4=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
