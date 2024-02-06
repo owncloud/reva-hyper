@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -16,8 +17,10 @@ import (
 	"github.com/cs3org/reva/v2/pkg/storage/fs/ocis/blobstore"
 	"github.com/cs3org/reva/v2/pkg/storage/utils/decomposedfs/lookup"
 	"github.com/cs3org/reva/v2/pkg/storage/utils/decomposedfs/metadata"
+	"github.com/cs3org/reva/v2/pkg/storage/utils/decomposedfs/metadata/prefixes"
 	"github.com/cs3org/reva/v2/pkg/storage/utils/decomposedfs/node"
 	"github.com/cs3org/reva/v2/pkg/storage/utils/decomposedfs/options"
+	"github.com/cs3org/reva/v2/pkg/storage/utils/decomposedfs/spaceidindex"
 	"github.com/cs3org/reva/v2/pkg/storage/utils/decomposedfs/tree"
 	"github.com/cs3org/reva/v2/pkg/storagespace"
 	"github.com/cs3org/reva/v2/pkg/store"
@@ -35,6 +38,7 @@ func DecomposedfsCommand(cfg *config.Config) *cli.Command {
 		Subcommands: []*cli.Command{
 			metadataCmd(cfg),
 			checkCmd(cfg),
+			indexCmd(cfg),
 		},
 	}
 }
@@ -377,4 +381,123 @@ func attribToString(attrib []byte) string {
 		}
 	}
 	return `"` + string(attrib) + `"`
+}
+
+func indexCmd(cfg *config.Config) *cli.Command {
+	return &cli.Command{
+		Name:  "index",
+		Usage: `cli tool to check the space indexes`,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "root",
+				Aliases:  []string{"r"},
+				Required: true,
+				Usage:    "Path to the root directory of the decomposedfs",
+			},
+			// TODO String flag for the type?
+			// list values by default?
+			&cli.BoolFlag{
+				Name:  "repair",
+				Usage: "add all spaces to the indexes",
+			},
+		},
+		Action: index,
+	}
+}
+
+func index(c *cli.Context) error {
+	rootFlag := c.String("root")
+	//repairFlag := c.Bool("repair")
+
+	files, err := filepath.Glob(filepath.Join(rootFlag, "spaces", "*", "*"))
+	if err != nil {
+		return err
+	}
+
+	lu, _ := getBackend(c)
+
+	byuserid := map[string]map[string]string{}
+	bygroupid := map[string]map[string]string{}
+	bytype := map[string]map[string]string{}
+
+	for _, file := range files {
+		spaceID := filepath.Base(filepath.Dir(file)) + filepath.Base(file)
+		fmt.Println("space " + spaceID)
+		n, err := node.ReadNode(c.Context, lu, spaceID, spaceID, true, nil, true)
+		if err != nil {
+			fmt.Println("  could not read node: " + err.Error())
+			continue
+		}
+		spacetype, err := n.SpaceRoot.XattrString(c.Context, prefixes.SpaceTypeAttr)
+		if err != nil {
+			fmt.Println("  could not read space type: " + err.Error())
+			continue
+		}
+		fmt.Println("  type " + spacetype)
+		target := "../../../spaces/" + lookup.Pathify(spaceID, 1, 2) + "/nodes/" + lookup.Pathify(spaceID, 4, 2)
+		if bytype[spacetype] == nil {
+			bytype[spacetype] = make(map[string]string)
+		}
+		bytype[spacetype][spaceID] = target
+		grants, err := n.ListGrants(c.Context)
+		if err != nil {
+			fmt.Println("  could not list grants: " + err.Error())
+			continue
+		}
+		for _, grant := range grants {
+			if grant.GetGrantee().GetUserId() != nil {
+				userid := grant.GetGrantee().GetUserId().GetOpaqueId()
+				fmt.Println("  user grant: " + grant.GetGrantee().GetUserId().GetOpaqueId())
+				if byuserid[userid] == nil {
+					byuserid[userid] = make(map[string]string)
+				}
+				byuserid[userid][spaceID] = target
+			}
+			if grant.GetGrantee().GetGroupId() != nil {
+				groupid := grant.GetGrantee().GetGroupId().GetOpaqueId()
+				fmt.Println("  group grant: " + groupid)
+				if bygroupid[groupid] == nil {
+					bygroupid[groupid] = make(map[string]string)
+				}
+				bygroupid[groupid][spaceID] = target
+			}
+		}
+	}
+	// TODO use a flag and lock to completely lock the indexes and rewrite them
+
+	fmt.Println("rebuilding by-user-id indexes")
+	userSpaceIndex := spaceidindex.New(filepath.Join(rootFlag, "indexes"), "by-user-id")
+	err = userSpaceIndex.Init()
+	if err != nil {
+		return err
+	}
+	for userid, spaces := range byuserid {
+		fmt.Print("  ", userid, " ", spaces, "\n")
+		userSpaceIndex.AddAll(userid, spaces)
+	}
+
+	fmt.Println("rebuilding by-group-id indexes")
+	groupSpaceIndex := spaceidindex.New(filepath.Join(rootFlag, "indexes"), "by-group-id")
+	err = groupSpaceIndex.Init()
+	if err != nil {
+		return err
+	}
+	for groupid, spaces := range bygroupid {
+		fmt.Print("  ", groupid, " ", spaces, "\n")
+		groupSpaceIndex.AddAll(groupid, spaces)
+	}
+
+	fmt.Println("rebuilding by-type indexes")
+	spaceTypeIndex := spaceidindex.New(filepath.Join(rootFlag, "indexes"), "by-type")
+	err = spaceTypeIndex.Init()
+	if err != nil {
+		return err
+	}
+	for spaceType, spaces := range bytype {
+		fmt.Print("  ", spaceType, " ", spaces, "\n")
+		spaceTypeIndex.AddAll(spaceType, spaces)
+	}
+	// FIXME type might be share which requires iterating over all files or manually adding a space after dumping a list of shares from the share manager
+
+	return nil
 }

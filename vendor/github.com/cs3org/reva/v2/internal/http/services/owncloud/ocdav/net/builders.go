@@ -27,7 +27,7 @@ import (
 
 // ContentDispositionAttachment builds a ContentDisposition Attachment header with various filename encodings
 func ContentDispositionAttachment(filename string) string {
-	return "attachment; filename*=UTF-8''" + filename + "; filename=\"" + filename + "\""
+	return "attachment; filename*=UTF-8''\"" + filename + "\"; filename=\"" + filename + "\""
 }
 
 // RFC1123Z formats a CS3 Timestamp to be used in HTTP headers like Last-Modified

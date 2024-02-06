@@ -175,6 +175,7 @@ docs-generate:
 
 .PHONY: ci-go-generate
 ci-go-generate:
+    $(MAKE) --no-print-directory -C protobuf ci-go-generate || exit 1
 	@for mod in $(OCIS_MODULES); do \
         $(MAKE) --no-print-directory -C $$mod ci-go-generate || exit 1; \
     done

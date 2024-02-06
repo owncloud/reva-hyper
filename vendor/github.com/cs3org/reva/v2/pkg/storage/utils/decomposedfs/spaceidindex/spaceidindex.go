@@ -50,8 +50,14 @@ func (i *Index) Load(index string) (map[string]string, error) {
 }
 
 // Add adds an entry to an index
+// Consider calling AddAll() when trying to add multiple entries as every Add call has to lock the index
 func (i *Index) Add(index, key string, value string) error {
 	return i.updateIndex(index, map[string]string{key: value}, []string{})
+}
+
+// AddAll adds multiple entries to the index
+func (i *Index) AddAll(index string, m map[string]string) error {
+	return i.updateIndex(index, m, []string{})
 }
 
 // Remove removes an entry from the index
