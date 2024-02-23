@@ -32,6 +32,7 @@ type Config struct {
 	RoleAssignment        RoleAssignment     `yaml:"role_assignment"`
 	PolicySelector        *PolicySelector    `yaml:"policy_selector"`
 	PreSignedURL          PreSignedURL       `yaml:"pre_signed_url"`
+	ClientAPIKeyStore     ClientAPIKeyStore  `yaml:"client_api_key_store"`
 	AccountBackend        string             `yaml:"account_backend" env:"PROXY_ACCOUNT_BACKEND_TYPE" desc:"Account backend the PROXY service should use. Currently only 'cs3' is possible here."`
 	UserOIDCClaim         string             `yaml:"user_oidc_claim" env:"PROXY_USER_OIDC_CLAIM" desc:"The name of an OpenID Connect claim that is used for resolving users with the account backend. The value of the claim must hold a per user unique, stable and non re-assignable identifier. The availability of claims depends on your Identity Provider. There are common claims available for most Identity providers like 'email' or 'preferred_username' but you can also add your own claim."`
 	UserCS3Claim          string             `yaml:"user_cs3_claim" env:"PROXY_USER_CS3_CLAIM" desc:"The name of a CS3 user attribute (claim) that should be mapped to the 'user_oidc_claim'. Supported values are 'username', 'mail' and 'userid'."`
@@ -132,6 +133,17 @@ type Cache struct {
 	DisablePersistence bool          `yaml:"disable_persistence" env:"OCIS_CACHE_DISABLE_PERSISTENCE;PROXY_OIDC_USERINFO_CACHE_DISABLE_PERSISTENCE" desc:"Disables persistence of the cache. Only applies when store type 'nats-js-kv' is configured. Defaults to false."`
 	AuthUsername       string        `yaml:"username" env:"OCIS_CACHE_AUTH_USERNAME;PROXY_OIDC_USERINFO_CACHE_AUTH_USERNAME" desc:"The username to authenticate with the cache. Only applies when store type 'nats-js-kv' is configured."`
 	AuthPassword       string        `yaml:"password" env:"OCIS_CACHE_AUTH_PASSWORD;PROXY_OIDC_USERINFO_CACHE_AUTH_PASSWORD" desc:"The password to authenticate with the cache. Only applies when store type 'nats-js-kv' is configured."`
+}
+
+// ClientAPIKeyStore is a TTL cache configuration.
+type ClientAPIKeyStore struct {
+	Store              string        `yaml:"store" env:"OCIS_CACHE_STORE;PROXY_CLIENT_API_KEY_STORE" desc:"The type of the cache store. Supported values are: 'memory', 'redis-sentinel', 'nats-js-kv', 'noop'. See the text description for details."`
+	Nodes              []string      `yaml:"addresses" env:"OCIS_CACHE_STORE_NODES;PROXY_CLIENT_API_KEY_STORE_NODES" desc:"A list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store. See the Environment Variable Types description for more details."`
+	TTL                time.Duration `yaml:"ttl" env:"OCIS_CACHE_TTL;PROXY_CLIENT_API_KEY_TTL" desc:"Default time to live for user info in the user info cache. Only applied when access tokens has no expiration. See the Environment Variable Types description for more details."`
+	Size               int           `yaml:"size" env:"OCIS_CACHE_SIZE;PROXY_CLIENT_API_KEY_SIZE" desc:"The maximum quantity of items in the user info cache. Only applies when store type 'ocmem' is configured. Defaults to 512 which is derived from the ocmem package though not exclicitely set as default."`
+	DisablePersistence bool          `yaml:"disable_persistence" env:"OCIS_CACHE_DISABLE_PERSISTENCE;PROXY_CLIENT_API_KEY_DISABLE_PERSISTENCE" desc:"Disables persistence of the cache. Only applies when store type 'nats-js-kv' is configured. Defaults to false."`
+	AuthUsername       string        `yaml:"username" env:"OCIS_CACHE_AUTH_USERNAME;PROXY_CLIENT_API_KEY_AUTH_USERNAME" desc:"The username to authenticate with the cache. Only applies when store type 'nats-js-kv' is configured."`
+	AuthPassword       string        `yaml:"password" env:"OCIS_CACHE_AUTH_PASSWORD;PROXY_CLIENT_API_KEY_AUTH_PASSWORD" desc:"The password to authenticate with the cache. Only applies when store type 'nats-js-kv' is configured."`
 }
 
 // RoleAssignment contains the configuration for how to assign roles to users during login

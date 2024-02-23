@@ -351,6 +351,15 @@ func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config,
 		Timeout: time.Second * 10,
 	}
 
+	s := store.Create(
+		store.Store(cfg.ClientAPIKeyStore.Store),
+		store.TTL(cfg.ClientAPIKeyStore.TTL),
+		microstore.Nodes(cfg.ClientAPIKeyStore.Nodes...),
+		microstore.Database("proxy"),
+		microstore.Table("client_api_keys"),
+		store.Authentication(cfg.ClientAPIKeyStore.AuthUsername, cfg.ClientAPIKeyStore.AuthPassword),
+	)
+
 	var authenticators []middleware.Authenticator
 	if cfg.EnableBasicAuth {
 		logger.Warn().Msg("basic auth enabled, use only for testing or development")
@@ -359,6 +368,12 @@ func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config,
 			UserProvider: userProvider,
 		})
 	}
+	authenticators = append(authenticators, middleware.ClientAPIKeyAuthenticator{
+		Logger:       logger,
+		UserProvider: userProvider,
+		SigningKey:   cfg.MachineAuthAPIKey,
+		Store:        s,
+	})
 
 	authenticators = append(authenticators, middleware.PublicShareAuthenticator{
 		Logger:              logger,
