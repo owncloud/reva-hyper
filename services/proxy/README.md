@@ -1,6 +1,6 @@
 # Proxy
 
-The proxy service is an API-Gateway for the ownCloud Infinite Scale microservices. Every HTTP request goes through this service. Authentication, logging and other preprocessing of requests also happens here. Mechanisms like request rate limiting or intrusion prevention are **not** included in the proxy service and must be setup in front like with an external reverse proxy.
+The proxy service is an API-Gateway for the ownCloud Infinite Scale microservices. Every HTTP request goes through this service. Authentication, logging and other preprocessing of requests also happens here. Mechanisms like request rate limiting or intrusion prevention are **not** included in the proxy service and must be setup in front of with an external reverse proxy.
 
 The proxy service is the only service communicating to the outside and needs therefore usual protections against DDOS, Slow Loris or other attack vectors. All other services are not exposed to the outside, but also need protective measures when it comes to distributed setups like when using container orchestration over various physical servers.
 
@@ -12,10 +12,11 @@ The following request authentication schemes are implemented:
 -   OpenID Connect
 -   Signed URL
 -   Public Share Token
+-   Client API Keys
 
 ## Configuring Routes
 
-The proxy handles routing to all endpoints that ocis offers. The currently availabe default routes can be found [in the code](https://github.com/owncloud/ocis/blob/master/services/proxy/pkg/config/defaults/defaultconfig.go). Changing or adding routes can be necessary when writing own ocis extensions.
+The proxy handles routing to all endpoints that oCIS offers. The currently available default routes can be found [in the code](https://github.com/owncloud/oCIS/blob/master/services/proxy/pkg/config/defaults/defaultconfig.go). Changing or adding routes can be necessary when writing own oCIS extensions.
 
 Due to the complexity when defining routes, these can only be defined in the yaml file but not via environment variables.
 
@@ -23,7 +24,7 @@ For _overwriting_ default routes, use the following yaml example:
 
 ```yaml
 policies:
-  - name: ocis
+  - name: oCIS
     routes:
       - endpoint: /
         service: com.owncloud.web.web
@@ -35,7 +36,7 @@ For adding _additional_ routes to the default routes use:
 
 ```yaml
 additional_policies:
-  - name: ocis
+  - name: oCIS
     routes:
       - endpoint: /custom/endpoint
         service: com.owncloud.custom.custom
@@ -67,12 +68,12 @@ role_quotas:
 
 When users login, they do automatically get a role assigned. The automatic role assignment can be
 configured in different ways. The `PROXY_ROLE_ASSIGNMENT_DRIVER` environment variable (or the `driver`
-setting in the `role_assignment` section of the configuration file select which mechanism to use for
+setting in the `role_assignment` section of the configuration file) selects which mechanism to use for
 the automatic role assignment.
 
 When set to `default`, all users which do not have a role assigned at the time for the first login will
 get the role 'user' assigned. (This is also the default behavior if `PROXY_ROLE_ASSIGNMENT_DRIVER`
-is unset.
+is unset.)
 
 When `PROXY_ROLE_ASSIGNMENT_DRIVER` is set to `oidc` the role assignment for a user will happen
 based on the values of an OpenID Connect Claim of that user. The name of the OpenID Connect Claim to
@@ -107,11 +108,11 @@ Note: An ownCloud Infinite Scale user can only have a single role assigned. If t
 which the role mappings are defined in the configuration is important. The first role in the
 `role_mappings` where the `claim_value` matches a value from the user's roles claim will be assigned
 to the user. So if e.g. a user's `ocisRoles` claim has the values `myUserRole` and
-`mySpaceAdminRole` that user will get the ocis role `spaceadmin` assigned (because `spaceadmin`
+`mySpaceAdminRole` that user will get the oCIS role `spaceadmin` assigned (because `spaceadmin`
 appears before `user` in the above sample configuration).
 
 If a user's claim values don't match any of the configured role mappings an error will be logged and
-the user will not be able to login.
+the user will not be able to log in.
 
 The default `role_claim` (or `PROXY_ROLE_ASSIGNMENT_OIDC_CLAIM`) is `roles`. The default `role_mapping` is:
 
@@ -128,7 +129,7 @@ The default `role_claim` (or `PROXY_ROLE_ASSIGNMENT_OIDC_CLAIM`) is `roles`. The
 
 ## Recommendations for Production Deployments
 
-In a production deployment, you want to have basic authentication (`PROXY_ENABLE_BASIC_AUTH`) disabled which is the default state. You also want to setup a firewall to only allow requests to the proxy service or the reverse proxy if you have one. Requests to the other services should be blocked by the firewall.
+In a production deployment, you want to have basic authentication (`PROXY_ENABLE_BASIC_AUTH`) disabled which is the default state. You also want to set up a firewall to only allow requests to the proxy service or the reverse proxy if you have one. Requests to the other services should be blocked by the firewall.
 
 ## Caching
 
@@ -153,13 +154,13 @@ Store specific notes:
   -   When using `nats-js-kv` it is recommended to set `OCIS_CACHE_STORE_NODES` to the same value as `OCIS_EVENTS_ENDPOINT`. That way the cache uses the same nats instance as the event bus.
   -   When using the `nats-js-kv` store, it is possible to set `OCIS_CACHE_DISABLE_PERSISTENCE` to instruct nats to not persist cache data on disc.
 
-  
+
 ## Presigned Urls
 
 To authenticate presigned URLs the proxy service needs to read signing keys from a store that is populated by the ocs service. Possible stores are:
   -   `nats-js-kv`: Stores data using key-value-store feature of [nats jetstream](https://docs.nats.io/nats-concepts/jetstream/key-value-store)
   -   `redis-sentinel`: Stores data in a configured Redis Sentinel cluster.
-  -   `ocisstoreservice`:  Stores data in the legacy ocis store service. Requires setting `PROXY_PRESIGNEDURL_SIGNING_KEYS_STORE_NODES` to `com.owncloud.api.store`.
+  -   `ocisstoreservice`:  Stores data in the legacy oCIS store service. Requires setting `PROXY_PRESIGNEDURL_SIGNING_KEYS_STORE_NODES` to `com.owncloud.api.store`.
 
 The `memory` or `ocmem` stores cannot be used as they do not share the memory from the ocs service signing key memory store, even in a single process.
 
@@ -174,21 +175,21 @@ Store specific notes:
 
 ## Special Settings
 
-When using the ocis IDP service instead of an external IDP:
+When using the oCIS IDP service instead of an external IDP:
 
--   Use the environment variable `OCIS_URL` to define how ocis can be accessed, mandatory use `https` as protocol for the URL.
+-   Use the environment variable `OCIS_URL` to define how oCIS can be accessed, mandatory use `https` as protocol for the URL.
 -   If no reverse proxy is set up, the `PROXY_TLS` environment variable **must** be set to `true` because the embedded `libreConnect` shipped with the IDP service has a hard check if the connection is on TLS and uses the HTTPS protocol. If this mismatches, an error will be logged and no connection from the client can be established.
--   `PROXY_TLS` **can** be set to `false` if a reverse proxy is used and the https connection is terminated at the reverse proxy. When setting to `false`, the communication between the reverse proxy and ocis is not secured. If set to `true`, you must provide certificates.
+-   `PROXY_TLS` **can** be set to `false` if a reverse proxy is used and the https connection is terminated at the reverse proxy. When setting to `false`, the communication between the reverse proxy and oCIS is not secured. If set to `true`, you must provide certificates.
 
 ## Metrics
 
-The proxy service in ocis has the ability to expose metrics in the prometheus format. The metrics are exposed on the `/metrics` endpoint. There are two ways to run the ocis proxy service which has an impact on the number of metrics exposed.
+The proxy service in oCIS has the ability to expose metrics in the prometheus format. The metrics are exposed on the `/metrics` endpoint. There are two ways to run the oCIS proxy service which has an impact on the number of metrics exposed.
 
 ### 1) Single Process Mode
-In the single process mode, all ocis services are running inside a single process. This is the default mode when using the `ocis server` command to start the services. In this mode, the proxy service exposes metrics about the proxy service itself and about the ocis services it is proxying. This is due to the nature of the prometheus registry which is a singleton. The metrics exposed by the proxy service itself are prefixed with `ocis_proxy_` and the metrics exposed by other ocis services are prefixed with `ocis_<service-name>_`.
+In the single process mode, all oCIS services are running inside a single process. This is the default mode when using the `oCIS server` command to start the services. In this mode, the proxy service exposes metrics about the proxy service itself and about the oCIS services it is proxying. This is due to the nature of the prometheus registry which is a singleton. The metrics exposed by the proxy service itself are prefixed with `ocis_proxy_` and the metrics exposed by other oCIS services are prefixed with `ocis_<service-name>_`.
 
 ### 2) Standalone Mode
-In this mode, the proxy service only exposes its own metrics. The metrics of the other ocis services are exposed on their own metrics endpoints.
+In this mode, the proxy service only exposes its own metrics. The metrics of the other oCIS services are exposed on their own metrics endpoints.
 
 ### Available Metrics
 The following metrics are exposed by the proxy service:
@@ -198,10 +199,10 @@ The following metrics are exposed by the proxy service:
 | `ocis_proxy_requests_total`      | [Counter](https://prometheus.io/docs/tutorials/understanding_metric_types/#counter) metric which reports the total number of HTTP requests.                                                                                   | `method`: HTTP method of the request  |
 | `ocis_proxy_errors_total`        | [Counter](https://prometheus.io/docs/tutorials/understanding_metric_types/#counter) metric which reports the total number of HTTP requests which have failed. That counts all response codes >= 500                           | `method`: HTTP method of the request  |
 | `ocis_proxy_duration_seconds`    | [Histogram](https://prometheus.io/docs/tutorials/understanding_metric_types/#histogram) of the time (in seconds) each request took. A histogram metric uses buckets to count the number of events that fall into each bucket. | `method`: HTTP method of the request  |
-| `ocis_proxy_build_info{version}` | A metric with a constant `1` value labeled by version, exposing the version of the ocis proxy service.                                                                                                                        | `version`: Build version of the proxy |
+| `ocis_proxy_build_info{version}` | A metric with a constant `1` value labeled by version, exposing the version of the oCIS proxy service.                                                                                                                        | `version`: Build version of the proxy |
 
 ### Prometheus Configuration
-The following is an example prometheus configuration for the single process mode. It assumes that the proxy debug address is configured to bind on all interfaces `PROXY_DEBUG_ADDR=0.0.0.0:9205` and that the proxy is available via the `ocis` service name (typically in docker-compose). The prometheus service detects the `/metrics` endpoint automatically and scrapes it every 15 seconds.
+The following is an example prometheus configuration for the single process mode. It assumes that the proxy debug address is configured to bind on all interfaces `PROXY_DEBUG_ADDR=0.0.0.0:9205` and that the proxy is available via the `oCIS` service name (typically in docker-compose). The prometheus service detects the `/metrics` endpoint automatically and scrapes it every 15 seconds.
 
 ```yaml
 global:
@@ -209,5 +210,5 @@ global:
 scrape_configs:
   - job_name: ocis_proxy
     static_configs:
-    - targets: ["ocis:9205"]
+    - targets: ["oCIS:9205"]
 ```
