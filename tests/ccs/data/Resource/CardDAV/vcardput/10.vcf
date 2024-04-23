@@ -1,0 +1,25 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Here;Custom;Fields;All;
+FN:All Custom Fields Here
+NICKNAME:custome
+ORG:Major League Co.;Macosx server group
+TITLE:QA Engineer
+EMAIL;type=INTERNET;type=WORK;type=pref:custom@example.com
+TEL;type=WORK;type=pref:777-777-7777
+TEL;type=CELL:8888888888
+item1.ADR;type=WORK;type=pref:;;1 Goroku St.;Mountain Top;CA;99999;USA
+item1.X-ABADR:us
+NOTE: Many customer fields are added
+item2.URL;type=pref:http://www.example.com/~magic
+item2.X-ABLabel:_$!<HomePage>!$_
+BDAY;value=date:1999-03-18
+X-AIM;type=WORK;type=pref:custom@example.com
+item3.X-ABDATE;type=pref:1995-05-21
+item3.X-ABLabel:_$!<Anniversary>!$_
+item4.X-ABRELATEDNAMES;type=pref:Aho Sak
+item4.X-ABLabel:_$!<Friend>!$_
+item5.X-ABRELATEDNAMES:Sanma
+item5.X-ABLabel:_$!<Assistant>!$_
+UID:AFBB77B8-0438-4825-A1DB-A75D76B6C3A8:ABPerson
+END:VCARD

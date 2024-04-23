@@ -1,0 +1,226 @@
+<?xml version="1.0" standalone="no"?>
+
+<!DOCTYPE caldavtest SYSTEM "caldavtest.dtd">
+
+<!--
+ Copyright (c) 2006-2016 Apple Inc. All rights reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<caldavtest>
+	<description>Test the well-known collection</description>
+
+	<require-feature>
+		<feature>carddav</feature>
+		<feature>well-known</feature>
+	</require-feature>
+
+	<start/>
+
+	<test-suite name='Simple GET tests'>
+		<test name='1'>
+			<description>Simple GET on top-level authenticated</description>
+			<request>
+				<method>GET</method>
+				<ruri>/.well-known/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='2'>
+			<description>Simple GET on top-level unauthenticated</description>
+			<request auth='no'>
+				<method>GET</method>
+				<ruri>/.well-known/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='3'>
+			<description>Simple GET on carddav authenticated</description>
+			<request>
+				<method>GET</method>
+				<ruri>/.well-known/carddav/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>301</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Location$$root:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='4'>
+			<description>Simple GET on carddav unauthenticated</description>
+			<request auth='no'>
+				<method>GET</method>
+				<ruri>/.well-known/carddav/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>301</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Location$$root:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<test-suite name='Simple PROPFIND tests'>
+		<test name='1'>
+			<description>Simple PROPFIND on top-level authenticated</description>
+			<request>
+				<method>PROPFIND</method>
+				<ruri>/.well-known/</ruri>
+				<header>
+					<name>Depth</name>
+					<value>0</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='2'>
+			<description>Simple PROPFIND on top-level unauthenticated</description>
+			<request auth='no'>
+				<method>PROPFIND</method>
+				<ruri>/.well-known/</ruri>
+				<header>
+					<name>Depth</name>
+					<value>0</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='3'>
+			<description>Simple PROPFIND on carddav authenticated</description>
+			<request>
+				<method>PROPFIND</method>
+				<ruri>/.well-known/carddav/</ruri>
+				<header>
+					<name>Depth</name>
+					<value>0</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>301</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Location$$root:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='4'>
+			<description>Simple PROPFIND on carddav unauthenticated</description>
+			<request auth='no'>
+				<method>PROPFIND</method>
+				<ruri>/.well-known/carddav/</ruri>
+				<header>
+					<name>Depth</name>
+					<value>0</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>301</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Location$$root:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='5'>
+			<description>PROPFIND Depth:infinity on top-level authenticated</description>
+			<request>
+				<method>PROPFIND</method>
+				<ruri>/.well-known/</ruri>
+				<header>
+					<name>Depth</name>
+					<value>1</value>
+				</header>
+				<data>
+					<content-type>text/xml; charset=utf-8</content-type>
+					<filepath>Resource/Common/PROPFIND/resourcetype.xml</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='6'>
+			<description>PROPFIND Depth:infinity on carddav authenticated</description>
+			<request>
+				<method>PROPFIND</method>
+				<ruri>/.well-known/carddav/</ruri>
+				<header>
+					<name>Depth</name>
+					<value>1</value>
+				</header>
+				<data>
+					<content-type>text/xml; charset=utf-8</content-type>
+					<filepath>Resource/Common/PROPFIND/resourcetype.xml</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>301</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Location$$root:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<end/>
+
+</caldavtest>

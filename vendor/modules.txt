@@ -14,6 +14,12 @@ github.com/BurntSushi/toml/internal
 # github.com/CiscoM31/godata v1.0.10
 ## explicit; go 1.19
 github.com/CiscoM31/godata
+# github.com/DeepDiver1975/go-webdav v0.0.0-20240308110728-8857da010229
+## explicit; go 1.13
+github.com/DeepDiver1975/go-webdav
+github.com/DeepDiver1975/go-webdav/caldav
+github.com/DeepDiver1975/go-webdav/carddav
+github.com/DeepDiver1975/go-webdav/internal
 # github.com/KimMachineGun/automemlimit v0.5.0
 ## explicit; go 1.19
 github.com/KimMachineGun/automemlimit
@@ -776,6 +782,12 @@ github.com/egirna/icap
 # github.com/egirna/icap-client v0.1.1 => github.com/fschade/icap-client v0.0.0-20240123094924-5af178158eaf
 ## explicit; go 1.21
 github.com/egirna/icap-client
+# github.com/emersion/go-ical v0.0.0-20220601085725-0864dccc089f
+## explicit; go 1.13
+github.com/emersion/go-ical
+# github.com/emersion/go-vcard v0.0.0-20230815062825-8fda7d206ec9
+## explicit; go 1.13
+github.com/emersion/go-vcard
 # github.com/emirpasic/gods v1.18.1
 ## explicit; go 1.2
 github.com/emirpasic/gods/containers
@@ -1766,6 +1778,9 @@ github.com/studio-b12/gowebdav
 # github.com/tchap/go-patricia/v2 v2.3.1
 ## explicit; go 1.16
 github.com/tchap/go-patricia/v2/patricia
+# github.com/teambition/rrule-go v1.8.2
+## explicit; go 1.16
+github.com/teambition/rrule-go
 # github.com/thejerf/suture/v4 v4.0.5
 ## explicit; go 1.9
 github.com/thejerf/suture/v4

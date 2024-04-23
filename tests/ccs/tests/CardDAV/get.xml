@@ -1,0 +1,334 @@
+<?xml version="1.0" standalone="no"?>
+
+<!DOCTYPE caldavtest SYSTEM "caldavtest.dtd">
+
+<!--
+ Copyright (c) 2006-2016 Apple Inc. All rights reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<caldavtest>
+	<description>Test GET on collections to ensure proper directory listing</description>
+
+	<require-feature>
+		<feature>carddav</feature>
+	</require-feature>
+
+	<start/>
+	<test-suite name='GET on resource'>
+		<test name='1'>
+			<description>GET from address book collection</description>
+			<request end-delete="no">
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/1.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/1.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/1.vcf</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/1.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<!-- test name='2'>
+			<description>GET on user/addressbook</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>dataString</callback>
+					<arg>
+						<name>contains</name>
+						<value>1.vcf</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>DELETE</method>
+				<ruri>$addressbookpath1:/1.vcf</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='3'>
+			<description>Get on regular collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$principaluri1:</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>dataString</callback>
+					<arg>
+						<name>contains</name>
+						<value>addressbook</value>
+						<value>search</value>
+					</arg>
+				</verify>
+			</request>
+		</test -->
+	</test-suite>
+
+	<test-suite name='GET on collections'>
+		<require-feature>
+			<feature>directory listing</feature>
+		</require-feature>
+		<test name='1'>
+			<description>GET on addressbook collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag</value>
+						<value>Last-Modified</value>
+					</arg>
+				</verify>
+				<grabheader>
+					<name>Etag</name>
+					<variable>$etag:</variable>
+				</grabheader>
+				<grabheader>
+					<name>Last-Modified</name>
+					<variable>$last-modified:</variable>
+				</grabheader>
+			</request>
+		</test>
+		<test name='2'>
+			<require-feature>
+				<feature>regular-collection</feature>
+			</require-feature>
+			<description>Get on regular collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookhome1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag</value>
+						<value>Last-Modified</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='3'>
+			<description>GET on addressbook collection</description>
+			<request>
+				<method>DELAY</method>
+				<ruri>1</ruri>
+			</request>
+			<request end-delete="yes">
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/2.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/2.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag!$etag:</value>
+						<value>Last-Modified!$last-modified:</value>
+					</arg>
+				</verify>
+				<grabheader>
+					<name>Etag</name>
+					<variable>$etag2:</variable>
+				</grabheader>
+				<grabheader>
+					<name>Last-Modified</name>
+					<variable>$last-modified2:</variable>
+				</grabheader>
+			</request>
+		</test>
+		<test name='5'>
+			<description>Conditional GET on addressbook collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/</ruri>
+				<header>
+					<name>If-None-Match</name>
+					<value>$etag2:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='6'>
+			<description>Conditional GET on addressbook collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/</ruri>
+				<header>
+					<name>If-Modified-Since</name>
+					<value>$last-modified2:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<test-suite name='GET on home'>
+		<require-feature>
+			<feature>directory listing</feature>
+		</require-feature>
+		<test name='1'>
+			<description>GET on addressbook home</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookhome1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag</value>
+						<value>Last-Modified</value>
+					</arg>
+				</verify>
+				<grabheader>
+					<name>Etag</name>
+					<variable>$etag1:</variable>
+				</grabheader>
+				<grabheader>
+					<name>Last-Modified</name>
+					<variable>$last-modified1:</variable>
+				</grabheader>
+			</request>
+		</test>
+		<test name='4'>
+			<description>Conditional GET on addressbook home</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookhome1:/</ruri>
+				<header>
+					<name>If-None-Match</name>
+					<value>$etag2:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='5'>
+			<description>Conditional GET on addressbook home</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookhome1:/</ruri>
+				<header>
+					<name>If-Modified-Since</name>
+					<value>$last-modified1:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='6'>
+			<description>Delete the addressbook</description>
+			<request>
+				<method>DELAY</method>
+				<ruri>1</ruri>
+			</request>
+			<request end-delete="yes">
+				<method>DELETE</method>
+				<ruri>$addressbookpath1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='7'>
+			<description>GET on addressbook home, changed headers</description>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookhome1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag!$etag1:</value>
+						<value>Last-Modified!$last-modified1:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<end/>
+
+</caldavtest>

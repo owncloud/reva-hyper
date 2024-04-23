@@ -1,0 +1,12 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Mariotte;WithNote;;;
+FN:WithNote Mariotte
+EMAIL;type=INTERNET;type=WORK;type=pref:withnmariotte@example.com
+TEL;type=WORK;type=pref:1-777-777-7777
+TEL;type=CELL:1-8888888888
+item1.ADR;type=WORK;type=pref:;;1 North Blvd;Cupertino;CA;99999;United States
+item1.X-ABADR:us
+NOTE: Address book server test contact that hsa note field filled in.
+UID:44745975-AE6D-4FB0-80A6-A298427E047A:ABPerson
+END:VCARD

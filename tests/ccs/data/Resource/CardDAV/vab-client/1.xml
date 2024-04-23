@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<x0:propfind xmlns:x2="http://calendarserver.org/ns/" xmlns:x1="urn:ietf:params:xml:ns:carddav" xmlns:x0="DAV:">
+ <x0:prop>
+  <x1:addressbook-home-set/>
+  <x0:displayname/>
+ </x0:prop>
+</x0:propfind>

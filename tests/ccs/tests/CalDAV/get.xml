@@ -1,0 +1,542 @@
+<?xml version="1.0" standalone="no"?>
+
+<!DOCTYPE caldavtest SYSTEM "caldavtest.dtd">
+
+<!--
+ Copyright (c) 2006-2016 Apple Inc. All rights reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<caldavtest>
+	<description>Test GET on collections to ensure proper directory listing, calendar aggregation behavior</description>
+
+	<require-feature>
+		<feature>caldav</feature>
+	</require-feature>
+
+	<start>
+		<request end-delete="yes">
+			<method>PUT</method>
+			<ruri>$calendarpath1:/1.ics</ruri>
+			<data>
+				<content-type>text/calendar; charset=utf-8</content-type>
+				<filepath>Resource/CalDAV/delete/1.txt</filepath>
+			</data>
+		</request>
+		<request end-delete="yes">
+			<require-feature>
+				<feature>regular-collection</feature>
+			</require-feature>
+			<method>PUT</method>
+			<ruri>$calendarhome1:/1todo.ics</ruri>
+			<data>
+				<content-type>text/calendar; charset=utf-8</content-type>
+				<filepath>Resource/CalDAV/todo/1.txt</filepath>
+			</data>
+		</request>
+	</start>
+	
+	<test-suite name='GET on resource'>
+		<test name='1'>
+			<description>GET from calendar collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarpath1:/1.ics</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>calendarDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CalDAV/delete/1.txt</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='2'>
+			<require-feature>
+				<feature>regular-collection</feature>
+			</require-feature>
+			<description>Get from regular collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarhome1:/1todo.ics</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>calendarDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CalDAV/todo/1.txt</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+	
+	<test-suite name='GET on collections'>
+		<require-feature>
+			<feature>directory listing</feature>
+		</require-feature>
+		<test name='1'>
+			<require-feature>
+				<feature>directory listing</feature>
+			</require-feature>
+			<description>GET on calendar collection with listing</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarpath1:/</ruri>
+				<header>
+					<name>User-Agent</name>
+					<value>Mozilla/Gecko</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>dataString</callback>
+					<arg>
+						<name>contains</name>
+						<value><![CDATA[<td>text/calendar</td>]]></value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='2'>
+			<description>GET on calendar collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarpath1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>dataString</callback>
+					<arg>
+						<name>contains</name>
+						<value>BEGIN:VEVENT</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag</value>
+						<value>Last-Modified</value>
+					</arg>
+				</verify>
+				<grabheader>
+					<name>Etag</name>
+					<variable>$etag:</variable>
+				</grabheader>
+				<grabheader>
+					<name>Last-Modified</name>
+					<variable>$last-modified:</variable>
+				</grabheader>
+			</request>
+		</test>
+		<test name='3'>
+			<require-feature>
+				<feature>regular-collection</feature>
+			</require-feature>
+			<description>Get on regular collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarhome1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag</value>
+						<value>Last-Modified</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>dataString</callback>
+					<arg>
+						<name>contains</name>
+						<value>1todo.ics</value>
+						<value>calendar</value>
+						<value>$inbox:</value>
+						<value>$outbox:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='4'>
+			<description>GET on calendar collection without multiple VTIMEZONEs</description>
+			<request>
+				<method>DELAY</method>
+				<ruri>1</ruri>
+			</request>
+			<request end-delete="yes">
+				<method>PUT</method>
+				<ruri>$calendarpath1:/2.ics</ruri>
+				<data>
+					<content-type>text/calendar; charset=utf-8</content-type>
+					<filepath>Resource/CalDAV/delete/4.txt</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarpath1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>calendarDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CalDAV/get/1.ics</value>
+					</arg>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag!$etag:</value>
+						<value>Last-Modified!$last-modified:</value>
+					</arg>
+				</verify>
+				<grabheader>
+					<name>Etag</name>
+					<variable>$etag2:</variable>
+				</grabheader>
+				<grabheader>
+					<name>Last-Modified</name>
+					<variable>$last-modified2:</variable>
+				</grabheader>
+			</request>
+		</test>
+		<test name='5'>
+			<require-feature>
+				<feature>directory listing</feature>
+			</require-feature>
+			<description>GET on calendar collection with listing</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarpath1:/</ruri>
+				<header>
+					<name>User-Agent</name>
+					<value>Mozilla/Gecko</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>dataString</callback>
+					<arg>
+						<name>contains</name>
+						<value><![CDATA[<td>text/calendar</td>]]></value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='6'>
+			<description>Conditional GET on calendar collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarpath1:/</ruri>
+				<header>
+					<name>If-None-Match</name>
+					<value>$etag2:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='7'>
+			<description>Conditional GET on calendar collection</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarpath1:/</ruri>
+				<header>
+					<name>If-Modified-Since</name>
+					<value>$last-modified2:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+        <test name='8'>
+            <require-feature>
+                <feature>directory listing</feature>
+            </require-feature>
+            <description>Update of displayname property</description>
+            <request>
+                <method>PROPPATCH</method>
+                <ruri>$calendarpath1:/</ruri>
+                <data>
+                    <content-type>text/xml; charset=utf-8</content-type>
+                    <filepath>Resource/CalDAV/proppatches/10.xml</filepath>
+                </data>
+                <verify>
+                    <callback>propfindItems</callback>
+                    <arg>
+                        <name>okprops</name>
+                        <value>{DAV:}displayname</value>
+                    </arg>
+                </verify>
+            </request>
+            <request>
+                <method>PROPFIND</method>
+                <ruri>$calendarpath1:/</ruri>
+                <header>
+                    <name>Depth</name>
+                    <value>0</value>
+                </header>
+                <data>
+                    <content-type>text/xml; charset=utf-8</content-type>
+                    <filepath>Resource/CalDAV/proppatches/12.xml</filepath>
+                </data>
+                <verify>
+                    <callback>propfindItems</callback>
+                    <arg>
+                        <name>okprops</name>
+                        <value>{DAV:}displayname$LompyWickets</value>
+                    </arg>
+                </verify>
+            </request>
+            <request>
+                <method>GET</method>
+                <ruri>$calendarpath1:/</ruri>
+                <verify>
+                    <callback>statusCode</callback>
+                </verify>
+                <verify>
+                    <callback>dataString</callback>
+                    <arg>
+                        <name>contains</name>
+                        <value>X-WR-CALNAME:LompyWickets</value>
+                    </arg>
+                </verify>
+            </request>
+        </test>
+        <test name='9'>
+            <require-feature>
+                <feature>directory listing</feature>
+            </require-feature>
+            <description>Another update of displayname property</description>
+            <request>
+                <method>PROPPATCH</method>
+                <ruri>$calendarpath1:/</ruri>
+                <data>
+                    <content-type>text/xml; charset=utf-8</content-type>
+                    <filepath>Resource/CalDAV/proppatches/11.xml</filepath>
+                </data>
+                <verify>
+                    <callback>propfindItems</callback>
+                    <arg>
+                        <name>okprops</name>
+                        <value>{DAV:}displayname</value>
+                    </arg>
+                </verify>
+            </request>
+            <request>
+                <method>PROPFIND</method>
+                <ruri>$calendarpath1:/</ruri>
+                <header>
+                    <name>Depth</name>
+                    <value>0</value>
+                </header>
+                <data>
+                    <content-type>text/xml; charset=utf-8</content-type>
+                    <filepath>Resource/CalDAV/proppatches/12.xml</filepath>
+                </data>
+                <verify>
+                    <callback>propfindItems</callback>
+                    <arg>
+                        <name>okprops</name>
+                        <value>{DAV:}displayname$calendar</value>
+                    </arg>
+                </verify>
+            </request>
+            <request>
+                <method>GET</method>
+                <ruri>$calendarpath1:/</ruri>
+                <verify>
+                    <callback>statusCode</callback>
+                </verify>
+                <verify>
+                    <callback>dataString</callback>
+                    <arg>
+                        <name>contains</name>
+                        <value>X-WR-CALNAME:calendar</value>
+                    </arg>
+                </verify>
+            </request>
+        </test>
+	</test-suite>
+	
+	<test-suite name='GET on home'>
+		<require-feature>
+			<feature>directory listing</feature>
+		</require-feature>
+		<test name='1'>
+			<description>GET on calendar home</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarhome1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag</value>
+						<value>Last-Modified</value>
+					</arg>
+				</verify>
+				<grabheader>
+					<name>Etag</name>
+					<variable>$etag1:</variable>
+				</grabheader>
+				<grabheader>
+					<name>Last-Modified</name>
+					<variable>$last-modified1:</variable>
+				</grabheader>
+			</request>
+		</test>
+		<test name='2'>
+			<description>Create a calendar</description>
+			<request>
+				<method>DELAY</method>
+				<ruri>1</ruri>
+			</request>
+			<request end-delete="yes">
+				<method>MKCALENDAR</method>
+				<ruri>$calendarhome1:/testcal/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='3'>
+			<description>GET on calendar home, changed headers</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarhome1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag!$etag1:</value>
+						<value>Last-Modified!$last-modified1:</value>
+					</arg>
+				</verify>
+				<grabheader>
+					<name>Etag</name>
+					<variable>$etag2:</variable>
+				</grabheader>
+				<grabheader>
+					<name>Last-Modified</name>
+					<variable>$last-modified2:</variable>
+				</grabheader>
+			</request>
+		</test>
+		<test name='4'>
+			<description>Conditional GET on calendar home</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarhome1:/</ruri>
+				<header>
+					<name>If-None-Match</name>
+					<value>$etag2:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='5'>
+			<description>Conditional GET on calendar home</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarhome1:/</ruri>
+				<header>
+					<name>If-Modified-Since</name>
+					<value>$last-modified2:</value>
+				</header>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>304</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='6'>
+			<description>Delete a calendar</description>
+			<request>
+				<method>DELAY</method>
+				<ruri>1</ruri>
+			</request>
+			<request end-delete="yes">
+				<method>DELETE</method>
+				<ruri>$calendarhome1:/testcal/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+		</test>
+		<test name='7'>
+			<description>GET on calendar home, changed headers</description>
+			<request>
+				<method>GET</method>
+				<ruri>$calendarhome1:/</ruri>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>Etag!$etag2:</value>
+						<value>Last-Modified!$last-modified2:</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<end/>
+	
+</caldavtest>

@@ -10,6 +10,7 @@ import (
 	authbearer "github.com/owncloud/ocis/v2/services/auth-bearer/pkg/config"
 	authmachine "github.com/owncloud/ocis/v2/services/auth-machine/pkg/config"
 	authservice "github.com/owncloud/ocis/v2/services/auth-service/pkg/config"
+	ccs "github.com/owncloud/ocis/v2/services/ccs/pkg/config"
 	clientlog "github.com/owncloud/ocis/v2/services/clientlog/pkg/config"
 	eventhistory "github.com/owncloud/ocis/v2/services/eventhistory/pkg/config"
 	frontend "github.com/owncloud/ocis/v2/services/frontend/pkg/config"
@@ -87,6 +88,7 @@ type Config struct {
 	AuthBearer        *authbearer.Config     `yaml:"auth_bearer"`
 	AuthMachine       *authmachine.Config    `yaml:"auth_machine"`
 	AuthService       *authservice.Config    `yaml:"auth_service"`
+	CCS               *ccs.Config            `yaml:"ccs"`
 	Clientlog         *clientlog.Config      `yaml:"clientlog"`
 	EventHistory      *eventhistory.Config   `yaml:"eventhistory"`
 	Frontend          *frontend.Config       `yaml:"frontend"`

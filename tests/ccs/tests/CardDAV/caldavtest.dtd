@@ -1,0 +1,91 @@
+<!--
+ Copyright (c) 2006-2016 Apple Inc. All rights reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<!ELEMENT caldavtest (description?, require-feature?, start, test-suite*, end) >
+	<!ATTLIST caldavtest ignore-all (yes|no) "no">
+
+	<!ELEMENT description (#PCDATA)>
+
+	<!ELEMENT require-feature (feature*)>
+		<!ELEMENT feature (#PCDATA)>
+	<!ELEMENT exclude-feature (feature*)>
+		<!ELEMENT feature (#PCDATA)>
+
+	<!ELEMENT start (request*)>
+	<!ELEMENT end (request*)>
+
+	<!ELEMENT pause EMPTY>
+
+	<!ELEMENT request (require-feature?, exclude-feature?, method, ruri*, header*, data?, verify*,
+						graburi?, grabcount?, grabheader*, grabproperty*, grabelement*, grabjson*, grabcalproperty*, grabcalparameter*)>
+		<!ATTLIST request host2 (yes|no) "no"
+						 auth (yes|no) "yes"
+						 user CDATA ""
+						 pswd CDATA ""
+						 cert CDATA ""
+						 end-delete (yes|no) "no"
+						 print-response (yes|no) "no"
+						 iterate-data (yes|no) "no"
+						 wait-for-success (yes|no) "no">
+		
+		<!ELEMENT method (#PCDATA)>
+		<!ELEMENT ruri (#PCDATA)>
+			<!ATTLIST ruri quote (yes|no) "yes">
+		<!ELEMENT header (name, value)>
+			<!ELEMENT name (#PCDATA)>
+			<!ELEMENT value (#PCDATA)>
+		<!ELEMENT data (content-type, (filepath | generator), substitute*)>
+			<!ATTLIST data substitutions (yes|no) "yes"
+						   generate      (yes|no) "no">
+			<!ELEMENT content-type (#PCDATA)>
+			<!ELEMENT filepath (#PCDATA)>
+			<!ELEMENT generator (callback, arg*)>
+			<!ELEMENT substitute (name, value)>
+
+		<!ELEMENT verify (require-feature?, exclude-feature?, callback, arg*)>
+			
+				<!ELEMENT callback (#PCDATA)>
+				<!ELEMENT arg (name, value*)>
+		
+		<!ELEMENT graburi (#PCDATA)>
+
+		<!ELEMENT grabcount (#PCDATA)>
+
+		<!ELEMENT grabheader (name, variable)>
+	
+		<!ELEMENT grabproperty (property, variable)>
+			<!ELEMENT property (#PCDATA)>
+			<!ELEMENT variable (#PCDATA)>
+
+		<!ELEMENT grabelement (name, parent*, variable+)>
+
+		<!ELEMENT grabjson (pointer, variable+)>
+
+		<!ELEMENT grabcalproperty (name, variable)>
+		<!ELEMENT grabcalparameter (name, variable)>
+
+	<!ELEMENT test-suite (require-feature?, exclude-feature?, test*)>
+		<!ATTLIST test-suite name CDATA #REQUIRED
+							ignore (yes|no) "no"
+							only (yes|no) "no"
+							change-uid (yes|no) "no">
+	
+		<!ELEMENT test (require-feature?, exclude-feature?, description?, (request|pause)+)>
+			<!ATTLIST test name CDATA #REQUIRED
+						  count CDATA "1"
+						  stats (yes|no) "no"
+						  ignore (yes|no) "no"
+						  only (yes|no) "no">

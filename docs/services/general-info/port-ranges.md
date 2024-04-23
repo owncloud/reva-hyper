@@ -63,11 +63,11 @@ We also suggest to use the last port in your extensions' range as a debug/metric
 | 9245-9249  | FREE                                                                                   |
 | 9250-9254  | [ocis server (runtime)](https://github.com/owncloud/ocis/tree/master/ocis/pkg/runtime) |
 | 9255-9259  | [postprocessing]({{< ref "../postprocessing/_index.md" >}})                            |
-| 9260-9264  | [clientlog]({{< ref "../clientlog/_index.md" >}})                                       |
+| 9260-9264  | [clientlog]({{< ref "../clientlog/_index.md" >}})                                      |
 | 9265-9269  | FREE                                                                                   |
 | 9270-9274  | [eventhistory]({{< ref "../eventhistory/_index.md" >}})                                |
 | 9275-9279  | FREE                                                                                   |
-| 9280-9284  | [ocm]({{< ref "../ocm/_index.md" >}})                                         |
+| 9280-9284  | [ocm]({{< ref "../ocm/_index.md" >}})                                                  |
 | 9285-9289  | FREE                                                                                   |
 | 9290-9294  | FREE                                                                                   |
 | 9295-9299  | FREE                                                                                   |
@@ -209,5 +209,5 @@ We also suggest to use the last port in your extensions' range as a debug/metric
 | 9975-9979  | FREE                                                                                   |
 | 9980-9984  | FREE                                                                                   |
 | 9985-9989  | FREE                                                                                   |
-| 9990-9994  | FREE                                                                                   |
+| 9990-9994  | [calendar and contacts service]({{< ref "../ccs/_index.md" >}})                        |
 | 9995-9999  | FREE                                                                                   |

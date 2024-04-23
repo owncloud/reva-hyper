@@ -1,0 +1,18 @@
+BEGIN:VCARD
+VERSION:3.0
+N:InfoIn;All;;;
+FN:All InfoIn
+ORG:allinfo Company;
+EMAIL;type=INTERNET;type=WORK;type=pref:allinfomationin@example.com
+TEL;type=WORK;type=pref:777-777-7777
+TEL;type=CELL:8888888888
+item1.ADR;type=WORK;type=pref:;;1 Gally Street Apt #2;Mountain Top;CA;99999;USA
+item1.X-ABADR:us
+X-YAHOO;type=WORK;type=pref:saeko.where@example.com
+X-YAHOO-ID;type=WORK;type=pref:saeko.where@example.com
+item2.X-ABRELATEDNAMES;type=pref:Mayumi Yan
+item2.X-ABLabel:_$!<Friend>!$_
+item3.X-ABRELATEDNAMES:Shane
+item3.X-ABLabel:_$!<Assistant>!$_
+UID:3765A955-1B96-41EA-994D-335192BEDCCD:ABPerson
+END:VCARD

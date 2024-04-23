@@ -1,0 +1,17 @@
+image: alpine/edge
+packages:
+  - go
+sources:
+  - https://github.com/emersion/go-ical
+artifacts:
+  - coverage.html
+tasks:
+  - build: |
+      cd go-ical
+      go build -race -v ./...
+  - test: |
+      cd go-ical
+      go test -race -cover -coverprofile=coverage.txt -v ./...
+  - coverage: |
+      cd go-ical
+      go tool cover -html=coverage.txt -o ~/coverage.html

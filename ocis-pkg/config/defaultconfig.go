@@ -9,6 +9,7 @@ import (
 	authbearer "github.com/owncloud/ocis/v2/services/auth-bearer/pkg/config/defaults"
 	authmachine "github.com/owncloud/ocis/v2/services/auth-machine/pkg/config/defaults"
 	authservice "github.com/owncloud/ocis/v2/services/auth-service/pkg/config/defaults"
+	ccs "github.com/owncloud/ocis/v2/services/ccs/pkg/config/defaults"
 	clientlog "github.com/owncloud/ocis/v2/services/clientlog/pkg/config/defaults"
 	eventhistory "github.com/owncloud/ocis/v2/services/eventhistory/pkg/config/defaults"
 	frontend "github.com/owncloud/ocis/v2/services/frontend/pkg/config/defaults"
@@ -59,6 +60,7 @@ func DefaultConfig() *Config {
 		AuthBearer:        authbearer.DefaultConfig(),
 		AuthMachine:       authmachine.DefaultConfig(),
 		AuthService:       authservice.DefaultConfig(),
+		CCS:               ccs.DefaultConfig(),
 		Clientlog:         clientlog.DefaultConfig(),
 		EventHistory:      eventhistory.DefaultConfig(),
 		Frontend:          frontend.DefaultConfig(),

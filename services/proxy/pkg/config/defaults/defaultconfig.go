@@ -91,6 +91,7 @@ func DefaultConfig() *config.Config {
 
 // DefaultPolicies returns the default proxy policies.
 func DefaultPolicies() []config.Policy {
+	const serviceWebCcs = "com.owncloud.web.ccs"
 	return []config.Policy{
 		{
 			Name: "ocis",
@@ -108,6 +109,16 @@ func DefaultPolicies() []config.Policy {
 				{
 					Endpoint:    "/.well-known/openid-configuration",
 					Service:     "com.owncloud.web.idp",
+					Unprotected: true,
+				},
+				{
+					Endpoint:    "/.well-known/caldav",
+					Service:     serviceWebCcs,
+					Unprotected: true,
+				},
+				{
+					Endpoint:    "/.well-known/carddav",
+					Service:     serviceWebCcs,
 					Unprotected: true,
 				},
 				{
@@ -160,6 +171,10 @@ func DefaultPolicies() []config.Policy {
 				{
 					Endpoint: "/ocs/",
 					Service:  "com.owncloud.web.frontend",
+				},
+				{
+					Endpoint: "/ccs/",
+					Service:  serviceWebCcs,
 				},
 				{
 					Type:     config.QueryRoute,

@@ -1,6 +1,7 @@
 package command
 
 import (
+	ccs "github.com/owncloud/ocis/v2/services/ccs/pkg/command"
 	"github.com/urfave/cli/v2"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/config"
@@ -89,6 +90,11 @@ var svccmds = []register.Command{
 	func(cfg *config.Config) *cli.Command {
 		return ServiceCommand(cfg, cfg.AuthService.Service.Name, authservice.GetCommands(cfg.AuthService), func(c *config.Config) {
 			cfg.AuthService.Commons = cfg.Commons
+		})
+	},
+	func(cfg *config.Config) *cli.Command {
+		return ServiceCommand(cfg, cfg.CCS.Service.Name, ccs.GetCommands(cfg.CCS), func(c *config.Config) {
+			cfg.Clientlog.Commons = cfg.Commons
 		})
 	},
 	func(cfg *config.Config) *cli.Command {

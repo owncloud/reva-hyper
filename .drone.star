@@ -347,6 +347,7 @@ def testPipelines(ctx):
         pipelines.append(wopiValidatorTests(ctx, "ocis", "default"))
 
     pipelines += localApiTestPipeline(ctx)
+    pipelines += ccsTestPipeline(ctx)
 
     if "skip" not in config["apiTests"] or not config["apiTests"]["skip"]:
         pipelines += apiTests(ctx)
@@ -861,6 +862,68 @@ def localApiTests(suite, storage, extra_environment = {}):
         "environment": environment,
         "commands": [
             "make test-acceptance-api",
+        ],
+    }]
+
+def ccsTestPipeline(ctx):
+    storage = "ocis"
+
+    pipeline = {
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "calendar-contacts-tests",
+        "platform": {
+            "os": "linux",
+            "arch": "amd64",
+        },
+        "steps": restoreBuildArtifactCache(ctx, "ocis-binary-amd64", "ocis/bin") +
+                 ocisServer(storage, with_wrapper = False) +
+                 ccsTests(storage),
+        "services": [],
+        "depends_on": getPipelineNames([buildOcisBinaryForTesting(ctx)]),
+        "trigger": {
+            "ref": [
+                "refs/heads/master",
+                "refs/pull/**",
+            ],
+        },
+    }
+
+    pipelines = []
+    pipelines.append(pipeline)
+    return pipelines
+
+def ccsTests(storage):
+    environment = {
+        "PATH_TO_OCIS": dirs["base"],
+        "TEST_SERVER_URL": "https://ocis-server:9200",
+        "OCIS_REVA_DATA_ROOT": "%s" % (dirs["ocisRevaDataRoot"] if storage == "owncloud" else ""),
+        "OCIS_SKELETON_STRATEGY": "%s" % ("copy" if storage == "owncloud" else "upload"),
+        "SEND_SCENARIO_LINE_REFERENCES": "true",
+        "STORAGE_DRIVER": storage,
+    }
+
+    return [{
+        "name": "ccsTests",
+        "image": "deepdiver/ccs-caldavtester:latest",
+        "environment": environment,
+        "commands": [
+            "pwd",
+            "ping ocis-server -c1",
+            # create some calendars and addressbooks
+            "curl -X MKCOL https://ocis-server:9200/ccs/calendars/einstein/calendar -kv -ueinstein:relativity",
+            "curl -X MKCOL https://ocis-server:9200/ccs/addressbooks/einstein/addressbook -kv -ueinstein:relativity",
+            # run caldav tests
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CalDAV/well-known.xml",
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CalDAV/current-user-principal.xml",
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CalDAV/get.xml",
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CalDAV/caldavIOP.xml",
+            # run carddav tests
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CardDAV/well-known.xml",
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CardDAV/current-user-principal.xml",
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CardDAV/get.xml",
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CardDAV/propfind.xml",
+            "python3 /app/testcaldav.py --ssl --print-details-onfail --basedir tests/ccs CardDAV/mkcol.xml",
         ],
     }]
 

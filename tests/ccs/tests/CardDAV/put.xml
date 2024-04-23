@@ -1,0 +1,599 @@
+<?xml version="1.0" standalone="no"?>
+
+<!DOCTYPE caldavtest SYSTEM "caldavtest.dtd">
+
+<!--
+ Copyright (c) 2006-2016 Apple Inc. All rights reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<caldavtest>
+	<description>Test putting contacts</description>
+
+	<require-feature>
+		<feature>carddav</feature>
+	</require-feature>
+
+	<start>	
+		<request user="$useradmin:" pswd="$pswdadmin:">
+			<method>DELETEALL</method>
+			<ruri>$addressbookhome1:/</ruri>
+		</request>
+	</start>
+
+	<test-suite name='PUT VCARD'>
+		<test name='1'>
+			<description>PUT simple person contact</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/1.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/1.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/1.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/1.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='2'>
+			<description>PUT contact created by Mulberry</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/2.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/2.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/2.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/2.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='3'>
+			<description>PUT company contact</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/3.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/3.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/3.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/3.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='4'>
+			<description>PUT contact with note</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/4.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/4.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/4.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/4.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='5'>
+			<description>PUT contact with all default fields filled in</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/5.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/5.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/5.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/5.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='6'>
+			<description>PUT contact with picture</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/6.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/6.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/6.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/6.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='7'>
+			<description>PUT company contact with picture</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/7.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/7.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/7.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/7.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='8'>
+			<description>PUT contact with high ascii contents</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/8.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/8.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/8.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/8.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='9'>
+			<description>PUT contact with double bytes contents</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/9.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/9.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/9.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/9.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='10'>
+			<description>PUT contact with all custom fields</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/10.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/10.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/10.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/10.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<test-suite name='Test \ escapes'>
+		<test name='1'>
+			<description>PUT simple person contact</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/11.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/11.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/11.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/11.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='2'>
+			<description>PUT with \n in ADR</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/12.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/12.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/12.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/12.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<test-suite name='PUT with X- using VALUE != TEXT'>
+		<test name='1'>
+			<description>PUT simple person contact</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/13.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/13.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/13.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/13.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+
+	<test-suite name='PUTs with ^ parameter encoding'>
+		<test name='1'>
+			<description>Roundtrip encoded CN=</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/14.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/14.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/14.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/15.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<test-suite name='PUT groups'>
+		<test name='1'>
+			<description>PUT group with circular reference, unknown members, group data changed</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/16.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/16.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>!ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/16.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/17.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='2'>
+			<description>PUT user over group</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/16.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/18.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>403</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='3'>
+			<description>PUT group over user</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/1.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/19.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+					<arg>
+						<name>status</name>
+						<value>403</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+		<test name='4'>
+			<description>PUT group over group, no data change</description>
+			<request end-delete='yes'>
+				<method>PUT</method>
+				<ruri>$addressbookpath1:/16.vcf</ruri>
+				<data>
+					<content-type>text/vcard; charset=utf-8</content-type>
+					<filepath>Resource/CardDAV/vcardput/19.vcf</filepath>
+				</data>
+				<verify>
+					<callback>statusCode</callback>
+				</verify>
+				<verify>
+					<callback>header</callback>
+					<arg>
+						<name>header</name>
+						<value>ETag</value>
+					</arg>
+				</verify>
+			</request>
+			<request>
+				<method>GET</method>
+				<ruri>$addressbookpath1:/16.vcf</ruri>
+				<verify>
+					<callback>addressDataMatch</callback>
+					<arg>
+						<name>filepath</name>
+						<value>Resource/CardDAV/vcardput/19.vcf</value>
+					</arg>
+				</verify>
+			</request>
+		</test>
+	</test-suite>
+
+	<end>	
+		<request user="$useradmin:" pswd="$pswdadmin:">
+			<method>DELETEALL</method>
+			<ruri>$addressbookhome1:/</ruri>
+		</request>
+	</end>
+
+</caldavtest>
