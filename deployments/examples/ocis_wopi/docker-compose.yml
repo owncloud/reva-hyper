@@ -110,6 +110,7 @@ services:
       ocis-net:
     command: app-provider server
     environment:
+      OCIS_LOG_LEVEL: ${OCIS_LOG_LEVEL:-info}
       # use the internal service name of the gateway
       REVA_GATEWAY: ${REVA_GATEWAY:-com.owncloud.api.gateway}
       APP_PROVIDER_GRPC_ADDR: 0.0.0.0:9164
@@ -131,6 +132,11 @@ services:
     logging:
       driver: ${LOG_DRIVER:-local}
     restart: always
+    depends_on:
+      wait-for-collabora:
+        condition: service_completed_successfully
+      ocis:
+        condition: service_started
 
   ocis-appprovider-onlyoffice:
     image: owncloud/ocis:${OCIS_DOCKER_TAG:-latest}
@@ -164,6 +170,9 @@ services:
     logging:
       driver: ${LOG_DRIVER:-local}
     restart: always
+    depends_on:
+      - ocis
+      - onlyoffice
 
   wopiserver:
     image: cs3org/wopiserver:${WOPISERVER_DOCKER_TAG:-v10.3.0}
@@ -190,6 +199,14 @@ services:
     logging:
       driver: ${LOG_DRIVER:-local}
     restart: always
+
+  wait-for-collabora:
+    image: atkrad/wait4x
+    networks:
+      ocis-net:
+    depends_on:
+      - collabora
+    command: http http://collabora:9980/hosting/discovery --expect-status-code 200  -t 30s -i 500ms
 
   collabora:
     image: collabora/code:23.05.5.2.1
