@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os/signal"
 
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	"github.com/owncloud/ocis/v2/services/collaboration/pkg/config"
 	"github.com/owncloud/ocis/v2/services/collaboration/pkg/config/parser"
@@ -35,14 +36,12 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr := run.Group{}
-			ctx, cancel := func() (context.Context, context.CancelFunc) {
-				if cfg.Context == nil {
-					return context.WithCancel(context.Background())
-				}
-				return context.WithCancel(cfg.Context)
-			}()
-			defer cancel()
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
 			// prepare components
 			if err := helpers.RegisterOcisService(ctx, cfg, logger); err != nil {
@@ -63,6 +62,8 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
+			gr := runner.NewGroup()
+
 			// start GRPC server
 			grpcServer, teardown, err := grpc.Server(
 				grpc.AppURLs(appUrls),
@@ -78,20 +79,11 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr.Add(func() error {
-				l, err := net.Listen("tcp", cfg.GRPC.Addr)
-				if err != nil {
-					return err
-				}
-				return grpcServer.Serve(l)
-			},
-				func(_ error) {
-					logger.Error().
-						Err(err).
-						Str("server", "grpc").
-						Msg("shutting down server")
-					cancel()
-				})
+			l, err := net.Listen("tcp", cfg.GRPC.Addr)
+			if err != nil {
+				return err
+			}
+			gr.Add(runner.NewGolangGrpcServerRunner("collaboration_grpc", grpcServer, l))
 
 			// start debug server
 			debugServer, err := debug.Server(
@@ -103,11 +95,7 @@ func Server(cfg *config.Config) *cli.Command {
 				logger.Info().Err(err).Str("transport", "debug").Msg("Failed to initialize server")
 				return err
 			}
-
-			gr.Add(debugServer.ListenAndServe, func(_ error) {
-				_ = debugServer.Shutdown(ctx)
-				cancel()
-			})
+			gr.Add(runner.NewGolangHttpServerRunner("collaboration_debug", debugServer))
 
 			// start HTTP server
 			httpServer, err := http.Server(
@@ -117,11 +105,17 @@ func Server(cfg *config.Config) *cli.Command {
 				http.Context(ctx),
 				http.TracerProvider(traceProvider),
 			)
-			gr.Add(httpServer.Run, func(_ error) {
-				cancel()
-			})
+			gr.Add(runner.NewGoMicroHttpServerRunner("collaboration_http", httpServer))
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }
