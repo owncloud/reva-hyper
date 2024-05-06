@@ -5,14 +5,13 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
-	"os"
+	"os/signal"
 	"time"
 
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	"github.com/cs3org/reva/v2/pkg/store"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/justinas/alice"
-	"github.com/oklog/run"
 	"github.com/urfave/cli/v2"
 	microstore "go-micro.dev/v4/store"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -23,6 +22,7 @@ import (
 	pkgmiddleware "github.com/owncloud/ocis/v2/ocis-pkg/middleware"
 	"github.com/owncloud/ocis/v2/ocis-pkg/oidc"
 	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/grpc"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
@@ -114,18 +114,14 @@ func Server(cfg *config.Config) *cli.Command {
 				oidc.WithJWKSOptions(cfg.OIDC.JWKS),
 			)
 
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
+
 			m := metrics.New()
-
-			gr := run.Group{}
-			ctx, cancel := func() (context.Context, context.CancelFunc) {
-				if cfg.Context == nil {
-					return context.WithCancel(context.Background())
-				}
-				return context.WithCancel(cfg.Context)
-			}()
-
-			defer cancel()
-
 			m.BuildInfo.WithLabelValues(version.GetString()).Set(1)
 
 			rp, err := proxy.NewMultiHostReverseProxy(
@@ -146,6 +142,7 @@ func Server(cfg *config.Config) *cli.Command {
 				return fmt.Errorf("failed to initialize reverse proxy: %w", err)
 			}
 
+			gr := runner.NewGroup()
 			{
 				middlewares := loadMiddlewares(ctx, logger, cfg, userInfoCache, signingKeyStore, traceProvider, *m)
 				server, err := proxyHTTP.Server(
@@ -165,17 +162,7 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(func() error {
-					return server.Run()
-				}, func(err error) {
-					logger.Error().
-						Err(err).
-						Str("server", "http").
-						Msg("Shutting down server")
-
-					cancel()
-					os.Exit(1)
-				})
+				gr.Add(runner.NewGoMicroHttpServerRunner("proxy_http", server))
 			}
 
 			{
@@ -189,13 +176,18 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("proxy_debug", server))
 			}
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }

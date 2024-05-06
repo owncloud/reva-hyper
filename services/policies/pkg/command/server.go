@@ -41,15 +41,16 @@ func Server(cfg *config.Config) *cli.Command {
 					}
 					return context.WithCancel(cfg.Context)
 				}()
-				logger = log.NewLogger(
-					log.Name(cfg.Service.Name),
-					log.Level(cfg.Log.Level),
-					log.Pretty(cfg.Log.Pretty),
-					log.Color(cfg.Log.Color),
-					log.File(cfg.Log.File),
-				).SubloggerWithRequestID(ctx)
 			)
 			defer cancel()
+
+			logger := log.NewLogger(
+				log.Name(cfg.Service.Name),
+				log.Level(cfg.Log.Level),
+				log.Pretty(cfg.Log.Pretty),
+				log.Color(cfg.Log.Color),
+				log.File(cfg.Log.File),
+			).SubloggerWithRequestID(ctx)
 
 			traceProvider, err := tracing.GetServiceTraceProvider(cfg.Tracing, cfg.Service.Name)
 			if err != nil {

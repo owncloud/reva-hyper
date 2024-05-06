@@ -105,6 +105,10 @@ func Server(cfg *config.Config) *cli.Command {
 				http.Context(ctx),
 				http.TracerProvider(traceProvider),
 			)
+			if err != nil {
+				logger.Info().Err(err).Str("transport", "http").Msg("Failed to initialize server")
+				return err
+			}
 			gr.Add(runner.NewGoMicroHttpServerRunner("collaboration_http", httpServer))
 
 			grResults := gr.Run(ctx)

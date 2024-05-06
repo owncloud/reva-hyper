@@ -48,8 +48,8 @@ func Server(cfg *config.Config) *cli.Command {
 				defer cancel()
 			}
 
-			metrics := metrics.New()
-			metrics.BuildInfo.WithLabelValues(version.GetString()).Set(1)
+			m := metrics.New()
+			m.BuildInfo.WithLabelValues(version.GetString()).Set(1)
 
 			gr := runner.NewGroup()
 

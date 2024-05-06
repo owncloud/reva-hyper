@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	StopSignals = []os.Signal{syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL}
+	StopSignals = []os.Signal{syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT}
 )
 
 // Runable represent a task that can be executed by the Runner.

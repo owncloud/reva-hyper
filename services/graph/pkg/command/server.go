@@ -3,10 +3,10 @@ package command
 import (
 	"context"
 	"fmt"
-	"os"
+	"os/signal"
 
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config"
@@ -34,19 +34,17 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr := run.Group{}
-			ctx, cancel := func() (context.Context, context.CancelFunc) {
-				if cfg.Context == nil {
-					return context.WithCancel(context.Background())
-				}
-				return context.WithCancel(cfg.Context)
-			}()
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
+
 			mtrcs := metrics.New()
-
-			defer cancel()
-
 			mtrcs.BuildInfo.WithLabelValues(version.GetString()).Set(1)
 
+			gr := runner.NewGroup()
 			{
 				server, err := http.Server(
 					http.Logger(logger),
@@ -60,17 +58,7 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(func() error {
-					return server.Run()
-				}, func(err error) {
-					logger.Error().
-						Str("transport", "http").
-						Err(err).
-						Msg("Shutting down server")
-
-					cancel()
-					os.Exit(1)
-				})
+				gr.Add(runner.NewGoMicroHttpServerRunner("graph_http", server))
 			}
 
 			{
@@ -84,13 +72,18 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("graph_debug", server))
 			}
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }
