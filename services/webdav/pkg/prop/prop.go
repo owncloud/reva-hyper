@@ -31,15 +31,6 @@ func xmlEscaped(val string) []byte {
 	return buf.Bytes()
 }
 
-// EscapedNS returns a new PropertyXML instance while xml-escaping the value
-func EscapedNS(namespace string, local string, val string) PropertyXML {
-	return PropertyXML{
-		XMLName:  xml.Name{Space: namespace, Local: local},
-		Lang:     "",
-		InnerXML: xmlEscaped(val),
-	}
-}
-
 // Escaped returns a new PropertyXML instance while xml-escaping the value
 // TODO properly use the space
 func Escaped(key, val string) PropertyXML {
@@ -47,22 +38,6 @@ func Escaped(key, val string) PropertyXML {
 		XMLName:  xml.Name{Space: "", Local: key},
 		Lang:     "",
 		InnerXML: xmlEscaped(val),
-	}
-}
-
-// NotFound returns a new PropertyXML instance with an empty value
-func NotFound(key string) PropertyXML {
-	return PropertyXML{
-		XMLName: xml.Name{Space: "", Local: key},
-		Lang:    "",
-	}
-}
-
-// NotFoundNS returns a new PropertyXML instance with the given namespace and an empty value
-func NotFoundNS(namespace, key string) PropertyXML {
-	return PropertyXML{
-		XMLName: xml.Name{Space: namespace, Local: key},
-		Lang:    "",
 	}
 }
 
@@ -118,11 +93,4 @@ type ActiveLock struct {
 // Owner captures the inner UML of a lock owner element http://www.webdav.org/specs/rfc4918.html#ELEMENT_owner
 type Owner struct {
 	InnerXML string `xml:",innerxml"`
-}
-
-// Escape repaces ", &, ', < and > with their xml representation
-func Escape(s string) string {
-	b := bytes.NewBuffer(nil)
-	_ = xml.EscapeText(b, []byte(s))
-	return b.String()
 }

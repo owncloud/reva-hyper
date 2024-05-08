@@ -4,7 +4,7 @@ import (
 	"net/url"
 )
 
-// EncodePath encodes the path of a url.
+// EncodePath encodes the path of an url.
 //
 // slashes (/) are treated as path-separators.
 func EncodePath(path string) string {

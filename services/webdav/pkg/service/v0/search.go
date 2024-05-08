@@ -91,7 +91,7 @@ func (g Webdav) Search(w http.ResponseWriter, r *http.Request) {
 
 func (g Webdav) sendSearchResponse(rsp *searchsvc.SearchResponse, w http.ResponseWriter, r *http.Request) {
 	logger := g.log.SubloggerWithRequestID(r.Context())
-	responsesXML, err := multistatusResponse(r.Context(), rsp.Matches)
+	responsesXML, err := multiStatusResponse(r.Context(), rsp.Matches)
 	if err != nil {
 		logger.Error().Err(err).Msg("error formatting propfind")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -108,8 +108,8 @@ func (g Webdav) sendSearchResponse(rsp *searchsvc.SearchResponse, w http.Respons
 	}
 }
 
-// multistatusResponse converts a list of matches into a multistatus response string
-func multistatusResponse(ctx context.Context, matches []*searchmsg.Match) ([]byte, error) {
+// multiStatusResponse converts a list of matches into a multi-status response string
+func multiStatusResponse(ctx context.Context, matches []*searchmsg.Match) ([]byte, error) {
 	responses := make([]*propfind.ResponseXML, 0, len(matches))
 	for i := range matches {
 		res, err := matchToPropResponse(ctx, matches[i])
@@ -128,7 +128,7 @@ func multistatusResponse(ctx context.Context, matches []*searchmsg.Match) ([]byt
 	return msg, nil
 }
 
-func matchToPropResponse(ctx context.Context, match *searchmsg.Match) (*propfind.ResponseXML, error) {
+func matchToPropResponse(_ context.Context, match *searchmsg.Match) (*propfind.ResponseXML, error) {
 	// unfortunately search uses own versions of ResourceId and Ref. So we need to assert them here
 	var (
 		ref string
@@ -162,57 +162,57 @@ func matchToPropResponse(ctx context.Context, match *searchmsg.Match) (*propfind
 	}
 	response := propfind.ResponseXML{
 		Href:     net.EncodePath(path.Join("/remote.php/dav/spaces/", ref)),
-		Propstat: []propfind.PropstatXML{},
+		PropStat: []propfind.PropStatXML{},
 	}
 
-	propstatOK := propfind.PropstatXML{
+	propStatOK := propfind.PropStatXML{
 		Status: "HTTP/1.1 200 OK",
 		Prop:   []prop.PropertyXML{},
 	}
 
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:fileid", storagespace.FormatResourceID(provider.ResourceId{
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:fileid", storagespace.FormatResourceID(provider.ResourceId{
 		StorageId: match.Entity.Id.StorageId,
 		SpaceId:   match.Entity.Id.SpaceId,
 		OpaqueId:  match.Entity.Id.OpaqueId,
 	})))
 	if match.Entity.ParentId != nil {
-		propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:file-parent", storagespace.FormatResourceID(provider.ResourceId{
+		propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:file-parent", storagespace.FormatResourceID(provider.ResourceId{
 			StorageId: match.Entity.ParentId.StorageId,
 			SpaceId:   match.Entity.ParentId.SpaceId,
 			OpaqueId:  match.Entity.ParentId.OpaqueId,
 		})))
 	}
 	if match.Entity.Ref.ResourceId.StorageId == utils.ShareStorageProviderID {
-		propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:shareid", match.Entity.Ref.ResourceId.OpaqueId))
-		propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:shareroot", match.Entity.ShareRootName))
+		propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:shareid", match.Entity.Ref.ResourceId.OpaqueId))
+		propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:shareroot", match.Entity.ShareRootName))
 	}
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:name", match.Entity.Name))
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("d:getlastmodified", match.Entity.LastModifiedTime.AsTime().Format(time.RFC3339)))
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("d:getcontenttype", match.Entity.MimeType))
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:permissions", match.Entity.Permissions))
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:highlights", match.Entity.Highlights))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:name", match.Entity.Name))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("d:getlastmodified", match.Entity.LastModifiedTime.AsTime().Format(time.RFC3339)))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("d:getcontenttype", match.Entity.MimeType))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:permissions", match.Entity.Permissions))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:highlights", match.Entity.Highlights))
 
 	t := tags.New(match.Entity.Tags...)
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:tags", t.AsList()))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:tags", t.AsList()))
 
 	// those seem empty - bug?
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("d:getetag", match.Entity.Etag))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("d:getetag", match.Entity.Etag))
 
 	size := strconv.FormatUint(match.Entity.Size, 10)
 	if match.Entity.Type == uint64(provider.ResourceType_RESOURCE_TYPE_CONTAINER) {
-		propstatOK.Prop = append(propstatOK.Prop, prop.Raw("d:resourcetype", "<d:collection/>"))
-		propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:size", size))
+		propStatOK.Prop = append(propStatOK.Prop, prop.Raw("d:resourcetype", "<d:collection/>"))
+		propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:size", size))
 	} else {
-		propstatOK.Prop = append(propstatOK.Prop,
+		propStatOK.Prop = append(propStatOK.Prop,
 			prop.Escaped("d:resourcetype", ""),
 			prop.Escaped("d:getcontentlength", size),
 		)
 	}
 	score := strconv.FormatFloat(float64(match.Score), 'f', -1, 64)
-	propstatOK.Prop = append(propstatOK.Prop, prop.Escaped("oc:score", score))
+	propStatOK.Prop = append(propStatOK.Prop, prop.Escaped("oc:score", score))
 
-	if len(propstatOK.Prop) > 0 {
-		response.Propstat = append(response.Propstat, propstatOK)
+	if len(propStatOK.Prop) > 0 {
+		response.PropStat = append(response.PropStat, propStatOK)
 	}
 
 	return &response, nil
@@ -255,8 +255,8 @@ type Props []xml.Name
 // http://www.webdav.org/specs/rfc4918.html#ELEMENT_propfind
 type XML struct {
 	XMLName  xml.Name  `xml:"DAV: propfind"`
-	Allprop  *struct{} `xml:"DAV: allprop"`
-	Propname *struct{} `xml:"DAV: propname"`
+	AllProp  *struct{} `xml:"DAV: allprop"`
+	PropName *struct{} `xml:"DAV: propname"`
 	Prop     Props     `xml:"DAV: prop"`
 	Include  Props     `xml:"DAV: include"`
 }

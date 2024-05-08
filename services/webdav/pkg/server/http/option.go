@@ -63,20 +63,6 @@ func Metrics(val *metrics.Metrics) Option {
 	}
 }
 
-// Flags provides a function to set the flags option.
-func Flags(val []cli.Flag) Option {
-	return func(o *Options) {
-		o.Flags = append(o.Flags, val...)
-	}
-}
-
-// Namespace provides a function to set the namespace option.
-func Namespace(val string) Option {
-	return func(o *Options) {
-		o.Namespace = val
-	}
-}
-
 // TraceProvider provides a function to set the TraceProvider option.
 func TraceProvider(val trace.TracerProvider) Option {
 	return func(o *Options) {

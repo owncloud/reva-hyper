@@ -50,19 +50,19 @@ func Server(cfg *config.Config) *cli.Command {
 					}
 					return context.WithCancel(cfg.Context)
 				}()
-				metrics = metrics.New()
+				m = metrics.New()
 			)
 
 			defer cancel()
 
-			metrics.BuildInfo.WithLabelValues(version.GetString()).Set(1)
+			m.BuildInfo.WithLabelValues(version.GetString()).Set(1)
 
 			{
 				server, err := http.Server(
 					http.Logger(logger),
 					http.Context(ctx),
 					http.Config(cfg),
-					http.Metrics(metrics),
+					http.Metrics(m),
 					http.TraceProvider(traceProvider),
 				)
 
