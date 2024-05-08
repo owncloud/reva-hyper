@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
 
 	"github.com/cs3org/reva/v2/pkg/events/stream"
 	"github.com/cs3org/reva/v2/pkg/store"
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/handlers"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/debug"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
@@ -35,24 +36,21 @@ func Server(cfg *config.Config) *cli.Command {
 			return err
 		},
 		Action: func(c *cli.Context) error {
-			var (
-				gr     = run.Group{}
-				logger = logging.Configure(cfg.Service.Name, cfg.Log)
+			logger := logging.Configure(cfg.Service.Name, cfg.Log)
 
-				ctx, cancel = func() (context.Context, context.CancelFunc) {
-					if cfg.Context == nil {
-						return context.WithCancel(context.Background())
-					}
-					return context.WithCancel(cfg.Context)
-				}()
-			)
-			defer cancel()
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
 			traceProvider, err := tracing.GetServiceTraceProvider(cfg.Tracing, cfg.Service.Name)
 			if err != nil {
 				return err
 			}
 
+			gr := runner.NewGroup()
 			{
 				bus, err := stream.NatsFromConfig(cfg.Service.Name, false, stream.NatsConfig(cfg.Postprocessing.Events))
 				if err != nil {
@@ -73,23 +71,11 @@ func Server(cfg *config.Config) *cli.Command {
 				if err != nil {
 					return err
 				}
-				gr.Add(func() error {
-					err := make(chan error)
-					select {
-					case <-ctx.Done():
-						return nil
-
-					case err <- svc.Run():
-						return <-err
-					}
-				}, func(err error) {
-					logger.Error().
-						Err(err).
-						Str("server", "http").
-						Msg("Shutting down server")
-					cancel()
-					os.Exit(1)
-				})
+				gr.Add(runner.New("postprocessing_svc", func() error {
+					return svc.Run()
+				}, func() {
+					svc.Close()
+				}))
 			}
 
 			{
@@ -105,12 +91,18 @@ func Server(cfg *config.Config) *cli.Command {
 					debug.Ready(handlers.Ready),
 				)
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("postprocessing_debug", server))
 			}
-			return gr.Run()
+
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }
