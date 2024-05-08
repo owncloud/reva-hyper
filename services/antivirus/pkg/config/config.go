@@ -10,7 +10,7 @@ type Config struct {
 	File string
 	Log  *Log
 
-	Debug Debug `mask:"struct" yaml:"debug"`
+	Debug Debug `yaml:"debug" mask:"struct" `
 
 	Service Service `yaml:"-"`
 

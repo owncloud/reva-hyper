@@ -48,10 +48,15 @@ linters-settings:
     align: false
     sort: true
     order:
+      - mapstructure
       - yaml
       - env
       - desc
       - introductionVersion
+      - deprecationVersion
+      - removalVersion
+      - deprecationInfo
+      - deprecationReplacement
   gocyclo:
     min-complexity: 35 # there are some func unfortunately who need this - should we refactor them?
   gomoddirectives:
