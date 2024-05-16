@@ -31,6 +31,7 @@ import (
 // Service should be named `Runner`
 type Service interface {
 	Run() error
+	Close()
 }
 
 // NewEventsNotifier provides a new eventsNotifier

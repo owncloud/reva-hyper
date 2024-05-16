@@ -4,13 +4,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"os"
-
-	"github.com/oklog/run"
+	"os/signal"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
 	pkgcrypto "github.com/owncloud/ocis/v2/ocis-pkg/crypto"
 	"github.com/owncloud/ocis/v2/ocis-pkg/handlers"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/debug"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
 	"github.com/owncloud/ocis/v2/services/nats/pkg/config"
@@ -32,16 +31,14 @@ func Server(cfg *config.Config) *cli.Command {
 		Action: func(c *cli.Context) error {
 			logger := logging.Configure(cfg.Service.Name, cfg.Log)
 
-			gr := run.Group{}
-			ctx, cancel := func() (context.Context, context.CancelFunc) {
-				if cfg.Context == nil {
-					return context.WithCancel(context.Background())
-				}
-				return context.WithCancel(cfg.Context)
-			}()
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
-			defer cancel()
-
+			gr := runner.NewGroup()
 			{
 				server := debug.NewService(
 					debug.Logger(logger),
@@ -55,10 +52,7 @@ func Server(cfg *config.Config) *cli.Command {
 					debug.Ready(handlers.Ready),
 				)
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("nats_debug", server))
 			}
 
 			var tlsConf *tls.Config
@@ -85,7 +79,6 @@ func Server(cfg *config.Config) *cli.Command {
 				}
 			}
 			natsServer, err := nats.NewNATSServer(
-				ctx,
 				logging.NewLogWrapper(logger),
 				nats.Host(cfg.Nats.Host),
 				nats.Port(cfg.Nats.Port),
@@ -98,26 +91,21 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr.Add(func() error {
-				err := make(chan error)
-				select {
-				case <-ctx.Done():
-					return nil
-				case err <- natsServer.ListenAndServe():
-					return <-err
-				}
-
-			}, func(err error) {
-				logger.Error().
-					Err(err).
-					Msg("Shutting down server")
-
+			gr.Add(runner.New("nats_svc", func() error {
+				return natsServer.ListenAndServe()
+			}, func() {
 				natsServer.Shutdown()
-				cancel()
-				os.Exit(1)
-			})
+			}))
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }
