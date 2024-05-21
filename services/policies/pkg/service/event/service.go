@@ -76,8 +76,9 @@ EventLoop:
 // from, so resources won't be freed and there will be memory leaks. For now,
 // if the service is stopped, you should close the app soon after.
 func (s Service) Close() {
-	s.stopped.Store(true)
-	close(s.stopCh)
+	if s.stopped.CompareAndSwap(false, true) {
+		close(s.stopCh)
+	}
 }
 
 func (s Service) processEvent(e events.Event) error {

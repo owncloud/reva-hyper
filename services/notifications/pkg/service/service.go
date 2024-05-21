@@ -121,8 +121,9 @@ EventLoop:
 }
 
 func (s eventsNotifier) Close() {
-	s.stopped.Store(true)
-	close(s.stopCh)
+	if s.stopped.CompareAndSwap(false, true) {
+		close(s.stopCh)
+	}
 }
 
 func (s eventsNotifier) render(ctx context.Context, template email.MessageTemplate,

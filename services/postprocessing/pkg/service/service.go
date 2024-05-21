@@ -115,8 +115,9 @@ EventLoop:
 // from, so resources won't be freed and there will be memory leaks. For now,
 // if the service is stopped, you should close the app soon after.
 func (pps *PostprocessingService) Close() {
-	pps.stopped.Store(true)
-	close(pps.stopCh)
+	if pps.stopped.CompareAndSwap(false, true) {
+		close(pps.stopCh)
+	}
 }
 
 func (pps *PostprocessingService) processEvent(e events.Event) error {

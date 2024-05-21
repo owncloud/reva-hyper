@@ -160,8 +160,9 @@ EventLoop:
 }
 
 func (av Antivirus) Close() {
-	av.stopped.Store(true)
-	close(av.stopCh)
+	if av.stopped.CompareAndSwap(false, true) {
+		close(av.stopCh)
+	}
 }
 
 func (av Antivirus) processEvent(e events.Event, s events.Publisher) error {

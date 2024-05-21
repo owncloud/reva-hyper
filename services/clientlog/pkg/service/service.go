@@ -98,8 +98,9 @@ EventLoop:
 }
 
 func (cl *ClientlogService) Close() {
-	cl.stopped.Store(true)
-	close(cl.stopCh)
+	if cl.stopped.CompareAndSwap(false, true) {
+		close(cl.stopCh)
+	}
 }
 
 func (cl *ClientlogService) processEvent(event events.Event) {
