@@ -3,14 +3,15 @@ package command
 import (
 	"context"
 	"fmt"
+	"os/signal"
 
 	"github.com/cs3org/reva/v2/pkg/events"
 	"github.com/cs3org/reva/v2/pkg/events/stream"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
 	"github.com/owncloud/ocis/v2/ocis-pkg/handlers"
 	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/debug"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/grpc"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
@@ -51,17 +52,14 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr := run.Group{}
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
-			ctx, cancel := func() (context.Context, context.CancelFunc) {
-				if cfg.Context == nil {
-					return context.WithCancel(context.Background())
-				}
-				return context.WithCancel(cfg.Context)
-			}()
-
-			defer cancel()
-
+			gr := runner.NewGroup()
 			{
 				server := debug.NewService(
 					debug.Logger(logger),
@@ -75,10 +73,7 @@ func Server(cfg *config.Config) *cli.Command {
 					debug.Ready(handlers.Ready),
 				)
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("notifications_debug", server))
 			}
 
 			// evs defines a list of events to subscribe to
@@ -118,11 +113,21 @@ func Server(cfg *config.Config) *cli.Command {
 			valueService := settingssvc.NewValueService("com.owncloud.api.settings", grpcClient)
 			svc := service.NewEventsNotifier(evts, channel, logger, gatewaySelector, valueService, cfg.ServiceAccount.ServiceAccountID, cfg.ServiceAccount.ServiceAccountSecret, cfg.Notifications.EmailTemplatePath, cfg.Notifications.DefaultLanguage, cfg.WebUIURL)
 
-			gr.Add(svc.Run, func(error) {
-				cancel()
-			})
+			gr.Add(runner.New("notifications_svc", func() error {
+				return svc.Run()
+			}, func() {
+				svc.Close()
+			}))
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }

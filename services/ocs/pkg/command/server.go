@@ -3,15 +3,15 @@ package command
 import (
 	"context"
 	"fmt"
-	"os"
+	"os/signal"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
 	"github.com/owncloud/ocis/v2/services/ocs/pkg/config/parser"
 	"github.com/owncloud/ocis/v2/services/ocs/pkg/logging"
 	"github.com/owncloud/ocis/v2/services/ocs/pkg/tracing"
 
-	"github.com/oklog/run"
 	ogrpc "github.com/owncloud/ocis/v2/ocis-pkg/service/grpc"
 	"github.com/owncloud/ocis/v2/services/ocs/pkg/config"
 	"github.com/owncloud/ocis/v2/services/ocs/pkg/metrics"
@@ -41,21 +41,17 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			var (
-				gr          = run.Group{}
-				ctx, cancel = func() (context.Context, context.CancelFunc) {
-					if cfg.Context == nil {
-						return context.WithCancel(context.Background())
-					}
-					return context.WithCancel(cfg.Context)
-				}()
-				metrics = metrics.New()
-			)
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
-			defer cancel()
-
+			metrics := metrics.New()
 			metrics.BuildInfo.WithLabelValues(version.GetString()).Set(1)
 
+			gr := runner.NewGroup()
 			{
 				server, err := http.Server(
 					http.Logger(logger),
@@ -73,17 +69,7 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(func() error {
-					return server.Run()
-				}, func(err error) {
-					logger.Error().
-						Err(err).
-						Str("transport", "http").
-						Msg("Shutting down server")
-
-					cancel()
-					os.Exit(1)
-				})
+				gr.Add(runner.NewGoMicroHttpServerRunner("ocs_http", server))
 			}
 
 			{
@@ -98,13 +84,18 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("ocs_debug", server))
 			}
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }

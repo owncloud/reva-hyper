@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/signal"
 
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	"github.com/owncloud/ocis/v2/services/web/pkg/config"
 	"github.com/owncloud/ocis/v2/services/web/pkg/config/parser"
@@ -47,19 +48,16 @@ func Server(cfg *config.Config) *cli.Command {
 				}
 			}
 
-			var (
-				gr          = run.Group{}
-				ctx, cancel = func() (context.Context, context.CancelFunc) {
-					if cfg.Context == nil {
-						return context.WithCancel(context.Background())
-					}
-					return context.WithCancel(cfg.Context)
-				}()
-				metrics = metrics.New()
-			)
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
-			defer cancel()
+			metrics := metrics.New()
 
+			gr := runner.NewGroup()
 			{
 				server, err := http.Server(
 					http.Logger(logger),
@@ -78,24 +76,7 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(func() error {
-					err := server.Run()
-					if err != nil {
-						logger.Error().
-							Err(err).
-							Str("transport", "http").
-							Msg("Failed to start server")
-					}
-					return err
-				}, func(err error) {
-					logger.Error().
-						Err(err).
-						Str("server", "http").
-						Msg("Shutting down server")
-
-					cancel()
-					os.Exit(1)
-				})
+				gr.Add(runner.NewGoMicroHttpServerRunner("web_http", server))
 			}
 
 			{
@@ -109,13 +90,18 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("web_debug", server))
 			}
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }

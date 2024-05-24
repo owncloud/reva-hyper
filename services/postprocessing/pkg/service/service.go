@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
@@ -19,14 +20,16 @@ import (
 
 // PostprocessingService is an instance of the service handling postprocessing of files
 type PostprocessingService struct {
-	ctx    context.Context
-	log    log.Logger
-	events <-chan events.Event
-	pub    events.Publisher
-	steps  []events.Postprocessingstep
-	store  store.Store
-	c      config.Postprocessing
-	tp     trace.TracerProvider
+	ctx     context.Context
+	log     log.Logger
+	events  <-chan events.Event
+	pub     events.Publisher
+	steps   []events.Postprocessingstep
+	store   store.Store
+	c       config.Postprocessing
+	tp      trace.TracerProvider
+	stopCh  chan struct{}
+	stopped atomic.Bool
 }
 
 var (
@@ -60,25 +63,61 @@ func NewPostprocessingService(ctx context.Context, stream events.Stream, logger 
 		store:  sto,
 		c:      c,
 		tp:     tp,
+		stopCh: make(chan struct{}, 1),
 	}, nil
 }
 
 // Run to fulfil Runner interface
 func (pps *PostprocessingService) Run() error {
-	for e := range pps.events {
-		err := pps.processEvent(e)
-		if err != nil {
-			switch {
-			case errors.Is(err, ErrFatal):
-				return err
-			case errors.Is(err, ErrEvent):
-				continue
-			default:
-				pps.log.Fatal().Err(err).Msg("unknown error - exiting")
+EventLoop:
+	for {
+		select {
+		case <-pps.stopCh:
+			// stop requested
+			// TODO: we might need a way to unsubscribe from the event channel, otherwise
+			// we'll be leaking a goroutine in reva that will be stuck waiting for
+			// someone to read from the event channel.
+			// Note: redis implementation seems to have a timeout, so the goroutine
+			// will exit if there is nobody processing the events and the timeout
+			// is reached. The behavior is unclear with natsjs
+			break EventLoop
+		case e, ok := <-pps.events:
+			if !ok {
+				// event channel is closed, so nothing more to do
+				break EventLoop
+			}
+
+			err := pps.processEvent(e)
+			if err != nil {
+				switch {
+				case errors.Is(err, ErrFatal):
+					return err
+				case errors.Is(err, ErrEvent):
+					continue
+				default:
+					pps.log.Fatal().Err(err).Msg("unknown error - exiting")
+				}
+			}
+
+			if pps.stopped.Load() {
+				// if stopped, don't process any more events
+				break EventLoop
 			}
 		}
 	}
 	return nil
+}
+
+// Close will make the postprocessing service to stop processing, so the `Run`
+// method can finish.
+// TODO: Underlying services can't be stopped. This means that some goroutines
+// will get stuck trying to push events through a channel nobody is reading
+// from, so resources won't be freed and there will be memory leaks. For now,
+// if the service is stopped, you should close the app soon after.
+func (pps *PostprocessingService) Close() {
+	if pps.stopped.CompareAndSwap(false, true) {
+		close(pps.stopCh)
+	}
 }
 
 func (pps *PostprocessingService) processEvent(e events.Event) error {

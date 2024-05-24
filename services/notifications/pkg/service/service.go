@@ -5,11 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-	"os"
-	"os/signal"
 	"path"
 	"strings"
-	"syscall"
+	"sync"
+	"sync/atomic"
 
 	gateway "github.com/cs3org/go-cs3apis/cs3/gateway/v1beta1"
 	group "github.com/cs3org/go-cs3apis/cs3/identity/group/v1beta1"
@@ -32,6 +31,7 @@ import (
 // Service should be named `Runner`
 type Service interface {
 	Run() error
+	Close()
 }
 
 // NewEventsNotifier provides a new eventsNotifier
@@ -47,7 +47,6 @@ func NewEventsNotifier(
 		logger:               logger,
 		channel:              channel,
 		events:               events,
-		signals:              make(chan os.Signal, 1),
 		gatewaySelector:      gatewaySelector,
 		valueService:         valueService,
 		serviceAccountID:     serviceAccountID,
@@ -55,6 +54,8 @@ func NewEventsNotifier(
 		emailTemplatePath:    emailTemplatePath,
 		defaultLanguage:      defaultLanguage,
 		ocisURL:              ocisURL,
+		stopCh:               make(chan struct{}, 1),
+		stopped:              new(atomic.Bool),
 	}
 }
 
@@ -62,7 +63,6 @@ type eventsNotifier struct {
 	logger               log.Logger
 	channel              channels.Channel
 	events               <-chan events.Event
-	signals              chan os.Signal
 	gatewaySelector      pool.Selectable[gateway.GatewayAPIClient]
 	valueService         settingssvc.ValueService
 	emailTemplatePath    string
@@ -71,16 +71,27 @@ type eventsNotifier struct {
 	ocisURL              string
 	serviceAccountID     string
 	serviceAccountSecret string
+	stopCh               chan struct{}
+	stopped              *atomic.Bool
 }
 
 func (s eventsNotifier) Run() error {
-	signal.Notify(s.signals, syscall.SIGINT, syscall.SIGTERM)
+	var wg sync.WaitGroup
+
 	s.logger.Debug().
 		Msg("eventsNotifier started")
+EventLoop:
 	for {
 		select {
-		case evt := <-s.events:
+		case evt, ok := <-s.events:
+			if !ok {
+				break EventLoop
+			}
+			// TODO: needs to be replaced with a worker pool
+			wg.Add(1)
 			go func() {
+				defer wg.Done()
+
 				switch e := evt.Event.(type) {
 				case events.SpaceShared:
 					s.handleSpaceShared(e)
@@ -94,11 +105,24 @@ func (s eventsNotifier) Run() error {
 					s.handleShareExpired(e)
 				}
 			}()
-		case <-s.signals:
+
+			if s.stopped.Load() {
+				break EventLoop
+			}
+		case <-s.stopCh:
 			s.logger.Debug().
 				Msg("eventsNotifier stopped")
-			return nil
+			break EventLoop
 		}
+	}
+	// wait until all the goroutines processing events have finished
+	wg.Wait()
+	return nil
+}
+
+func (s eventsNotifier) Close() {
+	if s.stopped.CompareAndSwap(false, true) {
+		close(s.stopCh)
 	}
 }
 

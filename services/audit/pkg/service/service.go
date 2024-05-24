@@ -42,7 +42,11 @@ func StartAuditLogger(ctx context.Context, ch <-chan events.Event, log log.Logge
 		select {
 		case <-ctx.Done():
 			return
-		case i := <-ch:
+		case i, ok := <-ch:
+			if !ok {
+				return
+			}
+
 			var auditEvent interface{}
 			switch ev := i.Event.(type) {
 			case events.ShareCreated:
@@ -111,6 +115,10 @@ func StartAuditLogger(ctx context.Context, ch <-chan events.Event, log log.Logge
 				auditEvent = types.GroupMemberRemoved(ev)
 			default:
 				log.Error().Interface("event", ev).Msg(fmt.Sprintf("can't handle event of type '%T'", ev))
+				if ctx.Err() != nil {
+					// if context is done, do not process more events
+					return
+				}
 				continue
 
 			}
@@ -118,11 +126,18 @@ func StartAuditLogger(ctx context.Context, ch <-chan events.Event, log log.Logge
 			b, err := marshaller(auditEvent)
 			if err != nil {
 				log.Error().Err(err).Msg("error marshaling the event")
+				if ctx.Err() != nil {
+					return
+				}
 				continue
 			}
 
 			for _, l := range logto {
 				l(b)
+			}
+
+			if ctx.Err() != nil {
+				return
 			}
 		}
 	}

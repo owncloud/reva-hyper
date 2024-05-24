@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os/signal"
 
 	"github.com/cs3org/reva/v2/pkg/events/stream"
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/debug"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/grpc"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
@@ -33,23 +34,20 @@ func Server(cfg *config.Config) *cli.Command {
 			return configlog.ReturnFatal(parser.ParseConfig(cfg))
 		},
 		Action: func(c *cli.Context) error {
-			var (
-				gr          = run.Group{}
-				ctx, cancel = func() (context.Context, context.CancelFunc) {
-					if cfg.Context == nil {
-						return context.WithCancel(context.Background())
-					}
-					return context.WithCancel(cfg.Context)
-				}()
-				logger = log.NewLogger(
-					log.Name(cfg.Service.Name),
-					log.Level(cfg.Log.Level),
-					log.Pretty(cfg.Log.Pretty),
-					log.Color(cfg.Log.Color),
-					log.File(cfg.Log.File),
-				).SubloggerWithRequestID(ctx)
-			)
-			defer cancel()
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
+
+			logger := log.NewLogger(
+				log.Name(cfg.Service.Name),
+				log.Level(cfg.Log.Level),
+				log.Pretty(cfg.Log.Pretty),
+				log.Color(cfg.Log.Color),
+				log.File(cfg.Log.File),
+			).SubloggerWithRequestID(ctx)
 
 			traceProvider, err := tracing.GetServiceTraceProvider(cfg.Tracing, cfg.Service.Name)
 			if err != nil {
@@ -61,6 +59,7 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
+			gr := runner.NewGroup()
 			{
 				grpcClient, err := grpc.NewClient(
 					append(
@@ -103,9 +102,7 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(svc.Run, func(_ error) {
-					cancel()
-				})
+				gr.Add(runner.NewGoMicroGrpcServerRunner("policies_grpc", svc))
 			}
 
 			{
@@ -120,9 +117,11 @@ func Server(cfg *config.Config) *cli.Command {
 					return err
 				}
 
-				gr.Add(eventSvc.Run, func(_ error) {
-					cancel()
-				})
+				gr.Add(runner.New("policies_svc", func() error {
+					return eventSvc.Run()
+				}, func() {
+					eventSvc.Close()
+				}))
 			}
 
 			{
@@ -164,13 +163,18 @@ func Server(cfg *config.Config) *cli.Command {
 					),
 				)
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("policies_debug", server))
 			}
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }

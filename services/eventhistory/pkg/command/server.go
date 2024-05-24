@@ -3,12 +3,13 @@ package command
 import (
 	"context"
 	"fmt"
+	"os/signal"
 
 	"github.com/cs3org/reva/v2/pkg/events/stream"
 	"github.com/cs3org/reva/v2/pkg/store"
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
 	"github.com/owncloud/ocis/v2/ocis-pkg/handlers"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/debug"
 	ogrpc "github.com/owncloud/ocis/v2/ocis-pkg/service/grpc"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
@@ -45,20 +46,17 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			var (
-				gr          = run.Group{}
-				ctx, cancel = func() (context.Context, context.CancelFunc) {
-					if cfg.Context == nil {
-						return context.WithCancel(context.Background())
-					}
-					return context.WithCancel(cfg.Context)
-				}()
-				m = metrics.New()
-			)
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
-			defer cancel()
-
+			m := metrics.New()
 			m.BuildInfo.WithLabelValues(version.GetString()).Set(1)
+
+			gr := runner.NewGroup()
 
 			consumer, err := stream.NatsFromConfig(cfg.Service.Name, false, stream.NatsConfig(cfg.Events))
 			if err != nil {
@@ -88,14 +86,7 @@ func Server(cfg *config.Config) *cli.Command {
 				grpc.TraceProvider(traceProvider),
 			)
 
-			gr.Add(service.Run, func(err error) {
-				logger.Error().
-					Err(err).
-					Str("server", "grpc").
-					Msg("Shutting Down server")
-
-				cancel()
-			})
+			gr.Add(runner.NewGoMicroGrpcServerRunner("eventhistory_grpc", service))
 
 			{
 				server := debug.NewService(
@@ -110,13 +101,18 @@ func Server(cfg *config.Config) *cli.Command {
 					debug.Ready(handlers.Ready),
 				)
 
-				gr.Add(server.ListenAndServe, func(_ error) {
-					_ = server.Shutdown(ctx)
-					cancel()
-				})
+				gr.Add(runner.NewGolangHttpServerRunner("eventhistory_debug", server))
 			}
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }

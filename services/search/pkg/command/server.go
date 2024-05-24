@@ -3,9 +3,10 @@ package command
 import (
 	"context"
 	"fmt"
+	"os/signal"
 
-	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
+	"github.com/owncloud/ocis/v2/ocis-pkg/runner"
 	ogrpc "github.com/owncloud/ocis/v2/ocis-pkg/service/grpc"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
@@ -40,17 +41,18 @@ func Server(cfg *config.Config) *cli.Command {
 			if err != nil {
 				return err
 			}
-			gr := run.Group{}
-			ctx, cancel := func() (context.Context, context.CancelFunc) {
-				if cfg.Context == nil {
-					return context.WithCancel(context.Background())
-				}
-				return context.WithCancel(cfg.Context)
-			}()
-			defer cancel()
+
+			var cancel context.CancelFunc
+			ctx := cfg.Context
+			if ctx == nil {
+				ctx, cancel = signal.NotifyContext(context.Background(), runner.StopSignals...)
+				defer cancel()
+			}
 
 			mtrcs := metrics.New()
 			mtrcs.BuildInfo.WithLabelValues(version.GetString()).Set(1)
+
+			gr := runner.NewGroup()
 
 			grpcServer, teardown, err := grpc.Server(
 				grpc.Config(cfg),
@@ -67,13 +69,7 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr.Add(grpcServer.Run, func(_ error) {
-				logger.Error().
-					Err(err).
-					Str("server", "grpc").
-					Msg("shutting down server")
-				cancel()
-			})
+			gr.Add(runner.NewGoMicroGrpcServerRunner("search_grpc", grpcServer))
 
 			server, err := debug.Server(
 				debug.Logger(logger),
@@ -85,12 +81,17 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr.Add(server.ListenAndServe, func(_ error) {
-				_ = server.Shutdown(ctx)
-				cancel()
-			})
+			gr.Add(runner.NewGolangHttpServerRunner("search_debug", server))
 
-			return gr.Run()
+			grResults := gr.Run(ctx)
+
+			// return the first non-nil error found in the results
+			for _, grResult := range grResults {
+				if grResult.RunnerError != nil {
+					return grResult.RunnerError
+				}
+			}
+			return nil
 		},
 	}
 }
