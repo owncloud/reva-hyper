@@ -149,6 +149,29 @@ func (r *Role) WebDAVPermissions(isDir, isShared, isMountpoint, isPublic bool) s
 	return b.String()
 }
 
+// OCSPermissionsToPublicLinkType converts the public link OCSPermission to the sharingLinkType representation
+//
+//	VIEW            SharingLinkType = "view"
+//	UPLOAD          SharingLinkType = "upload"
+//	EDIT            SharingLinkType = "edit"
+//	CREATE_ONLY     SharingLinkType = "createOnly"
+func (r *Role) OCSPermissionsToPublicLinkType(rt provider.ResourceType) string {
+	p := r.OCSPermissions()
+	switch {
+	case p == PermissionRead:
+		return "view"
+	case p == PermissionRead|PermissionWrite && rt == provider.ResourceType_RESOURCE_TYPE_FILE:
+		return "edit"
+	case p == PermissionRead|PermissionCreate && rt == provider.ResourceType_RESOURCE_TYPE_CONTAINER:
+		return "upload"
+	case p == PermissionRead|PermissionWrite|PermissionCreate|PermissionDelete && rt == provider.ResourceType_RESOURCE_TYPE_CONTAINER:
+		return "edit"
+	case p == PermissionCreate && rt == provider.ResourceType_RESOURCE_TYPE_CONTAINER:
+		return "createOnly"
+	}
+	return ""
+}
+
 // RoleFromName creates a role from the name
 func RoleFromName(name string) *Role {
 	switch name {

@@ -1344,6 +1344,12 @@ func mdToPropResponse(ctx context.Context, pf *XML, md *provider.ResourceInfo, p
 					} else {
 						appendToNotFound(prop.NotFound("oc:public-link-permission"))
 					}
+				case "public-link-type": // only on a share root node
+					if ls != nil && md.PermissionSet != nil {
+						appendToOK(prop.Escaped("oc:public-link-type", role.OCSPermissionsToPublicLinkType(md.Type)))
+					} else {
+						appendToNotFound(prop.NotFound("oc:public-link-type"))
+					}
 				case "public-link-item-type": // only on a share root node
 					if ls != nil {
 						if md.Type == provider.ResourceType_RESOURCE_TYPE_CONTAINER {

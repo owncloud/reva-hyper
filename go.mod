@@ -368,3 +368,5 @@ replace github.com/unrolled/secure => github.com/DeepDiver1975/secure v0.0.0-202
 // exclude the v2 line of go-sqlite3 which was released accidentally and prevents pulling in newer versions of go-sqlite3
 // see https://github.com/mattn/go-sqlite3/issues/965 for more details
 exclude github.com/mattn/go-sqlite3 v2.0.3+incompatible
+
+replace github.com/cs3org/reva/v2 => github.com/2403905/reva/v2 v2.0.0-20240611152209-fde0feceb7cc

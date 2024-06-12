@@ -14,7 +14,6 @@ import (
 	rpc "github.com/cs3org/go-cs3apis/cs3/rpc/v1beta1"
 	storageprovider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
-
 	"google.golang.org/grpc/metadata"
 )
 
@@ -54,7 +53,7 @@ func GetServiceUserContextWithContext(ctx context.Context, gwc gateway.GatewayAP
 		return nil, err
 	}
 
-	if err := checkStatusCode("authenticating service user", authRes.GetStatus().GetCode()); err != nil {
+	if err := checkStatusCode("authenticating service user", authRes.GetStatus().GetMessage(), authRes.GetStatus().GetCode()); err != nil {
 		return nil, err
 	}
 
@@ -74,7 +73,7 @@ func GetUserWithContext(ctx context.Context, userID *user.UserId, gwc gateway.Ga
 		return nil, err
 	}
 
-	if err := checkStatusCode("getting user", getUserResponse.GetStatus().GetCode()); err != nil {
+	if err := checkStatusCode("getting user", getUserResponse.GetStatus().GetMessage(), getUserResponse.GetStatus().GetCode()); err != nil {
 		return nil, err
 
 	}
@@ -88,7 +87,7 @@ func GetAcceptedUserWithContext(ctx context.Context, userID *user.UserId, gwc ga
 		return nil, err
 	}
 
-	if err := checkStatusCode("getting accepted user", getAcceptedUserResponse.GetStatus().GetCode()); err != nil {
+	if err := checkStatusCode("getting accepted user", getAcceptedUserResponse.GetStatus().GetMessage(), getAcceptedUserResponse.GetStatus().GetCode()); err != nil {
 		return nil, err
 	}
 
@@ -102,12 +101,12 @@ func GetSpace(ctx context.Context, spaceID string, gwc gateway.GatewayAPIClient)
 		return nil, err
 	}
 
-	if err := checkStatusCode("getting space", res.GetStatus().GetCode()); err != nil {
+	if err := checkStatusCode("getting space", res.GetStatus().GetMessage(), res.GetStatus().GetCode()); err != nil {
 		return nil, err
 	}
 
 	if len(res.StorageSpaces) == 0 {
-		return nil, statusCodeError{"getting space", rpc.Code_CODE_NOT_FOUND}
+		return nil, statusCodeError{"getting space", "", rpc.Code_CODE_NOT_FOUND}
 	}
 
 	return res.StorageSpaces[0], nil
@@ -120,7 +119,7 @@ func GetGroupMembers(ctx context.Context, groupID string, gwc gateway.GatewayAPI
 		return nil, err
 	}
 
-	if err := checkStatusCode("getting group", r.GetStatus().GetCode()); err != nil {
+	if err := checkStatusCode("getting group", r.GetStatus().GetMessage(), r.GetStatus().GetCode()); err != nil {
 		return nil, err
 	}
 
@@ -184,7 +183,7 @@ func GetResource(ctx context.Context, ref *storageprovider.Reference, gwc gatewa
 		return nil, err
 	}
 
-	if err := checkStatusCode("getting resource", res.GetStatus().GetCode()); err != nil {
+	if err := checkStatusCode("getting resource", res.GetStatus().GetMessage(), res.GetStatus().GetCode()); err != nil {
 		return nil, err
 	}
 
@@ -211,8 +210,21 @@ func IsStatusCodeError(err error, code rpc.Code) bool {
 	if !ok {
 		return false
 	}
-
 	return sce.code == code
+}
+
+// StatusCodeErrorToCS3Status translate the `statusCodeError` type to CS3 Status
+// returns nil if `err` does not match to the `statusCodeError` type
+func StatusCodeErrorToCS3Status(err error) *rpc.Status {
+	var sce statusCodeError
+	ok := errors.As(err, &sce)
+	if !ok {
+		return nil
+	}
+	if sce.message == "" {
+		sce.message = sce.reason
+	}
+	return &rpc.Status{Message: sce.message, Code: sce.code}
 }
 
 // IsSpaceRoot checks if the given resource info is referring to a space root
@@ -222,11 +234,11 @@ func IsSpaceRoot(ri *storageprovider.ResourceInfo) bool {
 	return f.GetOpaqueId() == s.GetOpaqueId() && f.GetSpaceId() == s.GetSpaceId()
 }
 
-func checkStatusCode(reason string, code rpc.Code) error {
+func checkStatusCode(reason, message string, code rpc.Code) error {
 	if code == rpc.Code_CODE_OK {
 		return nil
 	}
-	return statusCodeError{reason, code}
+	return statusCodeError{reason, message, code}
 }
 
 func gatherProjectSpaceMembers(ctx context.Context, space *storageprovider.StorageSpace, gwc gateway.GatewayAPIClient, role SpaceRole) ([]string, error) {
@@ -293,11 +305,15 @@ func listStorageSpaceRequest(spaceID string) *storageprovider.ListStorageSpacesR
 
 // statusCodeError is a helper struct to return errors
 type statusCodeError struct {
-	reason string
-	code   rpc.Code
+	reason  string
+	message string // represents the v1beta11.Status.Message
+	code    rpc.Code
 }
 
 // Error implements error interface
 func (sce statusCodeError) Error() string {
-	return fmt.Sprintf(_errStatusCodeTmpl, sce.reason, sce.code)
+	if sce.reason != "" {
+		return fmt.Sprintf(_errStatusCodeTmpl, sce.reason, sce.code)
+	}
+	return fmt.Sprintf(_errStatusCodeTmpl, sce.message, sce.code)
 }
