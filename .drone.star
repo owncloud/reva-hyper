@@ -272,6 +272,7 @@ def main(ctx):
 
     test_pipelines = \
         codestyle(ctx) + \
+        checkGherkinLint(ctx) + \
         checkTestSuitesInExpectedFailures(ctx) + \
         buildWebCache(ctx) + \
         getGoBinForTesting(ctx) + \
@@ -722,6 +723,28 @@ def checkTestSuitesInExpectedFailures(ctx):
                 "image": OC_CI_ALPINE,
                 "commands": [
                     "%s/tests/acceptance/check-deleted-suites-in-expected-failure.sh" % dirs["base"],
+                ],
+            },
+        ],
+        "trigger": {
+            "ref": [
+                "refs/pull/**",
+            ],
+        },
+    }]
+
+def checkGherkinLint(ctx):
+    return [{
+        "kind": "pipeline",
+        "type": "docker",
+        "name": "check-gherkin-standard",
+        "steps": [
+            {
+                "name": "lint-feature-files",
+                "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
+                "commands": [
+                    "npm install -g @gherlint/gherlint@1.1.0",
+                    "make test-gherkin-lint",
                 ],
             },
         ],

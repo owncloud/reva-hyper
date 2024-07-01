@@ -112,6 +112,10 @@ help:
 	@echo -e "\tmake test-php-style\t\t${BLUE}run PHP code style checks${RESET}"
 	@echo -e "\tmake test-php-style-fix\t\t${BLUE}run PHP code style checks and fix any issues found${RESET}"
 	@echo
+	@echo -e "${GREEN}Tools for linting gherkin feature files:\n${RESET}"
+	@echo -e "\tmake test-gherkin-lint\t\t${BLUE}run lint checks on Gherkin feature files${RESET}"
+	@echo -e "\tmake test-gherkin-lint-fix\t${BLUE}apply lint fixes to gherkin feature files${RESET}"
+	@echo
 
 .PHONY: clean-tests
 clean-tests:
@@ -234,6 +238,14 @@ golangci-lint-fix:
 	@for mod in $(OCIS_MODULES); do \
         $(MAKE) --no-print-directory -C $$mod golangci-lint-fix; \
     done
+
+.PHONY: test-gherkin-lint
+test-gherkin-lint:
+	gherlint tests/acceptance/features -c tests/acceptance/config/.gherlintrc.json
+
+.PHONY: test-gherkin-lint-fix
+test-gherkin-lint-fix:
+	gherlint --fix tests/acceptance/features -c tests/acceptance/config/.gherlintrc.json
 
 .PHONY: bingo-update
 bingo-update: $(BINGO)
