@@ -5010,3 +5010,46 @@ Feature: an user gets the resources shared to them
       | resource      |
       | testfile.txt  |
       | FolderToShare |
+
+  @issue-8464
+  Scenario: sharee overwrite the file shared using with them
+    Given user "Alice" has created folder "/Folder"
+    And group "grp1" has been created
+    And user "Brian" has been added to group "grp1"
+    And user "Alice" has uploaded file with content "ownCloud" to "/Folder/textfile0.txt"
+    And user "Alice" has sent the following resource share invitation:
+      | resource        | Folder   |
+      | space           | Personal |
+      | sharee          | Brian    |
+      | shareType       | user     |
+      | permissionsRole | Editor   |
+    And user "Alice" has sent the following resource share invitation:
+      | resource        | Folder   |
+      | space           | Personal |
+      | sharee          | grp1     |
+      | shareType       | group    |
+      | permissionsRole | Viewer   |
+    When user "Brian" uploads file with content "ownCloud testing" to "/Shares/Folder/textfile0.txt" using the WebDAV API
+    Then the HTTP status code should be "204"
+    And for user "Alice" the content of the file "Folder/textfile0.txt" of the space "Personal" should be "ownCloud testing"
+
+  @issue-8464
+  Scenario: sharee overwrite the file shared with them using TUS
+    Given user "Alice" has created folder "/Folder"
+    And group "grp1" has been created
+    And user "Brian" has been added to group "grp1"
+    And user "Alice" has uploaded file with content "ownCloud" to "/Folder/textfile0.txt"
+    And user "Alice" has sent the following resource share invitation:
+      | resource        | Folder   |
+      | space           | Personal |
+      | sharee          | Brian    |
+      | shareType       | user     |
+      | permissionsRole | Editor   |
+    And user "Alice" has sent the following resource share invitation:
+      | resource        | Folder   |
+      | space           | Personal |
+      | sharee          | grp1     |
+      | shareType       | group    |
+      | permissionsRole | Viewer   |
+    When user "Brian" uploads file with content "ownCloud testing" to "/Shares/Folder/textfile0.txt" using the TUS protocol on the WebDAV API
+    Then for user "Alice" the content of the file "Folder/textfile0.txt" of the space "Personal" should be "ownCloud testing"

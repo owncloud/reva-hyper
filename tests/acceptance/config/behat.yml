@@ -337,6 +337,7 @@ default:
         - SharingNgContext:
         - OcisConfigContext:
         - SettingsContext:
+        - TUSContext:
 
     apiSharingNgShareInvitation:
       paths:
