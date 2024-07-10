@@ -109,6 +109,7 @@ default:
         - WebDavPropertiesContext:
         - AuthContext:
         - SharingNgContext:
+        - TUSContext:
 
     coreApiShareOperationsToShares1:
       paths:
