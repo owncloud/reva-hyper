@@ -14,6 +14,7 @@ type kvOptionsKey struct{}
 type ttlOptionsKey struct{}
 type memoryOptionsKey struct{}
 type descriptionOptionsKey struct{}
+type keyEncodeOptionsKey struct{}
 
 // NatsOptions accepts nats.Options.
 func NatsOptions(opts nats.Options) store.Option {
@@ -59,6 +60,13 @@ func DefaultMemory() store.Option {
 //	buckets. The default is "Store managed by go-micro"
 func DefaultDescription(text string) store.Option {
 	return setStoreOption(descriptionOptionsKey{}, text)
+}
+
+// EncodeKeys will "base32" encode the keys.
+// This is to work around limited characters usable as keys for the natsjs kv store.
+// See details here: https://docs.nats.io/nats-concepts/subjects#characters-allowed-for-subject-names
+func EncodeKeys() store.Option {
+	return setStoreOption(keyEncodeOptionsKey{}, "base32")
 }
 
 // DeleteBucket will use the key passed to Delete as a bucket (database) name,

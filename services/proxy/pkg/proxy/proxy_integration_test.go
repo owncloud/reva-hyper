@@ -10,8 +10,10 @@ import (
 	"testing"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
+	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/router"
+	"go-micro.dev/v4/selector"
 )
 
 func TestProxyIntegration(t *testing.T) {
@@ -111,12 +113,15 @@ func TestProxyIntegration(t *testing.T) {
 			expectProxyTo("http://users.example.com/user/1234"),
 	}
 
+	reg := registry.GetRegistry()
+	sel := selector.NewSelector(selector.Registry(reg))
+
 	for k := range tests {
 		t.Run(tests[k].id, func(t *testing.T) {
 			t.Parallel()
 			tc := tests[k]
 
-			rt := router.Middleware(nil, tc.conf, log.NewLogger())
+			rt := router.Middleware(sel, nil, tc.conf, log.NewLogger())
 			rp := newTestProxy(testConfig(tc.conf), func(req *http.Request) *http.Response {
 				if got, want := req.URL.String(), tc.expect.String(); got != want {
 					t.Errorf("Proxied url should be %v got %v", want, got)

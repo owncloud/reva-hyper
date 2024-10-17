@@ -21,6 +21,7 @@ package ocdav
 import (
 	"context"
 	"crypto/tls"
+	"time"
 
 	gateway "github.com/cs3org/go-cs3apis/cs3/gateway/v1beta1"
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocdav"
@@ -29,6 +30,7 @@ import (
 	"github.com/cs3org/reva/v2/pkg/storage/favorite"
 	"github.com/rs/zerolog"
 	"go-micro.dev/v4/broker"
+	"go-micro.dev/v4/registry"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/credentials"
 )
@@ -70,6 +72,10 @@ type Options struct {
 	AllowedHeaders     []string
 	AllowedMethods     []string
 	AllowDepthInfinity bool
+
+	RegisterTTL      time.Duration
+	RegisterInterval time.Duration
+	Registry         registry.Registry
 }
 
 // newOptions initializes the available default options.
@@ -381,5 +387,26 @@ func ItemNameInvalidChars(chars []string) Option {
 func ItemNameMaxLength(i int) Option {
 	return func(o *Options) {
 		o.config.NameValidation.MaxLength = i
+	}
+}
+
+// RegisterTTL provides a function to set the RegisterTTL option.
+func RegisterTTL(ttl time.Duration) Option {
+	return func(o *Options) {
+		o.RegisterTTL = ttl
+	}
+}
+
+// RegisterInterval provides a function to set the RegisterInterval option.
+func RegisterInterval(interval time.Duration) Option {
+	return func(o *Options) {
+		o.RegisterInterval = interval
+	}
+}
+
+// Registry provides a function to set the Registry option.
+func Registry(registry registry.Registry) Option {
+	return func(o *Options) {
+		o.Registry = registry
 	}
 }

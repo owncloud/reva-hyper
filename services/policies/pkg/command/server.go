@@ -35,13 +35,8 @@ func Server(cfg *config.Config) *cli.Command {
 		Action: func(c *cli.Context) error {
 			var (
 				gr          = run.Group{}
-				ctx, cancel = func() (context.Context, context.CancelFunc) {
-					if cfg.Context == nil {
-						return context.WithCancel(context.Background())
-					}
-					return context.WithCancel(cfg.Context)
-				}()
-				logger = log.NewLogger(
+				ctx, cancel = context.WithCancel(c.Context)
+				logger      = log.NewLogger(
 					log.Name(cfg.Service.Name),
 					log.Level(cfg.Log.Level),
 					log.Pretty(cfg.Log.Pretty),

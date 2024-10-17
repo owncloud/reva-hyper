@@ -30,6 +30,7 @@ type natsStore struct {
 	sync.Once
 	sync.RWMutex
 
+	encoding    string
 	ttl         time.Duration
 	storageType nats.StorageType
 	description string
@@ -143,6 +144,10 @@ func (n *natsStore) setOption(opts ...store.Option) {
 		n.description = text
 	}
 
+	if encoding, ok := n.opts.Context.Value(keyEncodeOptionsKey{}).(string); ok {
+		n.encoding = encoding
+	}
+
 	// Assign store option server addresses to nats options
 	if len(n.opts.Nodes) > 0 {
 		n.nopts.Url = ""
@@ -238,8 +243,8 @@ func (n *natsStore) Write(rec *store.Record, opts ...store.WriteOption) error {
 		return errors.Wrap(err, "Failed to marshal object")
 	}
 
-	if _, err := store.Put(NatsKey(opt.Table, rec.Key), b); err != nil {
-		return errors.Wrapf(err, "Failed to store data in bucket '%s'", NatsKey(opt.Table, rec.Key))
+	if _, err := store.Put(n.NatsKey(opt.Table, rec.Key), b); err != nil {
+		return errors.Wrapf(err, "Failed to store data in bucket '%s'", n.NatsKey(opt.Table, rec.Key))
 	}
 
 	return nil
@@ -280,7 +285,7 @@ func (n *natsStore) Delete(key string, opts ...store.DeleteOption) error {
 		return ErrBucketNotFound
 	}
 
-	if err := store.Delete(NatsKey(opt.Table, key)); err != nil {
+	if err := store.Delete(n.NatsKey(opt.Table, key)); err != nil {
 		return errors.Wrap(err, "Failed to delete data")
 	}
 
@@ -328,6 +333,66 @@ func (n *natsStore) Close() error {
 // String returns the name of the implementation.
 func (n *natsStore) String() string {
 	return "NATS JetStream KeyValueStore"
+}
+
+// StoreUpdate is the update type for the store.
+type StoreUpdate struct {
+	Value  KeyValueEnvelope
+	Action string
+}
+
+// WatchAll exposes the watcher interface from the underlying JetStreamContext.
+func (n *natsStore) WatchAll(bucket string, opts ...nats.WatchOpt) (<-chan *StoreUpdate, func() error, error) {
+	if bucket == "" {
+		return nil, nil, errors.New("multi bucket watching is not supported")
+	}
+
+	if err := n.initConn(); err != nil {
+		return nil, nil, err
+	}
+
+	b, err := n.js.KeyValue(bucket)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "Failed to get bucket")
+	}
+
+	w, err := b.WatchAll(opts...)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "Failed to watch bucket")
+	}
+
+	ch := make(chan *StoreUpdate)
+	go func() {
+		for u := range w.Updates() {
+			if u == nil {
+				continue
+			}
+
+			var action string
+			var kv KeyValueEnvelope
+			switch u.Operation() {
+			case nats.KeyValuePut:
+				action = "create"
+				if err := json.Unmarshal(u.Value(), &kv); err != nil {
+					continue
+				}
+			case nats.KeyValueDelete:
+				fallthrough
+			case nats.KeyValuePurge:
+				action = "delete"
+				kv = KeyValueEnvelope{
+					Key: n.NewKey(n.opts.Table, "", u.Key()).MicroKey(),
+				}
+			}
+
+			ch <- &StoreUpdate{
+				Value:  kv,
+				Action: action,
+			}
+		}
+	}()
+
+	return ch, w.Stop, nil
 }
 
 // thread safe way to initialize the connection.
@@ -392,7 +457,7 @@ func (n *natsStore) mustGetBucket(kv *nats.KeyValueConfig) (nats.KeyValue, error
 func (n *natsStore) getRecord(bucket nats.KeyValue, key string) (*store.Record, bool, error) {
 	obj, err := bucket.Get(key)
 	if errors.Is(err, nats.ErrKeyNotFound) {
-		return nil, false, nil
+		return nil, false, store.ErrNotFound
 	} else if err != nil {
 		return nil, false, errors.Wrap(err, "Failed to get object from bucket")
 	}
@@ -415,7 +480,7 @@ func (n *natsStore) getRecord(bucket nats.KeyValue, key string) (*store.Record, 
 
 func (n *natsStore) natsKeys(bucket nats.KeyValue, table, key string, prefix, suffix bool) ([]string, error) {
 	if !suffix && !prefix {
-		return []string{NatsKey(table, key)}, nil
+		return []string{n.NatsKey(table, key)}, nil
 	}
 
 	toS := func(s string, b bool) string {
@@ -449,7 +514,7 @@ func (n *natsStore) getKeys(bucket nats.KeyValue, table string, prefix, suffix s
 	microKeys := make([]string, 0, len(names))
 
 	for _, k := range names {
-		mkey, ok := MicroKeyFilter(table, k, prefix, suffix)
+		mkey, ok := n.MicroKeyFilter(table, k, prefix, suffix)
 		if !ok {
 			continue
 		}

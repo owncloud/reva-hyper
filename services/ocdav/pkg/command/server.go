@@ -3,13 +3,13 @@ package command
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/cs3org/reva/v2/pkg/micro/ocdav"
 	"github.com/cs3org/reva/v2/pkg/sharedconf"
 	"github.com/oklog/run"
 	"github.com/owncloud/ocis/v2/ocis-pkg/broker"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
+	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
 	"github.com/owncloud/ocis/v2/services/ocdav/pkg/config"
@@ -35,7 +35,7 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 			gr := run.Group{}
-			ctx, cancel := defineContext(cfg)
+			ctx, cancel := context.WithCancel(c.Context)
 
 			defer cancel()
 
@@ -87,6 +87,8 @@ func Server(cfg *config.Config) *cli.Command {
 					ocdav.MetricsNamespace("ocis"),
 					ocdav.Tracing("Adding these strings is a workaround for ->", "https://github.com/cs3org/reva/issues/4131"),
 					ocdav.WithTraceProvider(traceProvider),
+					ocdav.RegisterTTL(registry.GetRegisterTTL()),
+					ocdav.RegisterInterval(registry.GetRegisterInterval()),
 				}
 
 				s, err := ocdav.Service(opts...)
@@ -101,7 +103,6 @@ func Server(cfg *config.Config) *cli.Command {
 					Str("server", c.Command.Name).
 					Msg("Shutting down server")
 				cancel()
-				os.Exit(1)
 			})
 
 			debugServer, err := debug.Server(
@@ -123,15 +124,4 @@ func Server(cfg *config.Config) *cli.Command {
 			return gr.Run()
 		},
 	}
-}
-
-// defineContext sets the context for the service. If there is a context configured it will create a new child from it,
-// if not, it will create a root context that can be cancelled.
-func defineContext(cfg *config.Config) (context.Context, context.CancelFunc) {
-	return func() (context.Context, context.CancelFunc) {
-		if cfg.Context == nil {
-			return context.WithCancel(context.Background())
-		}
-		return context.WithCancel(cfg.Context)
-	}()
 }

@@ -10,8 +10,10 @@ import (
 	"testing"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
+	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config/defaults"
+	"go-micro.dev/v4/selector"
 )
 
 type matchertest struct {
@@ -69,7 +71,9 @@ func TestQueryRouteMatcher(t *testing.T) {
 func TestRegexRouteMatcher(t *testing.T) {
 	cfg := defaults.DefaultConfig()
 	cfg.Policies = defaults.DefaultPolicies()
-	rt := New(cfg.PolicySelector, cfg.Policies, log.NewLogger())
+	reg := registry.GetRegistry()
+	sel := selector.NewSelector(selector.Registry(reg))
+	rt := New(sel, cfg.PolicySelector, cfg.Policies, log.NewLogger())
 
 	table := []matchertest{
 		{endpoint: ".*some\\/url.*parameter=true", target: "/foobar/baz/some/url?parameter=true", matches: true},
@@ -112,7 +116,7 @@ func TestRouter(t *testing.T) {
 	}))
 	defer svr.Close()
 
-	selector := &config.PolicySelector{
+	policySelectorCfg := &config.PolicySelector{
 		Static: &config.StaticSelectorConf{
 			Policy: "default",
 		},
@@ -129,7 +133,9 @@ func TestRouter(t *testing.T) {
 		},
 	}
 
-	router := New(selector, policies, log.NewLogger())
+	reg := registry.GetRegistry()
+	sel := selector.NewSelector(selector.Registry(reg))
+	router := New(sel, policySelectorCfg, policies, log.NewLogger())
 
 	table := []matchertest{
 		{method: "PROPFIND", endpoint: "/dav/files/demo/", target: "ocdav"},

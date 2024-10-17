@@ -33,7 +33,7 @@ func Execute(cfg *config.Config) error {
 		Commands: GetCommands(cfg),
 	})
 
-	return app.Run(os.Args)
+	return app.RunContext(cfg.Context, os.Args)
 }
 
 // SutureService allows for the accounts command to be embedded and supervised by a suture supervisor tree.

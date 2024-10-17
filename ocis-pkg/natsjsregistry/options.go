@@ -9,7 +9,7 @@ import (
 )
 
 type storeOptionsKey struct{}
-type expiryKey struct{}
+type defaultTTLKey struct{}
 
 // StoreOptions sets the options for the underlying store
 func StoreOptions(opts []store.Option) registry.Option {
@@ -21,12 +21,12 @@ func StoreOptions(opts []store.Option) registry.Option {
 	}
 }
 
-// ServiceExpiry allows setting an expiry time for service registrations
-func ServiceExpiry(t time.Duration) registry.Option {
+// DefaultTTL allows setting a default register TTL for services
+func DefaultTTL(t time.Duration) registry.Option {
 	return func(o *registry.Options) {
 		if o.Context == nil {
 			o.Context = context.Background()
 		}
-		o.Context = context.WithValue(o.Context, expiryKey{}, t)
+		o.Context = context.WithValue(o.Context, defaultTTLKey{}, t)
 	}
 }

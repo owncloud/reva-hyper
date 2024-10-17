@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/broker"
 	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
@@ -65,8 +64,8 @@ func NewService(opts ...Option) (Service, error) {
 		micro.Context(sopts.Context),
 		micro.Flags(sopts.Flags...),
 		micro.Registry(registry.GetRegistry()),
-		micro.RegisterTTL(time.Second * 30),
-		micro.RegisterInterval(time.Second * 10),
+		micro.RegisterTTL(registry.GetRegisterTTL()),
+		micro.RegisterInterval(registry.GetRegisterInterval()),
 		micro.WrapClient(mtracer.NewClientWrapper(
 			mtracer.WithTraceProvider(sopts.TraceProvider),
 		)),

@@ -31,11 +31,12 @@ var (
 
 // Config is the config for a registry
 type Config struct {
-	Type         string   `mapstructure:"type"`
-	Addresses    []string `mapstructure:"addresses"`
-	Username     string   `mapstructure:"username"`
-	Password     string   `mapstructure:"password"`
-	DisableCache bool     `mapstructure:"disable_cache"`
+	Type         string        `mapstructure:"type"`
+	Addresses    []string      `mapstructure:"addresses"`
+	Username     string        `mapstructure:"username"`
+	Password     string        `mapstructure:"password"`
+	DisableCache bool          `mapstructure:"disable_cache"`
+	RegisterTTL  time.Duration `mapstructure:"register_ttl"`
 }
 
 // Option allows configuring the registry
@@ -62,6 +63,7 @@ func GetRegistry(opts ...Option) mRegistry.Registry {
 		case "natsjs", "nats-js", "nats-js-kv": // for backwards compatibility - we will stick with one of those
 			_reg = natsjsregistry.NewRegistry(
 				mRegistry.Addrs(cfg.Addresses...),
+				natsjsregistry.DefaultTTL(cfg.RegisterTTL),
 			)
 		case "memory":
 			_reg = memr.NewRegistry()
@@ -118,6 +120,8 @@ func getEnvs(opts ...Option) *Config {
 	if s := strings.Split(os.Getenv(_registryAddressEnv), ","); len(s) > 0 && s[0] != "" {
 		cfg.Addresses = s
 	}
+
+	cfg.RegisterTTL = GetRegisterTTL()
 
 	for _, o := range opts {
 		o(cfg)

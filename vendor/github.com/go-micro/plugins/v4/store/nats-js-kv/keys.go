@@ -6,24 +6,24 @@ import (
 )
 
 // NatsKey is a convenience function to create a key for the nats kv store.
-func NatsKey(table, microkey string) string {
-	return NewKey(table, microkey, "").NatsKey()
+func (n *natsStore) NatsKey(table, microkey string) string {
+	return n.NewKey(table, microkey, "").NatsKey()
 }
 
 // MicroKey is a convenience function to create a key for the micro interface.
-func MicroKey(table, natskey string) string {
-	return NewKey(table, "", natskey).MicroKey()
+func (n *natsStore) MicroKey(table, natskey string) string {
+	return n.NewKey(table, "", natskey).MicroKey()
 }
 
 // MicroKeyFilter is a convenience function to create a key for the micro interface.
 // It returns false if the key does not match the table, prefix or suffix.
-func MicroKeyFilter(table, natskey string, prefix, suffix string) (string, bool) {
-	k := NewKey(table, "", natskey)
+func (n *natsStore) MicroKeyFilter(table, natskey string, prefix, suffix string) (string, bool) {
+	k := n.NewKey(table, "", natskey)
 	return k.MicroKey(), k.Check(table, prefix, suffix)
 }
 
 // Key represents a key in the store.
-// They are used to convert nats keys (base64 encoded) to micro keys (plain text - no table prefix) and vice versa.
+// They are used to convert nats keys (base32 encoded) to micro keys (plain text - no table prefix) and vice versa.
 type Key struct {
 	// Plain is the plain key as requested by the go-micro interface.
 	Plain string
@@ -34,7 +34,7 @@ type Key struct {
 }
 
 // NewKey creates a new key. Either plain or encoded must be set.
-func NewKey(table string, plain, encoded string) *Key {
+func (n *natsStore) NewKey(table string, plain, encoded string) *Key {
 	k := &Key{
 		Plain:   plain,
 		Encoded: encoded,
@@ -43,9 +43,9 @@ func NewKey(table string, plain, encoded string) *Key {
 	switch {
 	case k.Plain != "":
 		k.Full = getKey(k.Plain, table)
-		k.Encoded = encode(k.Full)
+		k.Encoded = encode(k.Full, n.encoding)
 	case k.Encoded != "":
-		k.Full = decode(k.Encoded)
+		k.Full = decode(k.Encoded, n.encoding)
 		k.Plain = trimKey(k.Full, table)
 	}
 
@@ -79,17 +79,27 @@ func (k *Key) Check(table, prefix, suffix string) bool {
 	return true
 }
 
-func encode(s string) string {
-	return base32.StdEncoding.EncodeToString([]byte(s))
-}
-
-func decode(s string) string {
-	b, err := base32.StdEncoding.DecodeString(s)
-	if err != nil {
+func encode(s string, alg string) string {
+	switch alg {
+	case "base32":
+		return base32.StdEncoding.EncodeToString([]byte(s))
+	default:
 		return s
 	}
+}
 
-	return string(b)
+func decode(s string, alg string) string {
+	switch alg {
+	case "base32":
+		b, err := base32.StdEncoding.DecodeString(s)
+		if err != nil {
+			return s
+		}
+
+		return string(b)
+	default:
+		return s
+	}
 }
 
 func getKey(key, table string) string {

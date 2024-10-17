@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -14,10 +13,6 @@ import (
 	"github.com/go-chi/render"
 	"github.com/justinas/alice"
 	"github.com/oklog/run"
-	"github.com/urfave/cli/v2"
-	microstore "go-micro.dev/v4/store"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel/trace"
 
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	"github.com/cs3org/reva/v2/pkg/store"
@@ -43,6 +38,11 @@ import (
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/user/backend"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/userroles"
 	ocisstore "github.com/owncloud/ocis/v2/services/store/pkg/store"
+	"github.com/urfave/cli/v2"
+	"go-micro.dev/v4/selector"
+	microstore "go-micro.dev/v4/store"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // Server is the entrypoint for the server command.
@@ -119,12 +119,7 @@ func Server(cfg *config.Config) *cli.Command {
 			m := metrics.New()
 
 			gr := run.Group{}
-			ctx, cancel := func() (context.Context, context.CancelFunc) {
-				if cfg.Context == nil {
-					return context.WithCancel(context.Background())
-				}
-				return context.WithCancel(cfg.Context)
-			}()
+			ctx, cancel := context.WithCancel(c.Context)
 
 			defer cancel()
 
@@ -148,7 +143,8 @@ func Server(cfg *config.Config) *cli.Command {
 			}
 
 			{
-				middlewares := loadMiddlewares(ctx, logger, cfg, userInfoCache, signingKeyStore, traceProvider, *m)
+				middlewares := loadMiddlewares(logger, cfg, userInfoCache, signingKeyStore, traceProvider, *m)
+
 				server, err := proxyHTTP.Server(
 					proxyHTTP.Handler(lh.handler()),
 					proxyHTTP.Logger(logger),
@@ -175,7 +171,6 @@ func Server(cfg *config.Config) *cli.Command {
 						Msg("Shutting down server")
 
 					cancel()
-					os.Exit(1)
 				})
 			}
 
@@ -289,9 +284,13 @@ func (h *StaticRouteHandler) backchannelLogout(w http.ResponseWriter, r *http.Re
 	render.JSON(w, r, nil)
 }
 
-func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config, userInfoCache, signingKeyStore microstore.Store, traceProvider trace.TracerProvider, metrics metrics.Metrics) alice.Chain {
+func loadMiddlewares(logger log.Logger, cfg *config.Config,
+	userInfoCache, signingKeyStore microstore.Store, traceProvider trace.TracerProvider, metrics metrics.Metrics) alice.Chain {
 	rolesClient := settingssvc.NewRoleService("com.owncloud.api.settings", cfg.GrpcClient)
 	policiesProviderClient := policiessvc.NewPoliciesProviderService("com.owncloud.api.policies", cfg.GrpcClient)
+
+	reg := registry.GetRegistry()
+
 	gatewaySelector, err := pool.GatewaySelector(
 		cfg.Reva.Address,
 		append(
@@ -302,16 +301,16 @@ func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config,
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to get gateway selector")
 	}
-	if err != nil {
-		logger.Fatal().Err(err).
-			Msg("Failed to create token manager")
-	}
+
+	serviceSelector := selector.NewSelector(selector.Registry(reg))
+
 	var userProvider backend.UserBackend
 	switch cfg.AccountBackend {
 	case "cs3":
 		userProvider = backend.NewCS3UserBackend(
 			backend.WithLogger(logger),
 			backend.WithRevaGatewaySelector(gatewaySelector),
+			backend.WithSelector(serviceSelector),
 			backend.WithMachineAuthAPIKey(cfg.MachineAuthAPIKey),
 			backend.WithOIDCissuer(cfg.OIDC.Issuer),
 			backend.WithServiceAccount(cfg.ServiceAccount),
@@ -408,7 +407,7 @@ func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config,
 			cfg.OIDC.RewriteWellKnown,
 			oidcHTTPClient,
 		),
-		router.Middleware(cfg.PolicySelector, cfg.Policies, logger),
+		router.Middleware(serviceSelector, cfg.PolicySelector, cfg.Policies, logger),
 		middleware.Authentication(
 			authenticators,
 			middleware.CredentialsByUserAgent(cfg.AuthMiddleware.CredentialsByUserAgent),

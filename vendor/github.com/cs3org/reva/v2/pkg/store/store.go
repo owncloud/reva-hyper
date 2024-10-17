@@ -152,6 +152,7 @@ func Create(opts ...microstore.Option) microstore.Store {
 		return natsjskv.NewStore(
 			append(opts,
 				natsjskv.NatsOptions(natsOptions), // always pass in properly initialized default nats options
+				natsjskv.EncodeKeys(),
 				natsjskv.DefaultTTL(ttl))...,
 		)
 	case TypeMemory, "mem", "": // allow existing short form and use as default

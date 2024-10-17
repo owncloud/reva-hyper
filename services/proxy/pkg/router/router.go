@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
-	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/proxy/policy"
 	"go-micro.dev/v4/selector"
@@ -20,8 +19,8 @@ type routingInfoCtxKey struct{}
 var noInfo = RoutingInfo{}
 
 // Middleware returns a HTTP middleware containing the router.
-func Middleware(policySelector *config.PolicySelector, policies []config.Policy, logger log.Logger) func(http.Handler) http.Handler {
-	router := New(policySelector, policies, logger)
+func Middleware(serviceSelector selector.Selector, policySelectorCfg *config.PolicySelector, policies []config.Policy, logger log.Logger) func(http.Handler) http.Handler {
+	router := New(serviceSelector, policySelectorCfg, policies, logger)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ri, ok := router.Route(r)
@@ -36,11 +35,11 @@ func Middleware(policySelector *config.PolicySelector, policies []config.Policy,
 
 // New creates a new request router.
 // It initializes the routes before returning the router.
-func New(policySelector *config.PolicySelector, policies []config.Policy, logger log.Logger) Router {
-	if policySelector == nil {
+func New(serviceSelector selector.Selector, policySelectorCfg *config.PolicySelector, policies []config.Policy, logger log.Logger) Router {
+	if policySelectorCfg == nil {
 		firstPolicy := policies[0].Name
 		logger.Warn().Str("policy", firstPolicy).Msg("policy-selector not configured. Will always use first policy")
-		policySelector = &config.PolicySelector{
+		policySelectorCfg = &config.PolicySelector{
 			Static: &config.StaticSelectorConf{
 				Policy: firstPolicy,
 			},
@@ -48,18 +47,19 @@ func New(policySelector *config.PolicySelector, policies []config.Policy, logger
 	}
 
 	logger.Debug().
-		Interface("selector_config", policySelector).
+		Interface("selector_config", policySelectorCfg).
 		Msg("loading policy-selector")
 
-	selector, err := policy.LoadSelector(policySelector)
+	policySelector, err := policy.LoadSelector(policySelectorCfg)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Could not load policy-selector")
 	}
 
 	r := Router{
-		logger:         logger,
-		rewriters:      make(map[string]map[config.RouteType]map[string][]RoutingInfo),
-		policySelector: selector,
+		logger:          logger,
+		rewriters:       make(map[string]map[config.RouteType]map[string][]RoutingInfo),
+		policySelector:  policySelector,
+		serviceSelector: serviceSelector,
 	}
 	for _, pol := range policies {
 		for _, route := range pol.Routes {
@@ -103,9 +103,10 @@ func (r RoutingInfo) IsRouteUnprotected() bool {
 
 // Router handles the routing of HTTP requests according to the given policies.
 type Router struct {
-	logger         log.Logger
-	rewriters      map[string]map[config.RouteType]map[string][]RoutingInfo
-	policySelector policy.Selector
+	logger          log.Logger
+	rewriters       map[string]map[config.RouteType]map[string][]RoutingInfo
+	policySelector  policy.Selector
+	serviceSelector selector.Selector
 }
 
 func (rt Router) addHost(policy string, target *url.URL, route config.Route) {
@@ -124,16 +125,13 @@ func (rt Router) addHost(policy string, target *url.URL, route config.Route) {
 		rt.rewriters[policy][routeType][route.Method] = make([]RoutingInfo, 0)
 	}
 
-	reg := registry.GetRegistry()
-	sel := selector.NewSelector(selector.Registry(reg))
-
 	rt.rewriters[policy][routeType][route.Method] = append(rt.rewriters[policy][routeType][route.Method], RoutingInfo{
 		endpoint:    route.Endpoint,
 		unprotected: route.Unprotected,
 		rewrite: func(req *httputil.ProxyRequest) {
 			if route.Service != "" {
 				// select next node
-				next, err := sel.Select(route.Service)
+				next, err := rt.serviceSelector.Select(route.Service)
 				if err != nil {
 					rt.logger.Error().Err(err).
 						Str("service", route.Service).

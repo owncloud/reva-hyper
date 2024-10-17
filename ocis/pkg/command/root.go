@@ -1,7 +1,10 @@
 package command
 
 import (
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/clihelper"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config"
@@ -25,5 +28,6 @@ func Execute() error {
 		)
 	}
 
-	return app.Run(os.Args)
+	ctx, _ := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP)
+	return app.RunContext(ctx, os.Args)
 }

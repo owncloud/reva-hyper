@@ -7,10 +7,11 @@ import (
 	"strings"
 
 	mRegistry "go-micro.dev/v4/registry"
+	"go-micro.dev/v4/server"
 	"go-micro.dev/v4/util/addr"
 )
 
-func BuildGRPCService(serviceID, uuid, address string, version string) *mRegistry.Service {
+func BuildGRPCService(serviceID, address string, version string) *mRegistry.Service {
 	var host string
 	var port int
 
@@ -28,7 +29,7 @@ func BuildGRPCService(serviceID, uuid, address string, version string) *mRegistr
 	}
 
 	node := &mRegistry.Node{
-		Id:       serviceID + "-" + uuid,
+		Id:       serviceID + "-" + server.DefaultId,
 		Address:  net.JoinHostPort(addr, fmt.Sprint(port)),
 		Metadata: make(map[string]string),
 	}
@@ -46,7 +47,7 @@ func BuildGRPCService(serviceID, uuid, address string, version string) *mRegistr
 	}
 }
 
-func BuildHTTPService(serviceID, uuid, address string, version string) *mRegistry.Service {
+func BuildHTTPService(serviceID, address string, version string) *mRegistry.Service {
 	var host string
 	var port int
 
@@ -64,7 +65,8 @@ func BuildHTTPService(serviceID, uuid, address string, version string) *mRegistr
 	}
 
 	node := &mRegistry.Node{
-		Id:       serviceID + "-" + uuid,
+		// This id is read by the registry watcher
+		Id:       serviceID + "-" + server.DefaultId,
 		Address:  net.JoinHostPort(addr, fmt.Sprint(port)),
 		Metadata: make(map[string]string),
 	}

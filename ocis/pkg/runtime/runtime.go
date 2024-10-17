@@ -1,6 +1,8 @@
 package runtime
 
 import (
+	"context"
+
 	"github.com/owncloud/ocis/v2/ocis-pkg/config"
 	"github.com/owncloud/ocis/v2/ocis/pkg/runtime/service"
 )
@@ -18,6 +20,6 @@ func New(cfg *config.Config) Runtime {
 }
 
 // Start rpc runtime
-func (r *Runtime) Start() error {
-	return service.Start(service.WithConfig(r.c))
+func (r *Runtime) Start(ctx context.Context) error {
+	return service.Start(ctx, service.WithConfig(r.c))
 }

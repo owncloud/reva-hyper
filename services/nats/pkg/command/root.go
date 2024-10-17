@@ -30,5 +30,5 @@ func Execute(cfg *config.Config) error {
 		Commands: GetCommands(cfg),
 	})
 
-	return app.Run(os.Args)
+	return app.RunContext(cfg.Context, os.Args)
 }

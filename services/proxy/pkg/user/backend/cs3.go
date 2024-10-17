@@ -13,13 +13,11 @@ import (
 	revactx "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	libregraph "github.com/owncloud/libre-graph-api-go"
-	"go-micro.dev/v4/selector"
-
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/ocis-pkg/oidc"
-	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config"
+	"go-micro.dev/v4/selector"
 )
 
 type cs3backend struct {
@@ -34,6 +32,7 @@ type Option func(o *Options)
 type Options struct {
 	logger            log.Logger
 	gatewaySelector   pool.Selectable[gateway.GatewayAPIClient]
+	selector          selector.Selector
 	machineAuthAPIKey string
 	oidcISS           string
 	serviceAccount    config.ServiceAccount
@@ -50,6 +49,13 @@ func WithLogger(l log.Logger) Option {
 func WithRevaGatewaySelector(selectable pool.Selectable[gateway.GatewayAPIClient]) Option {
 	return func(o *Options) {
 		o.gatewaySelector = selectable
+	}
+}
+
+// WithSelector set the Selector option
+func WithSelector(selector selector.Selector) Option {
+	return func(o *Options) {
+		o.selector = selector
 	}
 }
 
@@ -81,12 +87,9 @@ func NewCS3UserBackend(opts ...Option) UserBackend {
 		o(&opt)
 	}
 
-	reg := registry.GetRegistry()
-	sel := selector.NewSelector(selector.Registry(reg))
-
 	b := cs3backend{
 		Options:       opt,
-		graphSelector: sel,
+		graphSelector: opt.selector,
 	}
 
 	return &b

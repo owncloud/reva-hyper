@@ -31,5 +31,5 @@ func Execute(cfg *config.Config) error {
 		Usage:    "Serve search API for oCIS",
 		Commands: GetCommands(cfg),
 	})
-	return app.Run(os.Args)
+	return app.RunContext(cfg.Context, os.Args)
 }

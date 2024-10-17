@@ -14,6 +14,7 @@ import (
 	natsjskv "github.com/go-micro/plugins/v4/store/nats-js-kv"
 	"github.com/nats-io/nats.go"
 	"go-micro.dev/v4/registry"
+	"go-micro.dev/v4/server"
 	"go-micro.dev/v4/store"
 	"go-micro.dev/v4/util/cmd"
 )
@@ -23,6 +24,8 @@ var (
 	_registryAddressEnv  = "MICRO_REGISTRY_ADDRESS"
 	_registryUsernameEnv = "MICRO_REGISTRY_AUTH_USERNAME"
 	_registryPasswordEnv = "MICRO_REGISTRY_AUTH_PASSWORD"
+
+	_serviceDelimiter = "@"
 )
 
 func init() {
@@ -37,22 +40,22 @@ func NewRegistry(opts ...registry.Option) registry.Registry {
 	for _, o := range opts {
 		o(&options)
 	}
-	exp, _ := options.Context.Value(expiryKey{}).(time.Duration)
+	defaultTTL, _ := options.Context.Value(defaultTTLKey{}).(time.Duration)
 	n := &storeregistry{
-		opts:   options,
-		typ:    _registryName,
-		expiry: exp,
+		opts:       options,
+		typ:        _registryName,
+		defaultTTL: defaultTTL,
 	}
 	n.store = natsjskv.NewStore(n.storeOptions(options)...)
 	return n
 }
 
 type storeregistry struct {
-	opts   registry.Options
-	store  store.Store
-	typ    string
-	expiry time.Duration
-	lock   sync.RWMutex
+	opts       registry.Options
+	store      store.Store
+	typ        string
+	defaultTTL time.Duration
+	lock       sync.RWMutex
 }
 
 // Init inits the registry
@@ -73,78 +76,52 @@ func (n *storeregistry) Options() registry.Options {
 }
 
 // Register adds a service to the registry
-func (n *storeregistry) Register(s *registry.Service, _ ...registry.RegisterOption) error {
+func (n *storeregistry) Register(s *registry.Service, opts ...registry.RegisterOption) error {
 	n.lock.RLock()
 	defer n.lock.RUnlock()
 
 	if s == nil {
 		return errors.New("wont store nil service")
 	}
+
+	var options registry.RegisterOptions
+	options.TTL = n.defaultTTL
+	for _, o := range opts {
+		o(&options)
+	}
+
 	b, err := json.Marshal(s)
 	if err != nil {
 		return err
 	}
 	return n.store.Write(&store.Record{
-		Key:    s.Name,
+		Key:    s.Name + _serviceDelimiter + server.DefaultId + _serviceDelimiter + s.Version,
 		Value:  b,
-		Expiry: n.expiry,
+		Expiry: options.TTL,
 	})
 }
 
-// Deregister removes a service from the registry
+// Deregister removes a service from the registry.
 func (n *storeregistry) Deregister(s *registry.Service, _ ...registry.DeregisterOption) error {
 	n.lock.RLock()
 	defer n.lock.RUnlock()
-
-	return n.store.Delete(s.Name)
+	return n.store.Delete(s.Name + _serviceDelimiter + server.DefaultId + _serviceDelimiter + s.Version)
 }
 
 // GetService gets a specific service from the registry
 func (n *storeregistry) GetService(s string, _ ...registry.GetOption) ([]*registry.Service, error) {
-	n.lock.RLock()
-	defer n.lock.RUnlock()
-
-	recs, err := n.store.Read(s)
-	if err != nil {
-		return nil, err
-	}
-	svcs := make([]*registry.Service, 0, len(recs))
-	for _, rec := range recs {
-		var s registry.Service
-		if err := json.Unmarshal(rec.Value, &s); err != nil {
-			return nil, err
-		}
-		svcs = append(svcs, &s)
-	}
-	return svcs, nil
+	// avoid listing e.g. `webfinger` when requesting `web` by adding the delimiter to the service name
+	return n.listServices(store.ListPrefix(s + _serviceDelimiter))
 }
 
 // ListServices lists all registered services
 func (n *storeregistry) ListServices(...registry.ListOption) ([]*registry.Service, error) {
-	n.lock.RLock()
-	defer n.lock.RUnlock()
-
-	keys, err := n.store.List()
-	if err != nil {
-		return nil, err
-	}
-
-	var svcs []*registry.Service
-	for _, k := range keys {
-		s, err := n.GetService(k)
-		if err != nil {
-			// TODO: continue ?
-			return nil, err
-		}
-		svcs = append(svcs, s...)
-
-	}
-	return svcs, nil
+	return n.listServices()
 }
 
 // Watch allowes following the changes in the registry if it would be implemented
 func (n *storeregistry) Watch(...registry.WatchOption) (registry.Watcher, error) {
-	return nil, errors.New("watcher not implemented")
+	return NewWatcher(n)
 }
 
 // String returns the name of the registry
@@ -152,11 +129,61 @@ func (n *storeregistry) String() string {
 	return n.typ
 }
 
+func (n *storeregistry) listServices(opts ...store.ListOption) ([]*registry.Service, error) {
+	n.lock.RLock()
+	defer n.lock.RUnlock()
+
+	keys, err := n.store.List(opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	versions := map[string]*registry.Service{}
+	for _, k := range keys {
+		s, err := n.getNode(k)
+		if err != nil {
+			// TODO: continue ?
+			return nil, err
+		}
+		if versions[s.Version] == nil {
+			versions[s.Version] = s
+		} else {
+			versions[s.Version].Nodes = append(versions[s.Version].Nodes, s.Nodes...)
+		}
+	}
+	svcs := make([]*registry.Service, 0, len(versions))
+	for _, s := range versions {
+		svcs = append(svcs, s)
+	}
+	return svcs, nil
+}
+
+// getNode retrieves a node from the store. It returns a service to also keep track of the version.
+func (n *storeregistry) getNode(s string) (*registry.Service, error) {
+	recs, err := n.store.Read(s)
+	if err != nil {
+		return nil, err
+	}
+	if len(recs) == 0 {
+		return nil, registry.ErrNotFound
+	}
+	var svc registry.Service
+	if err := json.Unmarshal(recs[0].Value, &svc); err != nil {
+		return nil, err
+	}
+	return &svc, nil
+}
+
 func (n *storeregistry) storeOptions(opts registry.Options) []store.Option {
 	storeoptions := []store.Option{
 		store.Database("service-registry"),
 		store.Table("service-registry"),
 		natsjskv.DefaultMemory(),
+		natsjskv.EncodeKeys(),
+	}
+
+	if defaultTTL, ok := opts.Context.Value(defaultTTLKey{}).(time.Duration); ok {
+		storeoptions = append(storeoptions, natsjskv.DefaultTTL(defaultTTL))
 	}
 
 	addr := []string{"127.0.0.1:9233"}

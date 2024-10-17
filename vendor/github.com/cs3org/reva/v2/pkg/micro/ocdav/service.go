@@ -78,6 +78,9 @@ func Service(opts ...Option) (micro.Service, error) {
 		server.Name(sopts.Name),
 		server.Address(sopts.Address), // Address defaults to ":0" and will pick any free port
 		server.Version(sopts.config.VersionString),
+		server.RegisterTTL(sopts.RegisterTTL),
+		server.RegisterInterval(sopts.RegisterInterval),
+		server.Registry(sopts.Registry),
 	)
 
 	revaService, err := ocdav.NewWith(&sopts.config, sopts.FavoriteManager, sopts.lockSystem, &sopts.Logger, sopts.GatewaySelector)
@@ -124,9 +127,6 @@ func Service(opts ...Option) (micro.Service, error) {
 		micro.Server(srv),
 		micro.Registry(registry.GetRegistry()),
 	)
-
-	// Init the service? make that optional?
-	service.Init()
 
 	// finally, return the service so it can be Run() by the caller himself
 	return service, nil
