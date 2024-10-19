@@ -7,6 +7,8 @@ directives:
     - 'https://${COMPANION_DOMAIN|companion.owncloud.test}/'
     - 'wss://${COMPANION_DOMAIN|companion.owncloud.test}/'
     - 'https://raw.githubusercontent.com/owncloud/awesome-ocis/'
+    # In contrary to bash and docker the default is given after the | character
+    - 'https://${KEYCLOAK_DOMAIN|keycloak.owncloud.test}/'
   default-src:
     - '''none'''
   font-src:

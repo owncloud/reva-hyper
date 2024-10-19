@@ -1,0 +1,46 @@
+---
+services:
+  ocis:
+    environment:
+      OCIS_LDAP_URI: ldaps://ldap-server:1636
+      OCIS_LDAP_INSECURE: "true"
+      OCIS_LDAP_BIND_DN: "cn=admin,dc=owncloud,dc=com"
+      OCIS_LDAP_BIND_PASSWORD: ${LDAP_ADMIN_PASSWORD:-admin}
+      OCIS_LDAP_GROUP_BASE_DN: "ou=groups,dc=owncloud,dc=com"
+      OCIS_LDAP_GROUP_FILTER: "(objectclass=owncloud)"
+      OCIS_LDAP_GROUP_OBJECTCLASS: "groupOfNames"
+      OCIS_LDAP_USER_BASE_DN: "ou=users,dc=owncloud,dc=com"
+      OCIS_LDAP_USER_FILTER: "(objectclass=owncloud)"
+      OCIS_LDAP_USER_OBJECTCLASS: "inetOrgPerson"
+      LDAP_LOGIN_ATTRIBUTES: "uid"
+      IDP_LDAP_LOGIN_ATTRIBUTE: "uid"
+      IDP_LDAP_UUID_ATTRIBUTE: "ownclouduuid"
+      IDP_LDAP_UUID_ATTRIBUTE_TYPE: binary
+      GRAPH_LDAP_SERVER_WRITE_ENABLED: "true" # assuming the external ldap is writable
+      GRAPH_LDAP_REFINT_ENABLED: "true" # osixia has refint enabled.
+
+  ldap-server:
+    image: bitnami/openldap:2.6.8
+    networks:
+      ocis-net:
+    entrypoint: ["/bin/sh", "/opt/bitnami/scripts/openldap/docker-entrypoint-override.sh", "/opt/bitnami/scripts/openldap/run.sh" ]
+    environment:
+      BITNAMI_DEBUG: true
+      LDAP_TLS_VERIFY_CLIENT: never
+      LDAP_ENABLE_TLS: "yes"
+      LDAP_TLS_CA_FILE: /opt/bitnami/openldap/share/openldap.crt
+      LDAP_TLS_CERT_FILE: /opt/bitnami/openldap/share/openldap.crt
+      LDAP_TLS_KEY_FILE: /opt/bitnami/openldap/share/openldap.key
+      LDAP_ROOT: "dc=owncloud,dc=com"
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./config/ldap/ldif:/ldifs
+      - ./config/ldap/schemas:/schemas
+      - ./config/ldap/docker-entrypoint-override.sh:/opt/bitnami/scripts/openldap/docker-entrypoint-override.sh
+      - ldap-certs:/opt/bitnami/openldap/share
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+volumes:
+  ldap-certs:

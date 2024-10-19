@@ -1,0 +1,60 @@
+---
+services:
+  ocis:
+    environment:
+      # Keycloak IDP specific configuration
+      PROXY_AUTOPROVISION_ACCOUNTS: "true"
+      PROXY_ROLE_ASSIGNMENT_DRIVER: "oidc"
+      OCIS_OIDC_ISSUER: https://${KEYCLOAK_DOMAIN:-keycloak.owncloud.test}/realms/${KEYCLOAK_REALM:-oCIS}
+      PROXY_OIDC_REWRITE_WELLKNOWN: "true"
+      WEB_OIDC_CLIENT_ID: ${OCIS_OIDC_CLIENT_ID:-web}
+
+  inbucket:
+  postgres:
+    image: postgres:16.4-alpine3.20
+    networks:
+      ocis-net:
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.4
+    networks:
+      ocis-net:
+    command: ["start", "--proxy=edge", "--spi-connections-http-client-default-disable-trust-manager=${INSECURE:-false}", "--import-realm"]
+    entrypoint: ["/bin/sh", "/opt/keycloak/bin/docker-entrypoint-override.sh"]
+    volumes:
+      - "./config/keycloak/docker-entrypoint-override.sh:/opt/keycloak/bin/docker-entrypoint-override.sh"
+      - "./config/keycloak/ocis-realm.dist.json:/opt/keycloak/data/import-dist/ocis-realm.json"
+    environment:
+      OCIS_DOMAIN: ${OCIS_DOMAIN:-ocis.owncloud.test}
+      KC_HOSTNAME: ${KEYCLOAK_DOMAIN:-keycloak.owncloud.test}
+      KC_DB: postgres
+      KC_DB_URL: "jdbc:postgresql://postgres:5432/keycloak"
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_FEATURES: impersonation
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.entrypoints=https"
+      - "traefik.http.routers.keycloak.rule=Host(`${KEYCLOAK_DOMAIN:-keycloak.owncloud.test}`)"
+      - "traefik.http.routers.keycloak.tls.certresolver=http"
+      - "traefik.http.routers.keycloak.service=keycloak"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+    depends_on:
+      - postgres
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+volumes:
+  keycloak_postgres_data:
