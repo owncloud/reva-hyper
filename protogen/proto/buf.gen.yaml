@@ -1,38 +1,18 @@
-version: v1
+version: v2
 plugins:
-  - name: go
-    path: ../../.bingo/protoc-gen-go
+  - local: ../../.bingo/protoc-gen-go
+    out: ../gen/
+    opt: paths=source_relative
+  - local: ../../.bingo/protoc-gen-micro
+    out: ../gen/
+    opt: paths=source_relative
+  - local: ../../.bingo/protoc-gen-microweb
     out: ../gen/
     opt:
       - paths=source_relative
-
-  - name: micro
-    path: ../../.bingo/protoc-gen-micro
+      - ignore_packages=ocis.services.thumbnails.v0;ocis.messages.thumbnails.v0;ocis.services.store.v0;ocis.messages.store.v0;ocis.services.eventhistory.v0;ocis.messages.eventhistory.v0;ocis.services.policies.v0;ocis.messages.policies.v0
+  - local: ../../.bingo/protoc-gen-openapiv2
     out: ../gen/
-    opt:
-      - paths=source_relative
-
-  - name: microweb
-    path: ../../.bingo/protoc-gen-microweb
-    out: ../gen/
-    opt:
-      - paths=source_relative
-      - "ignore_packages=\
-         ocis.services.thumbnails.v0;\
-         ocis.messages.thumbnails.v0;\
-         ocis.services.store.v0;\
-         ocis.messages.store.v0;\
-         ocis.services.eventhistory.v0;\
-         ocis.messages.eventhistory.v0;\
-         ocis.services.policies.v0;\
-         ocis.messages.policies.v0"
-
-  - name: openapiv2
-    path: ../../.bingo/protoc-gen-openapiv2
-    out: ../gen/
-
-  - name: doc
-    path: ../../.bingo/protoc-gen-doc
+  - local: ../../.bingo/protoc-gen-doc
     out: ../../docs/apis/grpc_apis
-    opt:
-      - ../docs/GRPC.tmpl,grpc.md,source_relative
+    opt: ../docs/GRPC.tmpl,grpc.md,source_relative

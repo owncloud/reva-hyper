@@ -21,5 +21,5 @@ buf-generate: $(BUF) protoc-deps $(SHA1_LOCK_FILE)
 
 $(SHA1_LOCK_FILE):
 	@echo "generating protobuf content"
-	cd ../../protogen/proto && $(BUF) generate
+	cd ../../protogen/proto && $(BUF) generate --debug
 	find $(abspath $(CURDIR)/../../protogen/proto/) -type f -print0 | sort -z | xargs -0 sha1sum > $(SHA1_LOCK_FILE)
