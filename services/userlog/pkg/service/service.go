@@ -287,7 +287,6 @@ func (ul *UserlogService) StoreGlobalEvent(ctx context.Context, typ string, data
 
 		date, err := time.Parse(format, dps)
 		if err != nil {
-			fmt.Println("", format, "\n", dps)
 			return fmt.Errorf("cannot parse time to format. time: '%s' format: '%s'", dps, format)
 		}
 
