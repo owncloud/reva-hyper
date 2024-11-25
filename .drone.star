@@ -2305,6 +2305,7 @@ def ocisServer(storage = "ocis", accounts_hash_difficulty = 4, volumes = [], dep
         "OCIS_JWT_SECRET": "some-ocis-jwt-secret",
         "EVENTHISTORY_STORE": "memory",
         "OCIS_TRANSLATION_PATH": "%s/tests/config/translations" % dirs["base"],
+        "OCIS_DECOMPOSEDFS_PROPAGATOR": "async",
     }
 
     if deploy_type == "":
