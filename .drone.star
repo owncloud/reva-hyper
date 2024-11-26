@@ -2306,6 +2306,7 @@ def ocisServer(storage = "ocis", accounts_hash_difficulty = 4, volumes = [], dep
         "EVENTHISTORY_STORE": "memory",
         "OCIS_TRANSLATION_PATH": "%s/tests/config/translations" % dirs["base"],
         "OCIS_DECOMPOSEDFS_PROPAGATOR": "async",
+        "STORAGE_USERS_ASYNC_PROPAGATOR_PROPAGATION_DELAY": "100ms",
     }
 
     if deploy_type == "":
