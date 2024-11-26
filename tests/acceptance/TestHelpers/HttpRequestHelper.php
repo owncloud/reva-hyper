@@ -159,6 +159,11 @@ class HttpRequestHelper {
 		}
 
 		HttpLogger::logResponse($response);
+
+		if (WebdavHelper::asyncPropagation()) {
+			WebdavHelper::waitAsyncPropagationAfterRequest($url, $method, $response->getStatusCode());
+		}
+
 		return $response;
 	}
 

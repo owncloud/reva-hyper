@@ -1017,6 +1017,8 @@ def localApiTests(ctx, name, suites, storage = "ocis", extra_environment = {}, w
         "UPLOAD_DELETE_WAIT_TIME": "1" if storage == "owncloud" else 0,
         "OCIS_WRAPPER_URL": "http://ocis-server:5200",
         "WITH_REMOTE_PHP": with_remote_php,
+        "ASYNC_PROPAGATION": "true",
+        "ASYNC_PROPAGATION_DELAY_MS": "100",
     }
 
     for item in extra_environment:
@@ -1216,6 +1218,8 @@ def coreApiTests(ctx, part_number = 1, number_of_parts = 1, with_remote_php = Fa
                              "UPLOAD_DELETE_WAIT_TIME": "1" if storage == "owncloud" else 0,
                              "OCIS_WRAPPER_URL": "http://ocis-server:5200",
                              "WITH_REMOTE_PHP": with_remote_php,
+                             "ASYNC_PROPAGATION": "true",
+                             "ASYNC_PROPAGATION_DELAY_MS": "100",
                          },
                          "commands": [
                              # merge the expected failures
