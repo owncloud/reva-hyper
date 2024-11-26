@@ -99,6 +99,8 @@ class WebDavHelper {
 	}
 
 	/**
+	 * @param int $extraWait
+	 *
 	 * @return void
 	 */
 	public static function waitForAsyncPropagation(int $extraWait): void {
