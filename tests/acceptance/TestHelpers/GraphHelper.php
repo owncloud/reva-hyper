@@ -55,6 +55,15 @@ class GraphHelper {
 	}
 
 	/**
+	 * @param string $url
+	 *
+	 * @return bool
+	 */
+	public static function isShareRequest(string $url): bool {
+		return \str_ends_with($url, '/invite');
+	}
+
+	/**
 	 *
 	 * @return string
 	 */

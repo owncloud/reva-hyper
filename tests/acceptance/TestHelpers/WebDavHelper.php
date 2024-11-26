@@ -101,8 +101,9 @@ class WebDavHelper {
 	/**
 	 * @return void
 	 */
-	public static function waitForAsyncPropagation(): void {
-		usleep(self::asyncPropagationDelay() * 1000);
+	public static function waitForAsyncPropagation(int $extraWait): void {
+		$delay = self::asyncPropagationDelay() + $extraWait;
+		usleep($delay * 1000);
 	}
 
 	/**
@@ -116,14 +117,22 @@ class WebDavHelper {
 	 * @return void
 	 */
 	public static function waitAsyncPropagationAfterRequest(string $url, string $method, int $statusCode): void {
-		$methods = ["POST", "PUT", "MKCOL", "MOVE", "COPY", "DELETE"];
+		$longerWaitMethods = ["MKCOL", "MOVE", "COPY", "DELETE"];
+		$methods = \array_merge($longerWaitMethods, ["POST", "PUT"]);
 
-		if (WebdavHelper::isDAVRequest($url)
+		if ((WebdavHelper::isDAVRequest($url) || GraphHelper::isShareRequest($url))
 			&& \str_starts_with($url, OcisHelper::getServerUrl())
 			&& \in_array($method, $methods)
 			&& $statusCode < 300
 		) {
-			self::waitForAsyncPropagation();
+			$extraWait = 0;
+			if (\in_array($method, $longerWaitMethods)) {
+				// folder related requests require more time
+				// wait longer for these methods
+				// increase wait by 300ms
+				$extraWait = 300;
+			}
+			self::waitForAsyncPropagation($extraWait);
 		}
 	}
 
