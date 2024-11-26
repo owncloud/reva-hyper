@@ -116,12 +116,12 @@ class WebDavHelper {
 	 * @return void
 	 */
 	public static function waitAsyncPropagationAfterRequest(string $url, string $method, int $statusCode): void {
-		$methods = ["POST", "PUT", "MOVE", "COPY", "DELETE"];
+		$methods = ["POST", "PUT", "MKCOL", "MOVE", "COPY", "DELETE"];
 
 		if (WebdavHelper::isDAVRequest($url)
 			&& \str_starts_with($url, OcisHelper::getServerUrl())
 			&& \in_array($method, $methods)
-			&& $statusCode < HttpResponse::HTTP_MULTIPLE_CHOICES
+			&& $statusCode < 300
 		) {
 			self::waitForAsyncPropagation();
 		}
