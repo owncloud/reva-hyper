@@ -1053,7 +1053,7 @@ def cs3ApiTests(ctx, storage, accounts_hash_difficulty = 4):
                          "image": OC_CS3_API_VALIDATOR,
                          "environment": {},
                          "commands": [
-                             "/usr/bin/cs3api-validator /var/lib/cs3api-validator --endpoint=ocis-server:9142",
+                             "/usr/bin/cs3api-validator /var/lib/cs3api-validator --async-propagation=true --endpoint=ocis-server:9142",
                          ],
                      },
                  ],
