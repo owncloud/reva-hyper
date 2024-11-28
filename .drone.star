@@ -23,7 +23,7 @@ OC_CI_GOLANG = "owncloudci/golang:1.22"
 OC_CI_NODEJS = "owncloudci/nodejs:%s"
 OC_CI_PHP = "owncloudci/php:%s"
 OC_CI_WAIT_FOR = "owncloudci/wait-for:latest"
-OC_CS3_API_VALIDATOR = "owncloud/cs3api-validator:0.2.1"
+OC_CS3_API_VALIDATOR = "owncloud/cs3api-validator:0.3.0"
 OC_LITMUS = "owncloudci/litmus:latest"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
 ONLYOFFICE_DOCUMENT_SERVER = "onlyoffice/documentserver:7.5.1"
@@ -1029,6 +1029,8 @@ def localApiTests(ctx, name, suites, storage = "ocis", extra_environment = {}, w
         "UPLOAD_DELETE_WAIT_TIME": "1" if storage == "owncloud" else 0,
         "OCIS_WRAPPER_URL": "http://%s:5200" % OCIS_SERVER_NAME,
         "WITH_REMOTE_PHP": with_remote_php,
+        "ASYNC_PROPAGATION": "true",
+        "ASYNC_PROPAGATION_DELAY_MS": "100",
     }
 
     for item in extra_environment:
@@ -1063,7 +1065,7 @@ def cs3ApiTests(ctx, storage, accounts_hash_difficulty = 4):
                          "image": OC_CS3_API_VALIDATOR,
                          "environment": {},
                          "commands": [
-                             "/usr/bin/cs3api-validator /var/lib/cs3api-validator --endpoint=%s:9142" % OCIS_SERVER_NAME,
+                             "/usr/bin/cs3api-validator /var/lib/cs3api-validator --async-propagation=true --endpoint=%s:9142" % OCIS_SERVER_NAME,
                          ],
                      },
                  ],
@@ -1228,6 +1230,8 @@ def coreApiTests(ctx, part_number = 1, number_of_parts = 1, with_remote_php = Fa
                              "UPLOAD_DELETE_WAIT_TIME": "1" if storage == "owncloud" else 0,
                              "OCIS_WRAPPER_URL": "http://%s:5200" % OCIS_SERVER_NAME,
                              "WITH_REMOTE_PHP": with_remote_php,
+                             "ASYNC_PROPAGATION": "true",
+                             "ASYNC_PROPAGATION_DELAY_MS": "100",
                          },
                          "commands": [
                              # merge the expected failures
@@ -2322,6 +2326,8 @@ def ocisServer(storage = "ocis", accounts_hash_difficulty = 4, volumes = [], dep
         "OCIS_JWT_SECRET": "some-ocis-jwt-secret",
         "EVENTHISTORY_STORE": "memory",
         "OCIS_TRANSLATION_PATH": "%s/tests/config/translations" % dirs["base"],
+        "OCIS_DECOMPOSEDFS_PROPAGATOR": "async",
+        "STORAGE_USERS_ASYNC_PROPAGATOR_PROPAGATION_DELAY": "100ms",
     }
 
     if deploy_type == "":

@@ -28,6 +28,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use DateTime;
 
 /**
@@ -55,6 +56,27 @@ class WebDavHelper {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public static function asyncPropagation(): bool {
+		return \getenv("ASYNC_PROPAGATION") === "true";
+	}
+
+	/**
+	 * async propagation delay in milliseconds
+	 *
+	 * @return int
+	 */
+	public static function asyncPropagationDelay(): int {
+		$delay = (int) \getenv("ASYNC_PROPAGATION_DELAY_MS");
+		if ($delay === 0) {
+			// default delay: 100ms
+			$delay = 100;
+		}
+		return $delay;
+	}
+
+	/**
 	 * @param string $urlPath
 	 *
 	 * @return string
@@ -74,6 +96,46 @@ class WebDavHelper {
 	public static function isDAVRequest(string $url): bool {
 		$found = \preg_match("/(\bwebdav\b|\bdav\b)/", $url);
 		return (bool)$found;
+	}
+
+	/**
+	 * @param int $extraWait
+	 *
+	 * @return void
+	 */
+	public static function waitForAsyncPropagation(int $extraWait): void {
+		$delay = self::asyncPropagationDelay() + $extraWait;
+		usleep($delay * 1000);
+	}
+
+	/**
+	 * wait for async propagation after a request
+	 * if the request is a DAV request and is successful
+	 *
+	 * @param string $url
+	 * @param string $method
+	 * @param int $statusCode
+	 *
+	 * @return void
+	 */
+	public static function waitAsyncPropagationAfterRequest(string $url, string $method, int $statusCode): void {
+		$longerWaitMethods = ["MKCOL", "MOVE", "COPY", "DELETE"];
+		$methods = \array_merge($longerWaitMethods, ["POST", "PUT"]);
+
+		if ((WebdavHelper::isDAVRequest($url) || GraphHelper::isShareRequest($url))
+			&& \str_starts_with($url, OcisHelper::getServerUrl())
+			&& \in_array($method, $methods)
+			&& $statusCode < 300
+		) {
+			$extraWait = 0;
+			if (\in_array($method, $longerWaitMethods)) {
+				// folder related requests require more time
+				// wait longer for these methods
+				// increase wait by 300ms
+				$extraWait = 300;
+			}
+			self::waitForAsyncPropagation($extraWait);
+		}
 	}
 
 	/**
