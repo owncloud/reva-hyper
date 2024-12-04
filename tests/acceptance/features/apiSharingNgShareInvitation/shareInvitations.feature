@@ -3182,3 +3182,70 @@ Feature: Send a sharing invitations
       | permissionsRole | Viewer       |
     Then the HTTP status code should be "200"
     And user "Brian" should have a share "textfile.txt" shared by user "Alice" from space "NewSpace"
+
+  @env-config
+  Scenario Outline: list all drives after sharing a resource with denied permission role
+    Given using spaces DAV path
+    And the administrator has enabled the permissions role "Denied"
+    And user "Alice" has created folder "FolderToShare"
+    And user "Alice" has uploaded file with content "personal space" to "lorem.txt"
+    And user "Alice" has sent the following resource share invitation:
+      | resource        | <resource> |
+      | space           | Personal   |
+      | sharee          | Brian      |
+      | shareType       | user       |
+      | permissionsRole | Denied     |
+    When user "Brian" lists all spaces via the Graph API
+    Then the HTTP status code should be "200"
+    And the JSON response should contain space called "Brian Murphy" and match
+      """
+      {
+        "type": "object",
+        "required": [
+          "driveType",
+          "name",
+          "id"
+        ],
+        "properties": {
+          "name": {
+            "const": "Brian Murphy"
+          },
+          "driveType": {
+            "const": "personal"
+          },
+          "id": {
+            "pattern": "%space_id_pattern%"
+          }
+        }
+      }
+      """
+    And the json response should not contain a space with name "Alice Hansen"
+    When user "Alice" lists all spaces via the Graph API
+    Then the HTTP status code should be "200"
+    And the JSON response should contain space called "Alice Hansen" and match
+      """
+      {
+        "type": "object",
+        "required": [
+          "driveType",
+          "name",
+          "id"
+        ],
+        "properties": {
+          "name": {
+            "const": "Alice Hansen"
+          },
+          "driveType": {
+            "const": "personal"
+          },
+          "id": {
+            "pattern": "%space_id_pattern%"
+          }
+        }
+      }
+      """
+    And the json response should not contain a space with name "Brian Murphy"
+    Examples:
+      | resource      |
+      | FolderToShare |
+      | lorem.txt     |

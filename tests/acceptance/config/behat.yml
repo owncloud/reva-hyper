@@ -359,6 +359,7 @@ default:
         - FeatureContext: *common_feature_context_params
         - SpacesContext:
         - SharingNgContext:
+        - OcisConfigContext:
 
     apiSharingNgLinkSharePermission:
       paths:
