@@ -1,0 +1,38 @@
+{
+  "name": "web-app-hello",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src --ext vue --ext js --ext ts --color",
+    "build": "pnpm vite build",
+    "build:w": "pnpm vite build --watch --mode development"
+  },
+  "devDependencies": {
+    "@ownclouders/eslint-config": "0.0.1",
+    "@ownclouders/extension-sdk": "0.0.5-alpha.2",
+    "@ownclouders/prettier-config": "0.0.1",
+    "@ownclouders/tsconfig": "0.0.5-alpha.1",
+    "@types/node": "^20.2.3",
+    "eslint": "^8.25.0",
+    "prettier": "^3.3.2",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3",
+    "vite-plugin-generate-file": "^0.1.1",
+    "vite-plugin-static-copy": "^1.0.6",
+    "vue": "^3.4.31"
+  },
+  "peerDependencies": {
+    "@ownclouders/web-pkg": "0.0.5-alpha.9"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "design-system*"
+      ]
+    }
+  },
+  "dependencies": {
+    "three": "^0.166.1"
+  },
+  "packageManager": "pnpm@9.1.1"
+}

@@ -1,0 +1,82 @@
+---
+services:
+  traefik:
+    image: traefik:v2.9.1
+    networks:
+      ocis-net:
+        aliases:
+          - ocis.owncloud.test
+    command:
+      - "--log.level=ERROR"
+      - "--certificatesResolvers.http.acme.email=example@example.org"
+      - "--certificatesResolvers.http.acme.storage=/certs/acme.json"
+      - "--certificatesResolvers.http.acme.httpChallenge.entryPoint=http"
+      - "--entryPoints.http.address=:80"
+      - "--entryPoints.http.http.redirections.entryPoint.to=https"
+      - "--entryPoints.http.http.redirections.entryPoint.scheme=https"
+      - "--entryPoints.https.address=:443"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+      - "--accessLog=true"
+      - "--accessLog.format=json"
+      - "--accessLog.fields.headers.names.X-Request-Id=keep"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "certs:/certs"
+    logging:
+      driver: "local"
+    restart: always
+
+  ocis:
+    image: owncloud/ocis-rolling:latest
+    networks:
+      ocis-net:
+    entrypoint:
+      - /bin/sh
+    command: [ "-c", "ocis init || true; ocis server" ]
+    environment:
+      OCIS_URL: https://ocis.owncloud.test
+      OCIS_LOG_LEVEL: info
+      OCIS_LOG_COLOR: false
+      PROXY_TLS: false
+      OCIS_INSECURE: true
+      PROXY_ENABLE_BASIC_AUTH: false
+      IDM_ADMIN_PASSWORD: admin
+      IDM_CREATE_DEMO_USERS: false
+      WEB_ASSET_APPS_PATH: /apps
+    volumes:
+      - ./config/ocis/apps.yaml:/etc/ocis/apps.yaml
+      - ocis-config:/etc/ocis
+      - ocis-data:/var/lib/ocis
+      - app-hello:/apps/hello
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ocis.entrypoints=https"
+      - "traefik.http.routers.ocis.rule=Host(`ocis.owncloud.test`)"
+      - "traefik.http.routers.ocis.tls.certresolver=http"
+      - "traefik.http.routers.ocis.service=ocis"
+      - "traefik.http.services.ocis.loadbalancer.server.port=9200"
+    logging:
+      driver: "local"
+    restart: always
+
+  app_hello:
+    build: ./apps/hello
+    environment:
+      APP_HELLO_SALUTION: future Infinite Scale DEV!
+    volumes:
+      - ./apps/hello/src:/app/src
+      - ./apps/hello/vite.config.ts:/app/vite.config.ts
+      - app-hello:/app/dist
+
+volumes:
+  certs:
+  ocis-config:
+  ocis-data:
+  app-hello:
+
+networks:
+  ocis-net:
