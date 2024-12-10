@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/owncloud/ocis/v2/ocis-pkg/account"
-	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/ocis-pkg/middleware"
 	"github.com/owncloud/ocis/v2/ocis-pkg/service/http"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
@@ -44,9 +43,8 @@ func Server(opts ...Option) (http.Service, error) {
 			options.Config.Service.Name+"."+options.Config.App.Name,
 			version.GetString(),
 		),
-		colabmiddleware.AccessLog(
-			options.Logger,
-		),
+		middleware.NewContextLogger(&options.Logger),
+		colabmiddleware.AccessLog2(),
 		middleware.ExtractAccountUUID(
 			account.Logger(options.Logger),
 			account.JWTSecret(options.Config.TokenManager.JWTSecret),
@@ -95,19 +93,21 @@ func Server(opts ...Option) (http.Service, error) {
 // prepareRoutes will prepare all the implemented routes
 func prepareRoutes(r *chi.Mux, options Options) {
 	adapter := options.Adapter
-	logger := options.Logger
+	//logger := options.Logger
 	// prepare basic logger for the request
-	r.Use(func(h stdhttp.Handler) stdhttp.Handler {
-		return stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-			ctx := logger.With().
-				Str(log.RequestIDString, r.Header.Get("X-Request-ID")).
-				Str("proto", r.Proto).
-				Str("method", r.Method).
-				Str("path", r.URL.Path).
-				Logger().WithContext(r.Context())
-			h.ServeHTTP(w, r.WithContext(ctx))
+	/*
+		r.Use(func(h stdhttp.Handler) stdhttp.Handler {
+			return stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
+				ctx := logger.With().
+					Str(log.RequestIDString, r.Header.Get("X-Request-ID")).
+					Str("proto", r.Proto).
+					Str("method", r.Method).
+					Str("path", r.URL.Path).
+					Logger().WithContext(r.Context())
+				h.ServeHTTP(w, r.WithContext(ctx))
+			})
 		})
-	})
+	*/
 	r.Route("/wopi", func(r chi.Router) {
 
 		r.Get("/", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {

@@ -36,3 +36,27 @@ func AccessLog(logger log.Logger) func(http.Handler) http.Handler {
 		})
 	}
 }
+
+func AccessLog2() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logger := log.Ctx(r.Context())
+
+			start := time.Now()
+			requestID := middleware.GetReqID(r.Context())
+			// add Request Id to all responses
+			w.Header().Set(middleware.RequestIDHeader, requestID)
+			wrap := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+			next.ServeHTTP(wrap, r)
+
+			spanContext := trace.SpanContextFromContext(r.Context())
+			logger.Info().
+				Str("traceid", spanContext.TraceID().String()).
+				Str("wopi-action", r.Header.Get("X-WOPI-Override")).
+				Int("status", wrap.Status()).
+				Dur("duration", time.Since(start)).
+				Int("bytes", wrap.BytesWritten()).
+				Msg("access-log")
+		})
+	}
+}

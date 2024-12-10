@@ -85,7 +85,12 @@ func Server(opts ...Option) (http.Service, error) {
 	var roleService svc.RoleService
 	var valueService settingssvc.ValueService
 	var gatewaySelector pool.Selectable[gateway.GatewayAPIClient]
-	grpcClient, err := grpc.NewClient(append(grpc.GetClientOptions(options.Config.GRPCClientTLS), grpc.WithTraceProvider(options.TraceProvider))...)
+	grpcClient, err := grpc.NewClient(
+		append(
+			grpc.GetClientOptions(options.Config.GRPCClientTLS),
+			grpc.WithTraceProvider(options.TraceProvider),
+			grpc.WithClientNameAndVersion(options.Config.Service.Name, version.GetString()),
+		)...)
 	if err != nil {
 		return http.Service{}, err
 	}

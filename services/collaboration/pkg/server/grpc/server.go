@@ -2,6 +2,7 @@ package grpc
 
 import (
 	appproviderv1beta1 "github.com/cs3org/go-cs3apis/cs3/app/provider/v1beta1"
+	"github.com/owncloud/ocis/v2/ocis-pkg/service/grpc/handler/metadata"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
 	svc "github.com/owncloud/ocis/v2/services/collaboration/pkg/service/grpc/v0"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -19,6 +20,12 @@ func Server(opts ...Option) (*grpc.Server, func(), error) {
 				otelgrpc.WithTracerProvider(options.TraceProvider),
 				otelgrpc.WithPropagators(tracing.GetPropagator()),
 			),
+		),
+		grpc.ChainUnaryInterceptor(
+			metadata.NewUnaryInterceptor(&options.Logger),
+		),
+		grpc.ChainStreamInterceptor(
+			metadata.NewStreamInterceptor(&options.Logger),
 		),
 	}
 	grpcServer := grpc.NewServer(grpcOpts...)

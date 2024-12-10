@@ -367,6 +367,9 @@ func (g Service) ListRoleAssignmentsFiltered(ctx context.Context, req *settingss
 
 // AssignRoleToUser implements the RoleServiceHandler interface
 func (g Service) AssignRoleToUser(ctx context.Context, req *settingssvc.AssignRoleToUserRequest, res *settingssvc.AssignRoleToUserResponse) error {
+	ll := log.Ctx(ctx)
+	ll.Error().Msg("test message for debugging purposes") //FIXME: this is just for testing. It needs to be removed.
+
 	req.AccountUuid = getValidatedAccountUUID(ctx, req.AccountUuid)
 	if validationError := validateAssignRoleToUser(req); validationError != nil {
 		return merrors.BadRequest(g.id, validationError.Error())

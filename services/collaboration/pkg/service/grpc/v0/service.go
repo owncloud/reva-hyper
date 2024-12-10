@@ -67,6 +67,8 @@ func (s *Service) OpenInApp(
 	ctx context.Context,
 	req *appproviderv1beta1.OpenInAppRequest,
 ) (*appproviderv1beta1.OpenInAppResponse, error) {
+	ll := log.Ctx(ctx)
+	ll.Error().Msg("collaboration openinapp") //FIXME: this is just for testing. It needs to be removed.
 
 	// get the current user
 	var user *userv1beta1.User = nil

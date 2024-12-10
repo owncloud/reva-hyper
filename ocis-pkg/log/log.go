@@ -137,6 +137,11 @@ func (l Logger) SubloggerWithRequestID(c context.Context) Logger {
 	}
 }
 
+func Ctx(ctx context.Context) Logger {
+	l := zerolog.Ctx(ctx)
+	return Logger{*l}
+}
+
 // Deprecation logs a deprecation message,
 // it is used to inform the user that a certain feature is deprecated and will be removed in the future.
 // Do not use a logger here because the message MUST be visible independent of the log level.

@@ -9,6 +9,7 @@ import (
 	mgrpcc "github.com/go-micro/plugins/v4/client/grpc"
 	mtracer "github.com/go-micro/plugins/v4/wrapper/trace/opentelemetry"
 	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
+	ocisgrpcmeta "github.com/owncloud/ocis/v2/ocis-pkg/service/grpc/handler/metadata"
 	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
 	"go-micro.dev/v4/client"
 	"go.opentelemetry.io/otel/trace"
@@ -17,9 +18,11 @@ import (
 
 // ClientOptions represent options (e.g. tls settings) for the grpc clients
 type ClientOptions struct {
-	tlsMode string
-	caCert  string
-	tp      trace.TracerProvider
+	tlsMode       string
+	caCert        string
+	tp            trace.TracerProvider
+	clientName    string
+	clientVersion string
 }
 
 // Option is used to pass client options
@@ -50,6 +53,13 @@ func WithTraceProvider(tp trace.TracerProvider) ClientOption {
 	}
 }
 
+func WithClientNameAndVersion(name, version string) ClientOption {
+	return func(o *ClientOptions) {
+		o.clientName = name
+		o.clientVersion = version
+	}
+}
+
 func GetClientOptions(t *shared.GRPCClientTLS) []ClientOption {
 	opts := []ClientOption{
 		WithTLSMode(t.Mode),
@@ -68,6 +78,12 @@ func NewClient(opts ...ClientOption) (client.Client, error) {
 	var tlsConfig *tls.Config
 	cOpts := []client.Option{
 		client.Registry(reg),
+		client.Wrap(ocisgrpcmeta.NewClientWrapper(
+			map[string]string{
+				"Client-Name":    options.clientName,
+				"Client-Version": options.clientVersion,
+			},
+		)),
 		client.Wrap(mtracer.NewClientWrapper(
 			mtracer.WithTraceProvider(options.tp),
 		)),
