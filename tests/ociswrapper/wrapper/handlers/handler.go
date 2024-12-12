@@ -202,3 +202,36 @@ func CommandHandler(res http.ResponseWriter, req *http.Request) {
 	exitCode, output := ocis.RunCommand(command, stdIn)
 	sendCmdResponse(res, exitCode, output)
 }
+
+func OcisServiceHandler(res http.ResponseWriter, req *http.Request) {
+
+	if req.Method != http.MethodPost || req.Method != http.MethodDelete {
+		sendResponse(res, http.StatusMethodNotAllowed, "")
+        return
+	}
+
+	serviceName := strings.TrimPrefix(req.URL.Path, "/services/")
+
+	if serviceName == "" {
+		sendResponse(res, http.StatusUnprocessableEntity, "Service name is required")
+		return
+	}
+
+	// add script to check whether ocis runs without that service or not
+	if !ocis.IsOcisRunning() {
+		sendResponse(res, http.StatusPreconditionFailed, "oCIS server is not running")
+		return
+    }
+
+	common.Wg.Add(1)
+	// start ocis service with env to set env false
+	go ocis.Start(nil)
+
+	success, message := ocis.WaitForConnection()
+	if success {
+		sendResponse(res, http.StatusOK, message)
+		return
+	}
+
+	sendResponse(res, http.StatusInternalServerError, message)
+}
