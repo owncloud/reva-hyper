@@ -271,3 +271,90 @@ func RunCommand(command string, inputs []string) (int, string) {
 
 	return c.ProcessState.ExitCode(), cmdOutput
 }
+
+func runOcisService(service string) {
+	// wait for the log scanner to finish
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	stopSignal = false
+	if retryCount == 0 {
+		defer common.Wg.Done()
+	}
+
+	cmd = exec.Command(config.Get("bin"), service , "server")
+// 		output, err := cmd.CombinedOutput()
+//     	if err != nil {
+//     		fmt.Printf("Error running service %s: %v\nOutput: %s\n", service, err, output)
+//     		return
+//     	}
+//     	fmt.Printf("Service %s started successfully: %s\n", service, output)
+
+	logs, err := cmd.StderrPipe()
+	if err != nil {
+		log.Panic(err)
+	}
+	output, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = cmd.Start()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	logScanner := bufio.NewScanner(logs)
+	outputScanner := bufio.NewScanner(output)
+	outChan := make(chan string)
+
+	// Read the logs when the 'ocis server' command is running
+	go func() {
+		defer wg.Done()
+		for logScanner.Scan() {
+			outChan <- logScanner.Text()
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for outputScanner.Scan() {
+			outChan <- outputScanner.Text()
+		}
+	}()
+
+	// Fetch logs from the channel and print them
+	go func() {
+		for s := range outChan {
+			fmt.Println(s)
+		}
+	}()
+
+	if err := cmd.Wait(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			status := exitErr.Sys().(syscall.WaitStatus)
+			// retry only if oCIS server exited with code > 0
+			// -1 exit code means that the process was killed by a signal (syscall.SIGINT)
+			if status.ExitStatus() > 0 && !stopSignal {
+				waitUntilCompleteShutdown()
+
+				log.Println(fmt.Sprintf("oCIS service server exited with code %v", status.ExitStatus()))
+
+				// retry to start oCIS server
+				retryCount++
+				maxRetry, _ := strconv.Atoi(config.Get("retry"))
+				if retryCount <= maxRetry {
+					wg.Wait()
+					close(outChan)
+					log.Println(fmt.Sprintf("Retry starting oCIS server... (retry %v)", retryCount))
+					// wait 500 milliseconds before retrying
+					time.Sleep(500 * time.Millisecond)
+					runOcisService(service)
+					return
+				}
+			}
+		}
+	}
+	wg.Wait()
+	close(outChan)
+}

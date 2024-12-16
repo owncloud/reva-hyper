@@ -204,34 +204,30 @@ func CommandHandler(res http.ResponseWriter, req *http.Request) {
 }
 
 func OcisServiceHandler(res http.ResponseWriter, req *http.Request) {
-
-	if req.Method != http.MethodPost || req.Method != http.MethodDelete {
-		sendResponse(res, http.StatusMethodNotAllowed, "")
-        return
-	}
-
-	serviceName := strings.TrimPrefix(req.URL.Path, "/services/")
-
-	if serviceName == "" {
-		sendResponse(res, http.StatusUnprocessableEntity, "Service name is required")
+	if req.Method != http.MethodPost && req.Method != http.MethodDelete {
+		sendResponse(res, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
-	// add script to check whether ocis runs without that service or not
-	if !ocis.IsOcisRunning() {
-		sendResponse(res, http.StatusPreconditionFailed, "oCIS server is not running")
-		return
-    }
-
-	common.Wg.Add(1)
-	// start ocis service with env to set env false
-	go ocis.Start(nil)
-
-	success, message := ocis.WaitForConnection()
-	if success {
-		sendResponse(res, http.StatusOK, message)
+	envBody, err := parseJsonBody(req.Body)
+	if err != nil {
+		sendResponse(res, http.StatusMethodNotAllowed, "Invalid json body")
 		return
 	}
 
-	sendResponse(res, http.StatusInternalServerError, message)
+	var envMap []string
+	for key, value := range envBody {
+		envMap = append(envMap, fmt.Sprintf("%s=%v", key, value))
+	}
+	ocis.EnvConfigs = append(ocis.EnvConfigs, envMap...)
+
+	if req.Method == http.MethodPost {
+		success, _ := ocis.Restart(ocis.EnvConfigs)
+		if success {
+			sendResponse(res, http.StatusOK, "oCIS configured successfully")
+			return
+		}
+		sendResponse(res, http.StatusInternalServerError, "Failed to restart oCIS with new configuration")
+	}
+
 }
