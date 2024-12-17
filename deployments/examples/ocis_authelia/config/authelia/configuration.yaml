@@ -1,0 +1,24 @@
+identity_providers:
+  oidc:
+    cors:
+      endpoints:
+        - token
+        - userinfo
+      allowed_origins:
+        - https://ocis.owncloud.test
+      allowed_origins_from_client_redirect_uris: true
+    clients:
+      - id: web
+        description: Client for ocis WebUI
+        public: true
+        authorization_policy: one_factor
+        consent_mode: explicit
+        pre_configured_consent_duration: 1w
+        scopes:
+          - openid
+          - email
+          - profile
+        redirect_uris:
+          - https://ocis.owncloud.test/
+          - https://ocis.owncloud.test/oidc-callback.html
+          - https://ocis.owncloud.test/oidc-silent-redirect.html

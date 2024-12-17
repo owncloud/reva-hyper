@@ -1,0 +1,156 @@
+---
+version: "3.7"
+
+services:
+  traefik:
+    image: traefik:v2.9.1
+    networks:
+      ocis-net:
+        aliases:
+          - ${OCIS_DOMAIN:-ocis.owncloud.test}
+          - ${AUTHELIA_DOMAIN:-authelia.owncloud.test}
+    command:
+      - "--log.level=${TRAEFIK_LOG_LEVEL:-ERROR}"
+      # letsencrypt configuration
+      - "--certificatesResolvers.http.acme.email=${TRAEFIK_ACME_MAIL:-example@example.org}"
+      - "--certificatesResolvers.http.acme.storage=/certs/acme.json"
+      - "--certificatesResolvers.http.acme.httpChallenge.entryPoint=http"
+      # enable dashboard
+      - "--api.dashboard=true"
+      # define entrypoints
+      - "--entryPoints.http.address=:80"
+      - "--entryPoints.http.http.redirections.entryPoint.to=https"
+      - "--entryPoints.http.http.redirections.entryPoint.scheme=https"
+      - "--entryPoints.https.address=:443"
+      # docker provider (get configuration from container labels)
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+      # access log
+      - "--accessLog=true"
+      - "--accessLog.format=json"
+      - "--accessLog.fields.headers.names.X-Request-Id=keep"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro"
+      - "certs:/certs"
+    labels:
+      - "traefik.enable=${TRAEFIK_DASHBOARD:-false}"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_BASIC_AUTH_USERS:-admin:$$apr1$$4vqie50r$$YQAmQdtmz5n9rEALhxJ4l.}" # defaults to admin:admin
+      - "traefik.http.routers.traefik.entrypoints=https"
+      - "traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DOMAIN:-traefik.owncloud.test}`)"
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik.tls.certresolver=http"
+      - "traefik.http.routers.traefik.service=api@internal"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+  ocis:
+    image: owncloud/ocis:${OCIS_DOCKER_TAG:-latest}
+    networks:
+      ocis-net:
+    entrypoint:
+      - /bin/sh
+    # run ocis init to initialize a configuration file with random secrets
+    # it will fail on subsequent runs, because the config file already exists
+    # therefore we ignore the error and then start the ocis server
+    command: ["-c", "ocis init || true; ocis server"]
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "127.0.0.1", "9235" ]
+      interval: 60s
+      timeout: 15s
+      start_period: 3s
+      start_interval: 3s
+    environment:
+      #PROXY_OIDC_REWRITE_WELLKNOWN: "true"
+      OCIS_OIDC_ISSUER: https://${AUTHELIA_DOMAIN:-authelia.owncloud.test}
+      OCIS_URL: https://${OCIS_DOMAIN:-ocis.owncloud.test}
+      OCIS_LOG_LEVEL: ${OCIS_LOG_LEVEL:-error}
+      OCIS_LOG_COLOR: "${OCIS_LOG_COLOR:-false}"
+      WEB_OIDC_CLIENT_ID: ${OCIS_OIDC_CLIENT_ID:-web}
+      # general config
+      PROXY_TLS: "false" # do not use SSL between Traefik and oCIS
+      PROXY_USER_OIDC_CLAIM: "preferred_username"
+      PROXY_USER_CS3_CLAIM: "username"
+      PROXY_OIDC_ACCESS_TOKEN_VERIFY_METHOD: none
+      # INSECURE: needed if oCIS / Traefik is using self generated certificates
+      OCIS_INSECURE: "${INSECURE:-false}"
+      OCIS_EXCLUDE_RUN_SERVICES: "idp"
+      GRAPH_ASSIGN_DEFAULT_USER_ROLE: "false"
+      IDM_IDPSVC_PASSWORD: ${IDM_IDPSVC_PASSWORD:-secret}
+      IDM_ADMIN_PASSWORD: "${ADMIN_PASSWORD:-admin}" # this overrides the admin password from the configuration file
+      IDM_CREATE_DEMO_USERS: "${DEMO_USERS:-false}"
+      IDM_LDAPS_ADDR: 0.0.0.0:9235
+      IDM_LOG_LEVEL: debug
+    volumes:
+      - ocis-config:/etc/ocis
+      - ocis-data:/var/lib/ocis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ocis.entrypoints=https"
+      - "traefik.http.routers.ocis.rule=Host(`${OCIS_DOMAIN:-ocis.owncloud.test}`)"
+      - "traefik.http.routers.ocis.tls.certresolver=http"
+      - "traefik.http.routers.ocis.service=ocis"
+      - "traefik.http.services.ocis.loadbalancer.server.port=9200"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+  authelia:
+    depends_on:
+      ocis:
+        condition: service_healthy
+    image: authelia/authelia
+    container_name: authelia
+    volumes:
+      - authelia:/authelia
+      - ./config/authelia/configuration.yaml:/config/configuration.yml
+      - ./config/authelia/private-key.pem:/config/private-key.pem
+    networks:
+      ocis-net:
+    environment:
+      AUTHELIA_ACCESS_CONTROL_DEFAULT_POLICY: one_factor
+      AUTHELIA_AUTHENTICATION_BACKEND_LDAP_BASE_DN: o=libregraph-idm
+      AUTHELIA_AUTHENTICATION_BACKEND_LDAP_GROUPS_FILTER: (objectclass=groupOfNames)
+      AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD: ${IDM_IDPSVC_PASSWORD:-secret}
+      AUTHELIA_AUTHENTICATION_BACKEND_LDAP_URL: ldaps://ocis:9235
+      AUTHELIA_AUTHENTICATION_BACKEND_LDAP_TLS_SKIP_VERIFY: true
+      AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USER: uid=idp,ou=sysusers,o=libregraph-idm
+      AUTHELIA_AUTHENTICATION_BACKEND_LDAP_USERS_FILTER: (&({username_attribute}={input})(objectclass=inetOrgPerson))
+      AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE: /config/private-key.pem
+      AUTHELIA_JWT_SECRET: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      AUTHELIA_LOG_LEVEL: debug
+      AUTHELIA_NOTIFIER_FILESYSTEM_FILENAME: /authelia/notify.txt
+      AUTHELIA_SESSION_DOMAIN: owncloud.test
+      AUTHELIA_STORAGE_ENCRYPTION_KEY: ${AUTHELIA_STORAGE_ENCRYPTION_KEY:-you_must_generate_a_random_string_of_more_than_twenty_chars_and_configure_this}
+      AUTHELIA_STORAGE_LOCAL_PATH: /authelia/authelia.db
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.authelia.entrypoints=https'
+      - 'traefik.http.routers.authelia.rule=Host(`${AUTHELIA_DOMAIN:-authelia.owncloud.test}`)'
+      - "traefik.http.routers.authelia.tls.certresolver=http"
+      - "traefik.http.routers.authelia.service=authelia"
+      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
+#     - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/verify?rd=https://authelia.example.com'  # yamllint disable-line rule:line-length
+#     - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+#     - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+    expose:
+      - 9091
+    restart: always
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    logging:
+      driver: ${LOG_DRIVER:-local}
+
+
+volumes:
+  certs:
+  ocis-config:
+  ocis-data:
+  authelia:
+
+networks:
+  ocis-net:
