@@ -192,6 +192,24 @@ class OcisConfigContext implements Context {
 	}
 
 	/**
+	 * @Given the ocis server has served service :service separately
+	 *
+	 * @param string $service
+	 *
+	 * @return void
+	 * @throws GuzzleException
+	 */
+	public function theOcisServerHasExcludedService(string $service) {
+		$response =  OcisConfigHelper::startService($service);
+
+		Assert::assertEquals(
+			200,
+			$response->getStatusCode(),
+			"Failed to set config"
+		);
+	}
+
+	/**
 	 * @AfterScenario @env-config
 	 *
 	 * @return void

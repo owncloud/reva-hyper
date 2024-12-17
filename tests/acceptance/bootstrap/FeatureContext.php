@@ -613,7 +613,7 @@ class FeatureContext extends BehatVariablesContext {
 	 * NOTE: This method is called after each scenario having the @env-config tag
 	 * This ensures that the server is running for clean-up purposes
 	 *
-	 * @AfterScenario @env-config
+	 * @AfterScenario @backup-consistency
 	 *
 	 * @return void
 	 */

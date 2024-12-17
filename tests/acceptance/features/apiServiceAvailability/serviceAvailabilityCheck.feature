@@ -113,7 +113,7 @@ Feature: service health check
     Then the HTTP status code of responses on all endpoints should be "200"
 
   @issue-10661
-  Scenario: check default services readiness
+  Scenario: check default services readiness (graph, idp, proxy)
     When a user requests these URLs with "GET" and no authentication
       | endpoint                               | service |
       | http://%base_url_hostname%:9124/readyz | graph   |
@@ -122,7 +122,7 @@ Feature: service health check
     Then the HTTP status code of responses on all endpoints should be "200"
 
   @env-config @issue-10661
-  Scenario: check extra services readiness
+  Scenario: check auth-bearer service readiness
     Given the following configs have been set:
       | config                 | value        |
       | OCIS_ADD_RUN_SERVICES  | auth-bearer  |
@@ -130,4 +130,12 @@ Feature: service health check
     When a user requests these URLs with "GET" and no authentication
       | endpoint                               | service     |
       | http://%base_url_hostname%:9149/readyz | auth-bearer |
+    Then the HTTP status code of responses on all endpoints should be "200"
+
+  @env-config
+  Scenario: check services health while running separately
+    Given the ocis server has served service "storage-users" separately
+    When a user requests these URLs with "GET" and no authentication
+      | endpoint                                | service       |
+      | http://%base_url_hostname%:9159/healthz | storage-users |
     Then the HTTP status code of responses on all endpoints should be "200"
