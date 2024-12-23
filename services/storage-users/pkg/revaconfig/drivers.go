@@ -117,6 +117,7 @@ func Posix(cfg *config.Config, enableFSWatch bool) map[string]interface{} {
 		"use_space_groups":           cfg.Drivers.Posix.UseSpaceGroups,
 		"watch_fs":                   enableFSWatch,
 		"watch_type":                 cfg.Drivers.Posix.WatchType,
+		"watch_mount_point":          cfg.Drivers.Posix.WatchMountPoint,
 		"watch_path":                 cfg.Drivers.Posix.WatchPath,
 		"watch_folder_kafka_brokers": cfg.Drivers.Posix.WatchFolderKafkaBrokers,
 	}

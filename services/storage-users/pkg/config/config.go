@@ -203,6 +203,7 @@ type PosixDriver struct {
 	UseSpaceGroups bool `yaml:"use_space_groups" env:"STORAGE_USERS_POSIX_USE_SPACE_GROUPS" desc:"Use space groups to manage permissions on spaces." introductionVersion:"6.0.0"`
 
 	WatchType               string `yaml:"watch_type" env:"STORAGE_USERS_POSIX_WATCH_TYPE" desc:"Type of the watcher to use for getting notified about changes to the filesystem. Currently available options are 'inotifywait' (default), 'gpfswatchfolder' and 'gpfsfileauditlogging'." introductionVersion:"6.0.0"`
+	WatchMountPoint         string `yaml:"watch_mount_point" env:"STORAGE_USERS_POSIX_WATCH_MOUNT_POINT" desc:"The local path where the posixfs file system is mounted. Paths from events will be considered relative to this path." introductionVersion:"%%NEXT%%"`
 	WatchPath               string `yaml:"watch_path" env:"STORAGE_USERS_POSIX_WATCH_PATH" desc:"Path to the watch directory/file. Only applies to the 'gpfsfileauditlogging' and 'inotifywait' watcher, in which case it is the path of the file audit log file/base directory to watch." introductionVersion:"6.0.0"`
 	WatchFolderKafkaBrokers string `yaml:"watch_folder_kafka_hosts" env:"STORAGE_USERS_POSIX_WATCH_FOLDER_KAFKA_BROKERS" desc:"Comma-separated list of kafka brokers to read the watchfolder events from." introductionVersion:"6.0.0"`
 }
