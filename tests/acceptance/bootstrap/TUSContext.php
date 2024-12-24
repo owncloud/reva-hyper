@@ -32,6 +32,7 @@ use Psr\Http\Message\ResponseInterface;
 use TestHelpers\HttpRequestHelper;
 use TestHelpers\WebDavHelper;
 use TestHelpers\BehatHelper;
+use TestHelpers\TusClientWrapper;
 
 require_once 'bootstrap.php';
 
@@ -342,6 +343,43 @@ class TUSContext implements Context {
 				$client->upload($bytesPerChunk);
 			}
 		}
+	}
+
+	/**
+	 * @param string $source
+	 * @param string $destination
+	 * @param string $password
+	 *
+	 * @return void
+	 */
+	public function publicUploadFileUsingTus(
+		string $source,
+		string $destination,
+		string $password,
+	): void {
+		$password = $this->featureContext->getActualPassword($password);
+		if ($this->featureContext->isUsingSharingNG()) {
+			$token = $this->featureContext->shareNgGetLastCreatedLinkShareToken();
+		} else {
+			$token = $this->featureContext->getLastCreatedPublicShareToken();
+		}
+		$headers = [
+			'Authorization' => 'Basic ' . \base64_encode("public" . ':' . $password),
+		];
+		$sourceFile = $this->featureContext->acceptanceTestsDirLocation() . $source;
+		$url = WebdavHelper::getDavPath(WebDavHelper::DAV_VERSION_SPACES, $token, "public-files");
+
+        $tusWrapper = new TusClientWrapper(
+            $this->featureContext->getBaseUrl(),
+            [
+                'verify' => false,
+                'headers' => $headers
+            ]
+        );
+
+        $tusWrapper->setApiPath($url);
+        $tusWrapper->setKey((string)rand())->file($sourceFile, $destination);
+        $tusWrapper->file($sourceFile, $destination)->createWithUpload("", 0);
 	}
 
 	/**
