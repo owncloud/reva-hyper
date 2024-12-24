@@ -350,13 +350,15 @@ class TUSContext implements Context {
 	 * @param string $destination
 	 * @param string $password
 	 *
-	 * @return void
+	 * @return ResponseInterface
+	 * @throws GuzzleException
+	 * @throws ReflectionException
 	 */
 	public function publicUploadFileUsingTus(
 		string $source,
 		string $destination,
 		string $password,
-	): void {
+	): ResponseInterface {
 		$password = $this->featureContext->getActualPassword($password);
 		if ($this->featureContext->isUsingSharingNG()) {
 			$token = $this->featureContext->shareNgGetLastCreatedLinkShareToken();
@@ -369,17 +371,18 @@ class TUSContext implements Context {
 		$sourceFile = $this->featureContext->acceptanceTestsDirLocation() . $source;
 		$url = WebdavHelper::getDavPath(WebDavHelper::DAV_VERSION_SPACES, $token, "public-files");
 
-        $tusWrapper = new TusClientWrapper(
-            $this->featureContext->getBaseUrl(),
-            [
-                'verify' => false,
-                'headers' => $headers
-            ]
-        );
+		$tusWrapper = new TusClientWrapper(
+			$this->featureContext->getBaseUrl(),
+			[
+				'verify' => false,
+				'headers' => $headers
+			]
+		);
 
-        $tusWrapper->setApiPath($url);
-        $tusWrapper->setKey((string)rand())->file($sourceFile, $destination);
-        $tusWrapper->file($sourceFile, $destination)->createWithUpload("", 0);
+		$tusWrapper->setApiPath($url);
+		$tusWrapper->setKey((string)rand())->file($sourceFile, $destination);
+		$response = $tusWrapper->file($sourceFile, $destination)->createUploadWithResponse("", 0);
+		return $response;
 	}
 
 	/**

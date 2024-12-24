@@ -402,3 +402,54 @@ Feature: upload resources on share using TUS protocol
       | Tus-Resumable   | 1.0.0                     |
     Then the HTTP status code should be "460"
     And for user "Alice" the content of the file "/textFile.txt" of the space "Personal" should be "original content"
+
+  @issue-10331 @issue-10469
+  Scenario: public uploads a zero byte file to a public share folder
+    Given using SharingNG
+    And user "Alice" has created folder "/uploadFolder"
+    And user "Alice" has created the following resource link share:
+      | resource        | uploadFolder |
+      | space           | Personal     |
+      | permissionsRole | createOnly   |
+      | password        | %public%     |
+    When the public uploads file "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside last link shared folder with password "%public%" using the WebDAV API
+    And for user "Alice" folder "uploadFolder" of the space "Personal" should contain these files:
+      | textfile.txt |
+    And for user "Alice" folder "uploadFolder" of the space "Personal" should not contain these files:
+      | textfile (1).txt |
+
+  @issue-10331 @issue-10469
+  Scenario: public uploads a zero-byte file to a shared folder inside project space
+    Given using SharingNG
+    And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
+    And user "Alice" has created a space "Project" with the default quota using the Graph API
+    And user "Alice" has created a folder "/uploadFolder" in space "Project"
+    And user "Alice" has created the following resource link share:
+      | resource        | uploadFolder |
+      | space           | Project      |
+      | permissionsRole | createOnly   |
+      | password        | %public%     |
+    When the public uploads file "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside last link shared folder with password "%public%" using the WebDAV API
+    And for user "Alice" folder "uploadFolder" of the space "Project" should contain these files:
+      | textfile.txt |
+    And for user "Alice" folder "uploadFolder" of the space "Project" should not contain these files:
+      | textfile (1).txt |
+
+  @issue-10331 @issue-10469
+  Scenario: public uploads a zero-byte file to a public share project space
+    Given using SharingNG
+    And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
+    And user "Alice" has created a space "Project" with the default quota using the Graph API
+    And user "Alice" has created the following space link share:
+      | space           | Project    |
+      | permissionsRole | createOnly |
+      | password        | %public%   |
+    When the public uploads file "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside last link shared folder with password "%public%" using the WebDAV API
+    Then the HTTP status code should be "201"
+    And the following headers should be set
+      | header                        | value                                  |
+      | Access-Control-Expose-Headers | Tus-Resumable, Upload-Offset, Location |
+    And for user "Alice" the space "Project" should contain these files:
+      | textfile.txt |
+    And for user "Alice" the space "Project" should not contain these files:
+      | textfile (1).txt |
