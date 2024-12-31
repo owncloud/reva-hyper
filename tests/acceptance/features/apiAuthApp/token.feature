@@ -129,3 +129,12 @@ Feature: create auth-app token
         }
       }
       """
+
+  @env-config
+  Scenario: user deletes auth-app token using token form list request
+    Given the config "AUTH_APP_ENABLE_IMPERSONATION" has been set to "true"
+    And user "Alice" has created app token with expiration time "72h" using the auth-app API
+    And the administrator has created app token for user "Alice" with expiration time "72h" using the auth-app API
+    And user "Alice" has created app token with expiration time "72h" using the auth-app CLI
+    When user "Alice" deletes all created auth-app token
+    Then the HTTP status code of responses on each endpoint should be "200, 200, 200" respectively
