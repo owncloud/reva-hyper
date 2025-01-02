@@ -1,0 +1,297 @@
+---
+services:
+  traefik:
+    image: traefik:v3.2.2
+    command:
+      - "--log.level=${TRAEFIK_LOG_LEVEL:-ERROR}"
+      # letsencrypt configuration
+      - "--certificatesResolvers.http.acme.email=${TRAEFIK_ACME_MAIL:-example@example.org}"
+      - "--certificatesResolvers.http.acme.storage=/certs/acme.json"
+      - "--certificatesResolvers.http.acme.httpChallenge.entryPoint=http"
+      - "--certificatesResolvers.http.acme.caserver=${TRAEFIK_ACME_CASERVER:-https://acme-v02.api.letsencrypt.org/directory}"
+      # enable dashboard
+      - "--api.dashboard=true"
+      # define entrypoints
+      - "--entryPoints.http.address=:80"
+      - "--entryPoints.http.http.redirections.entryPoint.to=https"
+      - "--entryPoints.http.http.redirections.entryPoint.scheme=https"
+      - "--entryPoints.https.address=:443"
+      # change default timeouts for long-running requests
+      # this is needed for webdav clients that do not support the TUS protocol
+      - "--entryPoints.https.transport.respondingTimeouts.readTimeout=12h"
+      - "--entryPoints.https.transport.respondingTimeouts.writeTimeout=12h"
+      - "--entryPoints.https.transport.respondingTimeouts.idleTimeout=3m"
+      # docker provider (get configuration from container labels)
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedByDefault=false"
+      # access log
+      - "--accessLog=true"
+      - "--accessLog.format=json"
+      - "--accessLog.fields.headers.names.X-Request-Id=keep"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock:ro"
+      - "certs:/certs"
+    labels:
+      - "traefik.enable=${TRAEFIK_DASHBOARD:-false}"
+      # defaults to admin:admin
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_BASIC_AUTH_USERS:-admin:$$apr1$$4vqie50r$$YQAmQdtmz5n9rEALhxJ4l.}"
+      - "traefik.http.routers.traefik.entrypoints=https"
+      - "traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DOMAIN:-traefik.owncloud.test}`)"
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik.tls.certresolver=http"
+      - "traefik.http.routers.traefik.service=api@internal"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    networks:
+      ocis-net:
+        aliases:
+          - ${OCIS_DOMAIN:-ocis.owncloud.test}
+          - ${COLLABORA_DOMAIN:-collabora.owncloud.test}
+          - ${WOPISERVER_DOMAIN:-wopiserver.owncloud.test}
+          - ${ONLYOFFICE_DOMAIN:-onlyoffice.owncloud.test}
+          - ${WOPISERVER_ONLYOFFICE_DOMAIN:-wopiserver-oo.owncloud.test}
+    restart: always
+
+  ocis:
+    build:
+      dockerfile: docker/Dockerfile.linux.amd64
+      context: ../../../../ocis/
+    image: owncloud/ocis:dev
+    # changelog: https://github.com/owncloud/ocis/tree/master/changelog
+    # release notes: https://doc.owncloud.com/ocis_release_notes.html
+    networks:
+      ocis-net:
+    entrypoint:
+      - /bin/sh
+    # run ocis init to initialize a configuration file with random secrets
+    # it will fail on subsequent runs, because the config file already exists
+    # therefore we ignore the error and then start the ocis server
+    command: [ "-c", "ocis init || true; ocis server" ]
+    environment:
+      # enable services that are not started automatically
+      OCIS_URL: https://${OCIS_DOMAIN:-ocis.owncloud.test}
+      OCIS_LOG_LEVEL: ${LOG_LEVEL:-info}
+      OCIS_LOG_COLOR: "${LOG_PRETTY:-false}"
+      OCIS_LOG_PRETTY: "${LOG_PRETTY:-false}"
+      # do not use SSL between Traefik and oCIS
+      PROXY_TLS: "false"
+      # make the REVA gateway accessible to the app drivers
+      GATEWAY_GRPC_ADDR: 0.0.0.0:9142
+      # INSECURE: needed if oCIS / Traefik is using self generated certificates
+      OCIS_INSECURE: "true"
+      # basic auth (not recommended, but needed for eg. WebDav clients that do not support OpenID Connect)
+      PROXY_ENABLE_BASIC_AUTH: "true"
+      # admin user password
+      IDM_ADMIN_PASSWORD: "${ADMIN_PASSWORD:-admin}" # this overrides the admin password from the configuration file
+      # demo users
+      IDM_CREATE_DEMO_USERS: "${DEMO_USERS:-true}"
+      # make the registry available to the app provider containers
+      MICRO_REGISTRY_ADDRESS: 127.0.0.1:9233
+      NATS_NATS_HOST: 0.0.0.0
+      NATS_NATS_PORT: 9233
+      PROXY_CSP_CONFIG_FILE_LOCATION: /etc/ocis/csp.yaml
+      # these three vars are needed to the csp config file to include the web office apps and the importer
+      COLLABORA_DOMAIN: ${COLLABORA_DOMAIN:-collabora.owncloud.test}
+      ONLYOFFICE_DOMAIN: ${ONLYOFFICE_DOMAIN:-onlyoffice.owncloud.test}
+      COMPANION_DOMAIN: ${COMPANION_DOMAIN:-companion.owncloud.test}
+      # enable to allow using the banned passwords list
+      OCIS_PASSWORD_POLICY_BANNED_PASSWORDS_LIST: banned-password-list.txt
+
+      # make collabora the secure view app
+      FRONTEND_APP_HANDLER_SECURE_VIEW_APP_ADDR: com.owncloud.api.collaboration.CollaboraOnline
+      GRAPH_AVAILABLE_ROLES: "b1e2218d-eef8-4d4c-b82d-0f1a1b48f3b5,a8d5fe5e-96e3-418d-825b-534dbdf22b99,fb6c3e19-e378-47e5-b277-9732f9de6e21,58c63c02-1d89-4572-916a-870abc5a1b7d,2d00ce52-1fc2-4dbc-8b95-a73b73395f5a,1c996275-f1c9-4e71-abdf-a42f6495e960,312c0871-5ef7-4b3a-85b6-0e4074c64049,aa97fe03-7980-45ac-9e50-b325749fd7e6"
+
+      # fulltext search ; for tika service
+      SEARCH_EXTRACTOR_TYPE: tika
+      SEARCH_EXTRACTOR_TIKA_TIKA_URL: http://tika:9998
+      FRONTEND_FULL_TEXT_SEARCH_ENABLED: "true"
+
+    volumes:
+      - ./config/app-registry.yaml:/etc/ocis/app-registry.yaml
+      - ./config/csp.yaml:/etc/ocis/csp.yaml
+      - ./config/banned-password-list.txt:/etc/ocis/banned-password-list.txt
+      # configure the .env file to use own paths instead of docker internal volumes
+      - ${OCIS_CONFIG_DIR:-ocis-config}:/etc/ocis
+      - ${OCIS_DATA_DIR:-ocis-data}:/var/lib/ocis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ocis.entrypoints=https"
+      - "traefik.http.routers.ocis.rule=Host(`${OCIS_DOMAIN:-ocis.owncloud.test}`)"
+      - "traefik.http.routers.ocis.tls.certresolver=http"
+      - "traefik.http.routers.ocis.service=ocis"
+      - "traefik.http.services.ocis.loadbalancer.server.port=9200"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+  tika:
+    image: ${TIKA_IMAGE:-apache/tika:latest-full}
+    # release notes: https://tika.apache.org
+    networks:
+      ocis-net:
+    restart: always
+    logging:
+      driver: ${LOG_DRIVER:-local}
+
+  collaboration:
+    image: owncloud/ocis:dev
+    networks:
+      ocis-net:
+    depends_on:
+      ocis:
+        condition: service_started
+      collabora:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+    command: [ "-c", "ocis collaboration server" ]
+    environment:
+      COLLABORATION_GRPC_ADDR: 0.0.0.0:9301
+      COLLABORATION_HTTP_ADDR: 0.0.0.0:9300
+      MICRO_REGISTRY: "nats-js-kv"
+      MICRO_REGISTRY_ADDRESS: "ocis:9233"
+      COLLABORATION_WOPI_SRC: https://${WOPISERVER_DOMAIN:-wopiserver.owncloud.test}
+      COLLABORATION_APP_NAME: "CollaboraOnline"
+      COLLABORATION_APP_PRODUCT: "Collabora"
+      COLLABORATION_APP_ADDR: https://${COLLABORA_DOMAIN:-collabora.owncloud.test}
+      COLLABORATION_APP_ICON: https://${COLLABORA_DOMAIN:-collabora.owncloud.test}/favicon.ico
+      COLLABORATION_APP_INSECURE: "${INSECURE:-true}"
+      COLLABORATION_CS3API_DATAGATEWAY_INSECURE: "${INSECURE:-true}"
+      COLLABORATION_LOG_LEVEL: ${LOG_LEVEL:-info}
+      OCIS_URL: https://${OCIS_DOMAIN:-ocis.owncloud.test}
+      COLLABORATION_APP_PROOF_DISABLE: "true"
+    volumes:
+      # configure the .env file to use own paths instead of docker internal volumes
+      - ${OCIS_CONFIG_DIR:-ocis-config}:/etc/ocis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collaboration.entrypoints=https"
+      - "traefik.http.routers.collaboration.rule=Host(`${WOPISERVER_DOMAIN:-wopiserver.owncloud.test}`)"
+      - "traefik.http.routers.collaboration.tls.certresolver=http"
+      - "traefik.http.routers.collaboration.service=collaboration"
+      - "traefik.http.services.collaboration.loadbalancer.server.port=9300"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+  collabora:
+    image: collabora/code:24.04.10.2.1
+    # release notes: https://www.collaboraonline.com/release-notes/
+    networks:
+      ocis-net:
+    environment:
+      COLLABORATION_APP_PROOF_DISABLE: "true"
+      aliasgroup1: https://${WOPISERVER_DOMAIN:-wopiserver.owncloud.test}:443
+      DONT_GEN_SSL_CERT: "YES"
+      extra_params: |
+        --o:ssl.enable=${COLLABORA_SSL_ENABLE:-false} \
+        --o:ssl.ssl_verification=${COLLABORA_SSL_VERIFICATION:-false} \
+        --o:ssl.termination=true \
+        --o:welcome.enable=false \
+        --o:net.frame_ancestors=${OCIS_DOMAIN:-ocis.owncloud.test}
+      username: ${COLLABORA_ADMIN_USER:-admin}
+      password: ${COLLABORA_ADMIN_PASSWORD:-admin}
+    cap_add:
+      - MKNOD
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collabora.entrypoints=https"
+      - "traefik.http.routers.collabora.rule=Host(`${COLLABORA_DOMAIN:-collabora.owncloud.test}`)"
+      - "traefik.http.routers.collabora.tls.certresolver=http"
+      - "traefik.http.routers.collabora.service=collabora"
+      - "traefik.http.services.collabora.loadbalancer.server.port=9980"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+    command: ["bash", "-c", "coolconfig generate-proof-key ; /start-collabora-online.sh"]
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9980/hosting/discovery" ]
+
+  collaboration-oo:
+    image: owncloud/ocis:dev
+    networks:
+      ocis-net:
+    depends_on:
+      ocis:
+        condition: service_started
+      onlyoffice:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+    command: [ "-c", "ocis collaboration server" ]
+    environment:
+      COLLABORATION_GRPC_ADDR: 0.0.0.0:9301
+      COLLABORATION_HTTP_ADDR: 0.0.0.0:9300
+      MICRO_REGISTRY: "nats-js-kv"
+      MICRO_REGISTRY_ADDRESS: "ocis:9233"
+      COLLABORATION_WOPI_SRC: https://${WOPISERVER_ONLYOFFICE_DOMAIN:-wopiserver-oo.owncloud.test}
+      COLLABORATION_APP_NAME: "OnlyOffice"
+      COLLABORATION_APP_PRODUCT: "OnlyOffice"
+      COLLABORATION_APP_ADDR: https://${ONLYOFFICE_DOMAIN:-onlyoffice.owncloud.test}
+      COLLABORATION_APP_ICON: https://${ONLYOFFICE_DOMAIN:-onlyoffice.owncloud.test}/web-apps/apps/documenteditor/main/resources/img/favicon.ico
+      COLLABORATION_APP_INSECURE: "${INSECURE:-true}"
+      COLLABORATION_CS3API_DATAGATEWAY_INSECURE: "${INSECURE:-true}"
+      COLLABORATION_LOG_LEVEL: ${LOG_LEVEL:-info}
+      COLLABORATION_APP_PROOF_DISABLE: "true"
+      OCIS_URL: https://${OCIS_DOMAIN:-ocis.owncloud.test}
+
+    volumes:
+      # configure the .env file to use own paths instead of docker internal volumes
+      - ${OCIS_CONFIG_DIR:-ocis-config}:/etc/ocis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.collaboration-oo.entrypoints=https"
+      - "traefik.http.routers.collaboration-oo.rule=Host(`${WOPISERVER_ONLYOFFICE_DOMAIN:-wopiserver-oo.owncloud.test}`)"
+      - "traefik.http.routers.collaboration-oo.tls.certresolver=http"
+      - "traefik.http.routers.collaboration-oo.service=collaboration-oo"
+      - "traefik.http.services.collaboration-oo.loadbalancer.server.port=9300"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+
+  onlyoffice:
+    # if you want to use oo enterprise edition, use: onlyoffice/documentserver-ee:<version>
+    # note, you also need to add a volume, see below
+    image: onlyoffice/documentserver:8.2.2
+    # changelog https://github.com/ONLYOFFICE/DocumentServer/releases
+    networks:
+      ocis-net:
+    entrypoint:
+      - /bin/sh
+      - /entrypoint-override.sh
+    environment:
+      WOPI_ENABLED: "true"
+      # self-signed certificates
+      USE_UNAUTHORIZED_STORAGE: "${INSECURE:-true}"
+    volumes:
+      # paths are relative to the main compose file
+      - ./config/onlyoffice/entrypoint-override.sh:/entrypoint-override.sh
+      - ./config/onlyoffice/local.json:/etc/onlyoffice/documentserver/local.dist.json
+      # if you want to use oo enterprise edition, you need to add a volume for the license file
+      # for details see: Registering your Enterprise Edition version -->
+      # https://helpcenter.onlyoffice.com/installation/docs-enterprise-install-docker.aspx
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.onlyoffice.entrypoints=https"
+      - "traefik.http.routers.onlyoffice.rule=Host(`${ONLYOFFICE_DOMAIN:-onlyoffice.owncloud.test}`)"
+      - "traefik.http.routers.onlyoffice.tls.certresolver=http"
+      - "traefik.http.routers.onlyoffice.service=onlyoffice"
+      - "traefik.http.services.onlyoffice.loadbalancer.server.port=80"
+      # websockets can't be opened when this is omitted
+      - "traefik.http.middlewares.onlyoffice.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.onlyoffice.middlewares=onlyoffice"
+    logging:
+      driver: ${LOG_DRIVER:-local}
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost/hosting/discovery" ]
+volumes:
+  ocis-config:
+  ocis-data:
+  certs:
+
+networks:
+  ocis-net:

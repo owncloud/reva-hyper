@@ -584,3 +584,11 @@ The sample `fontsMap.json` file is located in `tests/config/drone/fontsMap.json`
   "defaultFont": "/path/to/ocis/tests/config/drone/NotoSans.ttf"
 }
 ```
+
+
+## Running Test Suite With Document servers  (Collabora, ONLYOFFICE or Microsoft using the WOPI protocol.)
+To run the test related to document servers, go to `tests/acceptance/docker` and run the command
+```bash
+   docker compose up
+```
+This will start all necessary service along with the latest docker build of owncloud
