@@ -32,7 +32,7 @@ use Psr\Http\Message\ResponseInterface;
 use TestHelpers\HttpRequestHelper;
 use TestHelpers\WebDavHelper;
 use TestHelpers\BehatHelper;
-use TestHelpers\TusClientWrapper;
+use TestHelpers\TusClient;
 
 require_once 'bootstrap.php';
 
@@ -366,12 +366,12 @@ class TUSContext implements Context {
 			$token = $this->featureContext->getLastCreatedPublicShareToken();
 		}
 		$headers = [
-			'Authorization' => 'Basic ' . \base64_encode("public" . ':' . $password),
+			'Authorization' => 'Basic ' . \base64_encode("public:$password"),
 		];
 		$sourceFile = $this->featureContext->acceptanceTestsDirLocation() . $source;
 		$url = WebdavHelper::getDavPath(WebDavHelper::DAV_VERSION_SPACES, $token, "public-files");
 
-		$tusWrapper = new TusClientWrapper(
+		$tusClient = new TusClient(
 			$this->featureContext->getBaseUrl(),
 			[
 				'verify' => false,
@@ -379,9 +379,9 @@ class TUSContext implements Context {
 			]
 		);
 
-		$tusWrapper->setApiPath($url);
-		$tusWrapper->setKey((string)rand())->file($sourceFile, $destination);
-		$response = $tusWrapper->file($sourceFile, $destination)->createUploadWithResponse("", 0);
+		$tusClient->setApiPath($url);
+		$tusClient->setKey((string)rand())->file($sourceFile, $destination);
+		$response = $tusClient->file($sourceFile, $destination)->createUploadWithResponse("", 0);
 		return $response;
 	}
 

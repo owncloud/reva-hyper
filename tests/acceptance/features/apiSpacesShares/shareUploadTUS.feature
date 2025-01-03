@@ -413,6 +413,7 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | createOnly   |
       | password        | %public%     |
     When the public uploads file "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside last link shared folder with password "%public%" using the WebDAV API
+    Then the HTTP status code should be "201"
     And for user "Alice" folder "uploadFolder" of the space "Personal" should contain these files:
       | textfile.txt |
     And for user "Alice" folder "uploadFolder" of the space "Personal" should not contain these files:
@@ -431,6 +432,7 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | createOnly   |
       | password        | %public%     |
     When the public uploads file "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside last link shared folder with password "%public%" using the WebDAV API
+    Then the HTTP status code should be "201"
     And for user "Alice" folder "uploadFolder" of the space "Project" should contain these files:
       | textfile.txt |
     And for user "Alice" folder "uploadFolder" of the space "Project" should not contain these files:
