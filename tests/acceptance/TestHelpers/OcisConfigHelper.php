@@ -132,10 +132,7 @@ class OcisConfigHelper {
 	 * @throws GuzzleException
 	 */
 	public static function startService(string $service): ResponseInterface {
-		$envs = [
-			"OCIS_LOG_LEVEL" => "info",
-		];
 		$url = self::getWrapperUrl() . "/services/" . $service;
-		return self::sendRequest($url, "POST", \json_encode($envs));
+		return self::sendRequest($url, "POST");
 	}
 }

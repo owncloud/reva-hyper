@@ -124,3 +124,31 @@ Also, see `./bin/ociswrapper help` for more information.
 
     - `200 OK` - oCIS server is stopped
     - `500 Internal Server Error` - Unable to stop oCIS server
+
+6. `POST /services/<service-name>`
+
+    Restart oCIS with service excluded and start excluded oCIS service individually, not covered by the oCIS supervisor.
+
+    Body of the request should be a JSON object with the following structure:
+
+    ```json
+    {
+      "ENV_KEY1": "value1",
+      "ENV_KEY2": "value2"
+    }
+    ```
+
+    Returns:
+
+    - `200 OK` - oCIS server is stopped
+    - `500 Internal Server Error` - Unable to stop oCIS server
+
+7. `DELETE /services/<service-name>`
+
+   Stop individually running oCIS service
+
+   Returns:
+
+    - `200 OK` - command is successfully executed
+    - `400 Bad Request` - request body is not a valid JSON object
+    - `500 Internal Server Error`

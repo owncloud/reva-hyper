@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"ociswrapper/common"
 	"ociswrapper/ocis"
-	"os"
 	"strings"
 )
 
@@ -115,7 +114,7 @@ func RollbackHandler(res http.ResponseWriter, req *http.Request) {
 
 	var message string
 	ocis.EnvConfigs = []string{}
-	log.Printf(fmt.Sprintf("os Environ when rollback %s", os.Environ))
+
 	success, _ := ocis.Restart(ocis.EnvConfigs)
 	if success {
 		message = "oCIS configuration rolled back successfully"

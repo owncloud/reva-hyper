@@ -1,4 +1,4 @@
-@env-config @backup-consistency
+@env-config
 Feature: backup consistency
   As a user
   I want to check my data for inconsistencies
