@@ -69,8 +69,13 @@ class SpacesTUSContext implements Context {
 		string $spaceName
 	): void {
 		$spaceId = $this->spacesContext->getSpaceIdByName($user, $spaceName);
-		$this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
+		$response = $this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
 		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->theHTTPStatusCodeShouldBe(
+			["201", "204"],
+			"HTTP status code was not 201 or 204 while trying to upload file '$destination' for user '$user'",
+			$response
+		);
 	}
 
 	/**
@@ -259,7 +264,12 @@ class SpacesTUSContext implements Context {
 		string $resource,
 		string $spaceName
 	): void {
-		$this->uploadFileViaTus($user, $content, $resource, $spaceName);
+		$response = $this->uploadFileViaTus($user, $content, $resource, $spaceName);
+		$this->featureContext->theHTTPStatusCodeShouldBe(
+			["201", "204"],
+			"HTTP status code was not 201 or 204 while trying to upload file '$resource' for user '$user'",
+			$response
+		);
 	}
 
 	/**

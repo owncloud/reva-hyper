@@ -130,7 +130,7 @@ class TusClient extends Client {
 			throw new TusException('Upload expired.');
 		}
 
-		$data    = $this->getData($offset, $bytes);
+		$data = $this->getData($offset, $bytes);
 		$headers = $this->headers + [
 				'Content-Type' => self::HEADER_CONTENT_TYPE,
 				'Content-Length' => \strlen($data),
