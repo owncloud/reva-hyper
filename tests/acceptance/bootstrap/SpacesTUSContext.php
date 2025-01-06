@@ -14,6 +14,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\Assert;
+use Psr\Http\Message\ResponseInterface;
 use TestHelpers\WebDavHelper;
 use TestHelpers\BehatHelper;
 use TestHelpers\GraphHelper;
@@ -169,24 +170,26 @@ class SpacesTUSContext implements Context {
 	 * @param string $resource
 	 * @param string $spaceName
 	 *
-	 * @return void
+	 * @return ResponseInterface
 	 * @throws Exception|GuzzleException
 	 */
-	private function uploadFileViaTus(string $user, string $content, string $resource, string $spaceName): void {
+	private function uploadFileViaTus(
+		string $user,
+		string $content,
+		string $resource,
+		string $spaceName
+	): ResponseInterface {
 		$spaceId = $this->spacesContext->getSpaceIdByName($user, $spaceName);
 		$tmpFile = $this->tusContext->writeDataToTempFile($content);
-		try {
-			$this->tusContext->uploadFileUsingTus(
-				$user,
-				\basename($tmpFile),
-				$resource,
-				$spaceId
-			);
-			$this->featureContext->setLastUploadDeleteTime(\time());
-		} catch (Exception $e) {
-			Assert::assertStringContainsString('Unable to create resource', (string)$e);
-		}
+		$response = $this->tusContext->uploadFileUsingTus(
+			$user,
+			\basename($tmpFile),
+			$resource,
+			$spaceId
+		);
+		$this->featureContext->setLastUploadDeleteTime(\time());
 		\unlink($tmpFile);
+		return $response;
 	}
 
 	/**
@@ -236,7 +239,7 @@ class SpacesTUSContext implements Context {
 		string $resource,
 		string $spaceName
 	): void {
-		$this->uploadFileViaTus($user, $content, $resource, $spaceName);
+		$this->featureContext->setResponse($this->uploadFileViaTus($user, $content, $resource, $spaceName));
 	}
 
 	/**
@@ -302,7 +305,7 @@ class SpacesTUSContext implements Context {
 		$mtime = new DateTime($mtime);
 		$mtime = $mtime->format('U');
 		$user = $this->featureContext->getActualUsername($user);
-		$this->tusContext->uploadFileUsingTus(
+		$response = $this->tusContext->uploadFileUsingTus(
 			$user,
 			$source,
 			$destination,
@@ -310,6 +313,7 @@ class SpacesTUSContext implements Context {
 			['mtime' => $mtime]
 		);
 		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->setResponse($response);
 	}
 
 	/**

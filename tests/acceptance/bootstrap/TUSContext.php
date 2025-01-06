@@ -279,7 +279,7 @@ class TUSContext implements Context {
 	 * @param integer $bytes
 	 * @param string $checksum
 	 *
-	 * @return void
+	 * @return ResponseInterface
 	 */
 	public function uploadFileUsingTus(
 		?string $user,
@@ -290,7 +290,7 @@ class TUSContext implements Context {
 		int     $noOfChunks = 1,
 		int     $bytes = null,
 		string  $checksum = ''
-	) {
+	): ResponseInterface {
 		$user = $this->featureContext->getActualUsername($user);
 		$password = $this->featureContext->getUserPassword($user);
 		$headers = [
@@ -310,7 +310,7 @@ class TUSContext implements Context {
 			$headers = \array_merge($headers, $checksumHeader);
 		}
 
-		$client = new Client(
+		$tusClient = new TusClient(
 			$this->featureContext->getBaseUrl(),
 			[
 				'verify' => false,
@@ -324,24 +324,27 @@ class TUSContext implements Context {
 			$suffixPath = $spaceId ?: $this->featureContext->getPersonalSpaceIdForUser($user);
 		}
 
-		$client->setChecksumAlgorithm('sha1');
-		$client->setApiPath(WebDavHelper::getDavPath($davPathVersion, $suffixPath));
-		$client->setMetadata($uploadMetadata);
+		$tusClient->setChecksumAlgorithm('sha1');
+		$tusClient->setApiPath(WebDavHelper::getDavPath($davPathVersion, $suffixPath));
+		$tusClient->setMetadata($uploadMetadata);
 		$sourceFile = $this->featureContext->acceptanceTestsDirLocation() . $source;
-		$client->setKey((string)rand())->file($sourceFile, $destination);
+		$tusClient->setKey((string)rand())->file($sourceFile, $destination);
 		$this->featureContext->pauseUploadDelete();
+		$response = null;
 
 		if ($bytes !== null) {
-			$client->file($sourceFile, $destination)->createWithUpload($client->getKey(), $bytes);
+			return $tusClient->file($sourceFile, $destination)
+				->createUploadWithResponse($tusClient->getKey(), $bytes);
 		} elseif (\filesize($sourceFile) === 0) {
-			$client->file($sourceFile, $destination)->createWithUpload($client->getKey(), 0);
+			return $tusClient->file($sourceFile, $destination)->createUploadWithResponse($tusClient->getKey(), 0);
 		} elseif ($noOfChunks === 1) {
-			$client->file($sourceFile, $destination)->upload();
+			return $tusClient->file($sourceFile, $destination)->uploadWithResponse();
 		} else {
 			$bytesPerChunk = (int)\ceil(\filesize($sourceFile) / $noOfChunks);
 			for ($i = 0; $i < $noOfChunks; $i++) {
-				$client->upload($bytesPerChunk);
+				$response = $tusClient->uploadWithResponse($bytesPerChunk);
 			}
+			return $response;
 		}
 	}
 

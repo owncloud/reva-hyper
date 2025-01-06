@@ -21,7 +21,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Editor   |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Brian" folder "toShare" of the space "Shares" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Brian" folder "toShare" of the space "Shares" should contain these entries:
       | file.txt |
     And as "Brian" the mtime of the file "/toShare/file.txt" in space "Shares" should be "Thu, 08 Aug 2012 04:18:13 GMT"
     And as "Alice" the mtime of the file "/toShare/file.txt" in space "Personal" should be "Thu, 08 Aug 2012 04:18:13 GMT"
@@ -37,7 +38,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Editor   |
     And user "Brian" has a share "toShare" synced
     When user "Alice" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Personal" using the WebDAV API
-    Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
     And as "Alice" the mtime of the file "/toShare/file.txt" in space "Personal" should be "Thu, 08 Aug 2012 04:18:13 GMT"
     And as "Brian" the mtime of the file "/toShare/file.txt" in space "Shares" should be "Thu, 08 Aug 2012 04:18:13 GMT"
@@ -54,7 +56,8 @@ Feature: upload resources on share using TUS protocol
     And user "Brian" has a share "toShare" synced
     And user "Alice" has uploaded file with content "uploaded content" to "/toShare/file.txt"
     When user "Brian" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Brian" folder "toShare" of the space "Shares" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Brian" folder "toShare" of the space "Shares" should contain these entries:
       | file.txt |
     And as "Brian" the mtime of the file "/toShare/file.txt" in space "Shares" should be "Thu, 08 Aug 2012 04:18:13 GMT"
     And as "Alice" the mtime of the file "/toShare/file.txt" in space "Personal" should be "Thu, 08 Aug 2012 04:18:13 GMT"
@@ -71,7 +74,8 @@ Feature: upload resources on share using TUS protocol
     And user "Brian" has a share "toShare" synced
     And user "Brian" has uploaded a file inside space "Shares" with content "uploaded content" to "toShare/file.txt"
     When user "Alice" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Personal" using the WebDAV API
-    Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
     And as "Alice" the mtime of the file "/toShare/file.txt" in space "Personal" should be "Thu, 08 Aug 2012 04:18:13 GMT"
     And as "Brian" the mtime of the file "/toShare/file.txt" in space "Shares" should be "Thu, 08 Aug 2012 04:18:13 GMT"
@@ -88,7 +92,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Editor   |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/nonExistentFolder/file.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
+    Then the HTTP status code should be "412"
+    And for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
       | nonExistentFolder |
 
 
@@ -103,7 +108,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Viewer   |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/nonExistentFolder/file.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
+    Then the HTTP status code should be "403"
+    And for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
       | nonExistentFolder |
 
 
@@ -117,7 +123,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Editor   |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
     And for user "Alice" the content of the file "toShare/file.txt" of the space "Personal" should be "uploaded content"
 
@@ -132,7 +139,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Uploader |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
     And for user "Alice" the content of the file "toShare/file.txt" of the space "Personal" should be "uploaded content"
 
@@ -149,7 +157,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Uploader |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
     And for user "Alice" the content of the file "toShare/file.txt" of the space "Personal" should be "uploaded content"
 
@@ -165,7 +174,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Editor   |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file with content "overwritten content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
     And for user "Alice" the content of the file "toShare/file.txt" of the space "Personal" should be "overwritten content"
 
@@ -180,7 +190,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | Viewer   |
     And user "Brian" has a share "toShare" synced
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
+    Then the HTTP status code should be "403"
+    And for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
       | file.txt |
 
 
@@ -220,7 +231,8 @@ Feature: upload resources on share using TUS protocol
       | Tus-Resumable   | 1.0.0                                 |
     And user "Alice" has uploaded file with checksum "SHA1 8cb2237d0679ca88db6464eac60da96345513964" to the last created TUS Location with offset "0" and content "12345" via TUS inside of the space "Personal" using the WebDAV API
     When user "Brian" downloads the file "/FOLDER/textFile.txt" of the space "Shares" using the WebDAV API
-    Then the header checksum should match "SHA1:8cb2237d0679ca88db6464eac60da96345513964"
+    Then the HTTP status code should be "200"
+    And the header checksum should match "SHA1:8cb2237d0679ca88db6464eac60da96345513964"
 
 
   Scenario: sharer shares a file with correct checksum should return the checksum in the propfind for sharee
@@ -257,7 +269,8 @@ Feature: upload resources on share using TUS protocol
       | permissionsRole | File Editor  |
     And user "Brian" has a share "textFile.txt" synced
     When user "Brian" downloads the file "/textFile.txt" of the space "Shares" using the WebDAV API
-    Then the header checksum should match "SHA1:8cb2237d0679ca88db6464eac60da96345513964"
+    Then the HTTP status code should be "200"
+    And the header checksum should match "SHA1:8cb2237d0679ca88db6464eac60da96345513964"
 
 
   Scenario: sharee uploads a file to a received share folder with correct checksum
@@ -269,13 +282,14 @@ Feature: upload resources on share using TUS protocol
       | shareType       | user     |
       | permissionsRole | Editor   |
     And user "Brian" has a share "FOLDER" synced
-    When user "Brian" creates a new TUS resource for the space "Shares" with content "" using the WebDAV API with these headers:
+    When user "Brian" creates a new TUS resource for the space "Shares" with content " " using the WebDAV API with these headers:
       | Upload-Length   | 5                                     |
       #    L0ZPTERFUi90ZXh0RmlsZS50eHQ= is the base64 encode of /FOLDER/textFile.txt
       | Upload-Metadata | filename L0ZPTERFUi90ZXh0RmlsZS50eHQ= |
       | Tus-Resumable   | 1.0.0                                 |
     And user "Brian" uploads file with checksum "MD5 827ccb0eea8a706c4c34a16891f84e7b" to the last created TUS Location with offset "0" and content "12345" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Alice" folder "FOLDER" of the space "Personal" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" folder "FOLDER" of the space "Personal" should contain these entries:
       | textFile.txt |
     And for user "Alice" the content of the file "FOLDER/textFile.txt" of the space "Personal" should be "12345"
 

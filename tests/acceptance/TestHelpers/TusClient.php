@@ -23,10 +23,15 @@
 namespace TestHelpers;
 
 use Carbon\Carbon;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use PHPUnit\Framework\Assert;
+use TusPhp\Exception\ConnectionException;
 use TusPhp\Exception\FileException;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
+use TusPhp\Exception\TusException;
 use TusPhp\Tus\Client;
 
 /**
@@ -80,7 +85,7 @@ class TusClient extends Client {
 		$statusCode = $response->getStatusCode();
 
 		if ($statusCode !== HttpResponse::HTTP_CREATED) {
-			throw new FileException('Unable to create resource.');
+			return $response;
 		}
 
 		$uploadLocation = current($response->getHeader('location'));
@@ -92,6 +97,64 @@ class TusClient extends Client {
 			'expires_at' => Carbon::now()->addSeconds($this->getCache()->getTtl())->format($this->getCache()::RFC_7231),
 			]
 		);
+		return $response;
+	}
+
+	/**
+	 * @param int $bytes
+	 *
+	 * @return ResponseInterface
+	 * @throws GuzzleException
+	 * @throws ConnectionException
+	 * @throws TusException
+	 */
+	public function uploadWithResponse(int $bytes = -1): ResponseInterface {
+		$bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
+		$offset = $this->partialOffset < 0 ? 0 : $this->partialOffset;
+
+		try {
+			// Check if this upload exists with HEAD request.
+			$offset = $this->sendHeadRequest();
+		} catch (FileException | ClientException $e) {
+			// Create a new upload.
+			$this->url = $this->createUploadWithResponse($this->getKey(), 0);
+			if ($this->url->getStatusCode() !== HttpResponse::HTTP_CREATED) {
+				return $this->url;
+			}
+		} catch (ConnectException) {
+			throw new ConnectionException("Couldn't connect to server.");
+		}
+
+		// Verify that upload is not yet expired.
+		if ($this->isExpired()) {
+			throw new TusException('Upload expired.');
+		}
+
+		$data    = $this->getData($offset, $bytes);
+		$headers = $this->headers + [
+				'Content-Type' => self::HEADER_CONTENT_TYPE,
+				'Content-Length' => \strlen($data),
+				'Upload-Checksum' => $this->getUploadChecksumHeader(),
+			];
+
+		if ($this->isPartial()) {
+			$headers += ['Upload-Concat' => self::UPLOAD_TYPE_PARTIAL];
+		} else {
+			$headers += ['Upload-Offset' => $offset];
+		}
+		try {
+			$response = $this->getClient()->patch(
+				$this->getUrl(),
+				[
+				'body' => $data,
+				'headers' => $headers,
+				]
+			);
+		} catch (ClientException $e) {
+			throw $this->handleClientException($e);
+		} catch (ConnectException) {
+			throw new ConnectionException("Couldn't connect to server.");
+		}
 		return $response;
 	}
 }
