@@ -60,18 +60,12 @@ services:
       dockerfile: docker/Dockerfile.linux.amd64
       context: ../../../../ocis/
     image: owncloud/ocis:dev
-    # changelog: https://github.com/owncloud/ocis/tree/master/changelog
-    # release notes: https://doc.owncloud.com/ocis_release_notes.html
     networks:
       ocis-net:
     entrypoint:
       - /bin/sh
-    # run ocis init to initialize a configuration file with random secrets
-    # it will fail on subsequent runs, because the config file already exists
-    # therefore we ignore the error and then start the ocis server
     command: [ "-c", "ocis init || true; ocis server" ]
     environment:
-      # enable services that are not started automatically
       OCIS_URL: https://${OCIS_DOMAIN:-ocis.owncloud.test}
       OCIS_LOG_LEVEL: ${LOG_LEVEL:-info}
       OCIS_LOG_COLOR: "${LOG_PRETTY:-false}"
@@ -103,12 +97,6 @@ services:
       # make collabora the secure view app
       FRONTEND_APP_HANDLER_SECURE_VIEW_APP_ADDR: com.owncloud.api.collaboration.CollaboraOnline
       GRAPH_AVAILABLE_ROLES: "b1e2218d-eef8-4d4c-b82d-0f1a1b48f3b5,a8d5fe5e-96e3-418d-825b-534dbdf22b99,fb6c3e19-e378-47e5-b277-9732f9de6e21,58c63c02-1d89-4572-916a-870abc5a1b7d,2d00ce52-1fc2-4dbc-8b95-a73b73395f5a,1c996275-f1c9-4e71-abdf-a42f6495e960,312c0871-5ef7-4b3a-85b6-0e4074c64049,aa97fe03-7980-45ac-9e50-b325749fd7e6"
-
-      # fulltext search ; for tika service
-      SEARCH_EXTRACTOR_TYPE: tika
-      SEARCH_EXTRACTOR_TIKA_TIKA_URL: http://tika:9998
-      FRONTEND_FULL_TEXT_SEARCH_ENABLED: "true"
-
     volumes:
       - ./config/app-registry.yaml:/etc/ocis/app-registry.yaml
       - ./config/csp.yaml:/etc/ocis/csp.yaml
