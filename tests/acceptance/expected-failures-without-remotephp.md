@@ -323,8 +323,8 @@
 
 #### [Cannot create new TUS upload resource using /webdav without remote.php - returns html instead](https://github.com/owncloud/ocis/issues/10346)
 
-- [apiSpaces/tusUpload.feature:60](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L60)
-- [apiSpaces/tusUpload.feature:104](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L104)
+- [apiSpaces/tusUpload.feature:63](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L63)
+- [apiSpaces/tusUpload.feature:110](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L110)
 - [coreApiWebdavUploadTUS/creationWithUploadExtension.feature:38](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/coreApiWebdavUploadTUS/creationWithUploadExtension.feature#L38)
 - [coreApiWebdavUploadTUS/uploadFile.feature:16](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/coreApiWebdavUploadTUS/uploadFile.feature#L16)
 - [coreApiWebdavUploadTUS/uploadFile.feature:17](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/coreApiWebdavUploadTUS/uploadFile.feature#L17)

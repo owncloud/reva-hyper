@@ -1048,6 +1048,7 @@ Feature: an user shares resources using ScienceMesh application
       | permissionsRole | Editor   |
     When using server "REMOTE"
     And user "Brian" uploads a file with content "lorem" to "file.txt" inside federated share "FOLDER" via TUS using the WebDAV API
+    And the HTTP status code should be "204"
     Then for user "Brian" the content of file "file.txt" of federated share "FOLDER" should be "lorem"
 
   @issue-10285 @issue-10536
@@ -1066,6 +1067,7 @@ Feature: an user shares resources using ScienceMesh application
       | permissionsRole | Editor   |
     When using server "LOCAL"
     And user "Alice" uploads a file with content "lorem" to "file.txt" inside federated share "FOLDER" via TUS using the WebDAV API
+    And the HTTP status code should be "204"
     Then for user "Alice" the content of file "file.txt" of federated share "FOLDER" should be "lorem"
 
   @issue-10495

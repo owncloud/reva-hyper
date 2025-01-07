@@ -24,7 +24,6 @@ namespace TestHelpers;
 
 use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\Assert;
 use TusPhp\Exception\ConnectionException;
@@ -55,7 +54,6 @@ class TusClient extends Client {
 				'Upload-Checksum' => $this->getUploadChecksumHeader(),
 				'Upload-Metadata' => $this->getUploadMetadataHeader(),
 			];
-
 		$data = '';
 		if ($bytes > 0) {
 			$data = $this->getData(0, $bytes);
@@ -65,11 +63,9 @@ class TusClient extends Client {
 				'Content-Length' => \strlen($data),
 			];
 		}
-
 		if ($this->isPartial()) {
 			$headers += ['Upload-Concat' => 'partial'];
 		}
-
 		try {
 			$response = $this->getClient()->post(
 				$this->apiPath,
@@ -81,15 +77,11 @@ class TusClient extends Client {
 		} catch (ClientException $e) {
 			$response = $e->getResponse();
 		}
-
 		$statusCode = $response->getStatusCode();
-
 		if ($statusCode !== HttpResponse::HTTP_CREATED) {
 			return $response;
 		}
-
 		$uploadLocation = current($response->getHeader('location'));
-
 		$this->getCache()->set(
 			$this->getKey(),
 			[
@@ -105,13 +97,11 @@ class TusClient extends Client {
 	 *
 	 * @return ResponseInterface
 	 * @throws GuzzleException
-	 * @throws ConnectionException
-	 * @throws TusException
+	 * @throws TusException | ConnectionException
 	 */
 	public function uploadWithResponse(int $bytes = -1): ResponseInterface {
 		$bytes  = $bytes < 0 ? $this->getFileSize() : $bytes;
 		$offset = $this->partialOffset < 0 ? 0 : $this->partialOffset;
-
 		try {
 			// Check if this upload exists with HEAD request.
 			$offset = $this->sendHeadRequest();
@@ -121,22 +111,17 @@ class TusClient extends Client {
 			if ($this->url->getStatusCode() !== HttpResponse::HTTP_CREATED) {
 				return $this->url;
 			}
-		} catch (ConnectException) {
-			throw new ConnectionException("Couldn't connect to server.");
 		}
-
 		// Verify that upload is not yet expired.
 		if ($this->isExpired()) {
 			throw new TusException('Upload expired.');
 		}
-
 		$data = $this->getData($offset, $bytes);
 		$headers = $this->headers + [
 				'Content-Type' => self::HEADER_CONTENT_TYPE,
 				'Content-Length' => \strlen($data),
 				'Upload-Checksum' => $this->getUploadChecksumHeader(),
 			];
-
 		if ($this->isPartial()) {
 			$headers += ['Upload-Concat' => self::UPLOAD_TYPE_PARTIAL];
 		} else {
@@ -152,8 +137,6 @@ class TusClient extends Client {
 			);
 		} catch (ClientException $e) {
 			throw $this->handleClientException($e);
-		} catch (ConnectException) {
-			throw new ConnectionException("Couldn't connect to server.");
 		}
 		return $response;
 	}

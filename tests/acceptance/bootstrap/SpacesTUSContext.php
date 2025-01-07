@@ -97,8 +97,9 @@ class SpacesTUSContext implements Context {
 		string $spaceName
 	): void {
 		$spaceId = $this->spacesContext->getSpaceIdByName($user, $spaceName);
-		$this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
+		$response = $this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
 		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->setResponse($response);
 	}
 
 	/**
@@ -217,7 +218,7 @@ class SpacesTUSContext implements Context {
 		$remoteItemId = $this->spacesContext->getSharesRemoteItemId($user, $destination);
 		$remoteItemId = \rawurlencode($remoteItemId);
 		$tmpFile = $this->tusContext->writeDataToTempFile($content);
-		$this->tusContext->uploadFileUsingTus(
+		$response = $this->tusContext->uploadFileUsingTus(
 			$user,
 			\basename($tmpFile),
 			$file,
@@ -225,6 +226,7 @@ class SpacesTUSContext implements Context {
 		);
 		$this->featureContext->setLastUploadDeleteTime(\time());
 		\unlink($tmpFile);
+		$this->featureContext->setResponse($response);
 	}
 
 	/**

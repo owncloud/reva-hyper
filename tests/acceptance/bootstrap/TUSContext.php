@@ -265,8 +265,18 @@ class TUSContext implements Context {
 		int     $bytes = null,
 		string  $checksum = ''
 	): void {
-		$this->uploadFileUsingTus($user, $source, $destination, null, $uploadMetadata, $noOfChunks, $bytes, $checksum);
+		$response = $this->uploadFileUsingTus(
+			$user,
+			$source,
+			$destination,
+			null,
+			$uploadMetadata,
+			$noOfChunks,
+			$bytes,
+			$checksum
+		);
 		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->setResponse($response);
 	}
 
 	/**
