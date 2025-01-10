@@ -16,7 +16,7 @@ Feature: accessing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | testavatar.jpg |
       | space           | Personal       |
-      | permissionsRole | edit           |
+      | permissionsRole | Edit           |
       | password        | %public%       |
     When the public accesses the preview of file "testavatar.jpg" from the last shared public link using the sharing API
     Then the HTTP status code should be "404"
@@ -29,7 +29,7 @@ Feature: accessing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | testavatar.jpg |
       | space           | Personal       |
-      | permissionsRole | edit           |
+      | permissionsRole | Edit           |
     When the public accesses the preview of file "testavatar.jpg" from the last shared public link using the sharing API
     Then the HTTP status code should be "200"
 
@@ -42,7 +42,7 @@ Feature: accessing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public accesses the preview of the following files from the last shared public link using the sharing API
       | path           |
@@ -60,7 +60,7 @@ Feature: accessing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public accesses the preview of the following files from the last shared public link using the sharing API
       | path           |
       | testavatar.jpg |

@@ -56,7 +56,7 @@ Feature: Update a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<new-permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -68,13 +68,13 @@ Feature: Update a link share for a resource
       }
       """
     Examples:
-      | permissions-role | new-permissions-role |
-      | view             | edit                 |
-      | view             | blocksDownload       |
-      | edit             | view                 |
-      | edit             | blocksDownload       |
-      | blocksDownload   | edit                 |
-      | blocksDownload   | blocksDownload       |
+      | permissions-role | new-permissions-role | permissions-role-value |
+      | View             | Edit                 | edit                   |
+      | View             | Secure View          | blocksDownload         |
+      | Edit             | View                 | view                   |
+      | Edit             | Secure View          | blocksDownload         |
+      | Secure View      | Edit                 | edit                   |
+      | Secure View      | Secure View          | blocksDownload         |
 
   @issue-8619
   Scenario Outline: update role of a file's to internal link share using permissions endpoint
@@ -87,7 +87,7 @@ Feature: Update a link share for a resource
     When user "Alice" updates the last public link share using the permissions endpoint of the Graph API:
       | resource        | textfile1.txt |
       | space           | Personal      |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
       """
@@ -138,9 +138,9 @@ Feature: Update a link share for a resource
       """
     Examples:
       | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | View             |
+      | Edit             |
+      | Secure View      |
 
 
   Scenario: update expiration date of a file's link share using permissions endpoint
@@ -148,7 +148,7 @@ Feature: Update a link share for a resource
     And user "Alice" has created the following resource link share:
       | resource           | textfile1.txt            |
       | space              | Personal                 |
-      | permissionsRole    | view                     |
+      | permissionsRole    | View                     |
       | password           | %public%                 |
       | expirationDateTime | 2200-07-15T14:00:00.000Z |
     When user "Alice" updates the last public link share using the permissions endpoint of the Graph API:
@@ -211,7 +211,7 @@ Feature: Update a link share for a resource
     And user "Alice" has created the following resource link share:
       | resource        | textfile1.txt |
       | space           | Personal      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
       | password        | $heLlo*1234*  |
     When user "Alice" sets the following password for the last link share using the Graph API:
       | resource | textfile1.txt |
@@ -242,12 +242,12 @@ Feature: Update a link share for a resource
     And user "Alice" has created the following resource link share:
       | resource        | text.txt |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When user "Alice" sets the following password for the last link share using the Graph API:
       | resource        | text.txt          |
       | space           | Personal          |
-      | permissionsRole | view              |
+      | permissionsRole | View              |
       | password        | <banned-password> |
     Then the HTTP status code should be "400"
     And the JSON data of the response should match
@@ -296,7 +296,7 @@ Feature: Update a link share for a resource
     And user "Alice" has created the following resource link share:
       | resource        | folderToShare |
       | space           | projectSpace  |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
     When user "Alice" sets the following password for the last link share using the Graph API:
       | resource | folderToShare |
       | space    | projectSpace  |
@@ -377,7 +377,7 @@ Feature: Update a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<new-permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -389,20 +389,20 @@ Feature: Update a link share for a resource
       }
       """
     Examples:
-      | permissions-role | new-permissions-role |
-      | view             | edit                 |
-      | view             | upload               |
-      | view             | createOnly           |
-      | edit             | view                 |
-      | edit             | upload               |
-      | edit             | createOnly           |
-      | upload           | view                 |
-      | upload           | edit                 |
-      | upload           | createOnly           |
-      | createOnly       | view                 |
-      | createOnly       | edit                 |
-      | createOnly       | upload               |
-      | blocksDownload   | blocksDownload       |
+      | permissions-role | new-permissions-role | permissions-role-value |
+      | view             | Edit                 | edit                   |
+      | view             | Upload               | upload                 |
+      | view             | File Drop            | createOnly             |
+      | edit             | View                 | view                   |
+      | edit             | Upload               | upload                 |
+      | edit             | File Drop            | createOnly             |
+      | upload           | View                 | view                   |
+      | upload           | Edit                 | edit                   |
+      | upload           | File Drop            | createOnly             |
+      | createOnly       | View                 | view                   |
+      | createOnly       | Edit                 | edit                   |
+      | createOnly       | Upload               | upload                 |
+      | blocksDownload   | Secure View          | blocksDownload         |
 
 
   Scenario Outline: update role of a folder's link share inside project-space using permissions endpoint
@@ -462,7 +462,7 @@ Feature: Update a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<new-permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -474,19 +474,19 @@ Feature: Update a link share for a resource
       }
       """
     Examples:
-      | permissions-role | new-permissions-role |
-      | view             | edit                 |
-      | view             | upload               |
-      | view             | createOnly           |
-      | edit             | view                 |
-      | edit             | upload               |
-      | edit             | createOnly           |
-      | upload           | view                 |
-      | upload           | edit                 |
-      | upload           | createOnly           |
-      | createOnly       | view                 |
-      | createOnly       | edit                 |
-      | createOnly       | upload               |
+      | permissions-role | new-permissions-role | permissions-role-value |
+      | View             | Edit                 | edit                   |
+      | View             | Upload               | upload                 |
+      | View             | File Drop            | createOnly             |
+      | Edit             | View                 | view                   |
+      | Edit             | Upload               | upload                 |
+      | Edit             | File Drop            | createOnly             |
+      | Upload           | View                 | view                   |
+      | Upload           | Edit                 | edit                   |
+      | Upload           | File Drop            | createOnly             |
+      | File Drop        | View                 | view                   |
+      | File Drop        | Edit                 | edit                   |
+      | File Drop        | Upload               | upload                 |
 
 
   Scenario Outline: update role of a file's link share inside a project-space using permissions endpoint
@@ -543,7 +543,7 @@ Feature: Update a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<new-permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -555,9 +555,9 @@ Feature: Update a link share for a resource
       }
       """
     Examples:
-      | permissions-role | new-permissions-role |
-      | view             | edit                 |
-      | edit             | view                 |
+      | permissions-role | new-permissions-role | permissions-role-value |
+      | View             | Edit                 | edit                   |
+      | Edit             | View                 | view                   |
 
 
   Scenario Outline: update role of a file's link share to internal inside a project-space using permissions endpoint
@@ -614,7 +614,7 @@ Feature: Update a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<new-permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -626,9 +626,9 @@ Feature: Update a link share for a resource
       }
       """
     Examples:
-      | permissions-role | new-permissions-role |
-      | view             | internal             |
-      | edit             | internal             |
+      | permissions-role | new-permissions-role | permissions-role-value |
+      | View             | Internal             | internal               |
+      | Edit             | Internal             | internal               |
 
 
   Scenario Outline: update role of a folder's link share to internal inside project-space using permissions endpoint
@@ -688,7 +688,7 @@ Feature: Update a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<new-permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -700,11 +700,11 @@ Feature: Update a link share for a resource
       }
       """
     Examples:
-      | permissions-role | new-permissions-role |
-      | view             | internal             |
-      | edit             | internal             |
-      | upload           | internal             |
-      | createOnly       | internal             |
+      | permissions-role | new-permissions-role | permissions-role-value |
+      | View             | Internal             | internal               |
+      | Edit             | Internal             | internal               |
+      | Upload           | Internal             | internal               |
+      | File Drop        | Internal             | internal               |
 
 
   Scenario Outline: update link share of a folder inside personal drive using permissions endpoint
@@ -764,7 +764,7 @@ Feature: Update a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<new-permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -776,20 +776,20 @@ Feature: Update a link share for a resource
       }
       """
     Examples:
-      | permissions-role | new-permissions-role |
-      | view             | edit                 |
-      | view             | upload               |
-      | view             | createOnly           |
-      | edit             | view                 |
-      | edit             | upload               |
-      | edit             | createOnly           |
-      | upload           | view                 |
-      | upload           | edit                 |
-      | upload           | createOnly           |
-      | createOnly       | view                 |
-      | createOnly       | edit                 |
-      | createOnly       | upload               |
-      | blocksDownload   | blocksDownload       |
+      | permissions-role | new-permissions-role | permissions-role-value |
+      | View             | Edit                 | edit                   |
+      | View             | Upload               | upload                 |
+      | View             | File Drop            | createOnly             |
+      | Edit             | View                 | view                   |
+      | Edit             | Upload               | upload                 |
+      | Edit             | File Drop            | createOnly             |
+      | Upload           | View                 | view                   |
+      | Upload           | Edit                 | edit                   |
+      | Upload           | File Drop            | createOnly             |
+      | File Drop        | View                 | view                   |
+      | File Drop        | Edit                 | edit                   |
+      | File Drop        | Upload               | upload                 |
+      | Secure View      | Secure View          | blocksDownload         |
 
   @issues-8405
   Scenario Outline: remove expiration date of a resource link share using permissions endpoint
@@ -798,7 +798,7 @@ Feature: Update a link share for a resource
     And user "Alice" has created the following resource link share:
       | resource           | <resource>               |
       | space              | Personal                 |
-      | permissionsRole    | view                     |
+      | permissionsRole    | View                     |
       | password           | %public%                 |
       | expirationDateTime | 2200-07-15T14:00:00.000Z |
     When user "Alice" updates the last public link share using the permissions endpoint of the Graph API:

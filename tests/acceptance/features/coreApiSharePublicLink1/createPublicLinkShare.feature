@@ -281,7 +281,7 @@ Feature: create a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When user "Alice" deletes folder "/PARENT" using the WebDAV API
     And the public tries to download file "/parent.txt" from inside the last public link shared folder with password "%public%" using the public WebDAV API
@@ -295,7 +295,7 @@ Feature: create a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     When the public tries to download file "/parent.txt" from inside the last public link shared folder with password "%public%" using the public WebDAV API
     Then the HTTP status code should be "403"
@@ -308,7 +308,7 @@ Feature: create a public link share
     And user "Alice" has created the following resource link share:
       | resource        | test-file.txt |
       | space           | Personal      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
     When the public gets the size of the last shared public link using the WebDAV API
     Then the HTTP status code should be "207"
     And the size of the file should be "19"
@@ -352,7 +352,7 @@ Feature: create a public link share
     And user "Alice" has created the following resource link share:
       | resource        | testFolder |
       | space           | Personal   |
-      | permissionsRole | edit       |
+      | permissionsRole | Edit       |
     When the public uploads file "file.txt" to the last public link shared folder with password "%public%" with mtime "Thu, 08 Aug 2019 04:18:13 GMT" using the public WebDAV API
     Then the HTTP status code should be "201"
     And as "Alice" file "testFolder/file.txt" should exist
@@ -382,7 +382,7 @@ Feature: create a public link share
     And user "Alice" has created the following resource link share:
       | resource        | file.txt |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
     When the public lists the resources in the last created public link with depth "1" using the WebDAV API
     Then the HTTP status code should be "207"
     And the value of the item "//d:response[2]//d:href" in the response should match "/\/dav\/public-files\/%public_token%\/file.txt$/"
@@ -400,7 +400,7 @@ Feature: create a public link share
     And user "Alice" has created the following resource link share:
       | resource        | test.txt |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     And user "Alice" has deleted file "test.txt"
     When user "Alice" updates the last public link share using the sharing API with

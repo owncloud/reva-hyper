@@ -46,6 +46,15 @@ class GraphHelper {
 		'Denied' => '63e64e19-8d43-42ec-a738-2b6af2610efa',
 	];
 
+	public const PERMISSIONS_ROLES_MAPPINGS = [
+		'View' => 'view',
+		'Internal' => 'internal',
+		'Edit' => 'edit',
+		'Upload' => 'upload',
+		'File Drop' => 'createOnly',
+		'Secure View' => 'blocksDownload',
+	];
+
 	public const SHARES_SPACE_ID = 'a0ca6a90-a365-4782-871e-d44447bbc668$a0ca6a90-a365-4782-871e-d44447bbc668';
 
 	/**

@@ -205,5 +205,5 @@ Feature: checking file versions using file id
     Then the HTTP status code should be "401"
     Examples:
       | permissions-role |
-      | view             |
-      | edit             |
+      | View             |
+      | Edit             |

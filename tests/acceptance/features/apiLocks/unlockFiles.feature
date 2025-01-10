@@ -307,7 +307,7 @@ Feature: unlock locked items
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     And the public has locked "textfile0.txt" in the last public link shared folder setting the following properties
       | lockscope | <lock-scope> |

@@ -64,7 +64,7 @@ Feature: enforce password on public link
     And user "Alice" has created the following resource link share:
       | resource        | testfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
     When user "Alice" updates the last public link share using the sharing API with
       | permissions | 3        |
       | password    | %public% |
@@ -156,7 +156,7 @@ Feature: enforce password on public link
     And user "Alice" has created the following resource link share:
       | resource        | testfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
     When user "Alice" updates the last public link share using the sharing API with
       | permissions | 3             |
       | password    | 6a0Q;A3 +i^m[ |
@@ -189,7 +189,7 @@ Feature: enforce password on public link
     And user "Alice" has created the following resource link share:
       | resource        | testfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
     When user "Alice" updates the last public link share using the sharing API with
       | permissions | 3    |
       | password    | Pws^ |
@@ -264,7 +264,7 @@ Feature: enforce password on public link
     And user "Alice" has created the following resource link share:
       | resource        | testfile.txt |
       | space           | Personal     |
-      | permissionsRole | internal     |
+      | permissionsRole | Internal     |
     When user "Alice" updates the last public link share using the sharing API with
       | permissions | 3          |
       | password    | <password> |

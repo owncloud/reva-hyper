@@ -1748,7 +1748,7 @@ Feature: List a sharing permissions
     And user "Alice" has created the following resource link share:
       | resource        | folder   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When user "Alice" gets permissions list for folder "folder" of the space "Personal" using the Graph API
     Then the HTTP status code should be "200"
@@ -1853,7 +1853,7 @@ Feature: List a sharing permissions
     And user "Alice" has created the following resource link share:
       | resource        | textfile0.txt |
       | space           | Personal      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
       | password        | %public%      |
     When user "Alice" gets permissions list for file "textfile0.txt" of the space "Personal" using the Graph API
     Then the HTTP status code should be "200"
@@ -1957,7 +1957,7 @@ Feature: List a sharing permissions
     And user "Alice" has created the following resource link share:
       | resource        | folder    |
       | space           | new-space |
-      | permissionsRole | view      |
+      | permissionsRole | View      |
       | password        | %public%  |
     When user "Alice" gets permissions list for folder "folder" of the space "new-space" using the Graph API
     Then the HTTP status code should be "200"
@@ -2065,7 +2065,7 @@ Feature: List a sharing permissions
     And user "Alice" has created the following resource link share:
       | resource        | textfile0.txt |
       | space           | new-space     |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
       | password        | %public%      |
     When user "Alice" gets permissions list for file "textfile0.txt" of the space "new-space" using the Graph API
     Then the HTTP status code should be "200"

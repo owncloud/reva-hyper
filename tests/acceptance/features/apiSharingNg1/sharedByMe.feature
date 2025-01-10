@@ -1973,7 +1973,7 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -2082,7 +2082,7 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | Personal      |
-      | permissionsRole | edit          |
+      | permissionsRole | Edit          |
       | password        | %public%      |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -2192,12 +2192,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | edit         |
+      | permissionsRole | Edit         |
       | password        | %public%     |
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare/textfile.txt |
       | space           | Personal                   |
-      | permissionsRole | view                       |
+      | permissionsRole | View                       |
       | password        | %public%                   |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -2344,12 +2344,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | Personal      |
-      | permissionsRole | edit          |
+      | permissionsRole | Edit          |
       | password        | %public%      |
     And user "Alice" has created the following resource link share:
       | resource        | parent/FolderToShare |
       | space           | Personal             |
-      | permissionsRole | view                 |
+      | permissionsRole | View                 |
       | password        | %public%             |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -2493,12 +2493,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | edit         |
+      | permissionsRole | Edit         |
       | password        | %public%     |
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     And user "Alice" has removed the last link share of file "textfile.txt" from space "Personal"
     When user "Alice" lists the shares shared by her using the Graph API
@@ -2566,12 +2566,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | Personal      |
-      | permissionsRole | edit          |
+      | permissionsRole | Edit          |
       | password        | %public%      |
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | Personal      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
       | password        | %public%      |
     And user "Alice" has removed the last link share of folder "FolderToShare" from space "Personal"
     When user "Alice" lists the shares shared by her using the Graph API
@@ -2642,7 +2642,7 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | NewSpace     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -2754,7 +2754,7 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | NewSpace      |
-      | permissionsRole | edit          |
+      | permissionsRole | Edit          |
       | password        | %public%      |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -2867,12 +2867,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | NewSpace     |
-      | permissionsRole | edit         |
+      | permissionsRole | Edit         |
       | password        | %public%     |
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare/textfile.txt |
       | space           | NewSpace                   |
-      | permissionsRole | view                       |
+      | permissionsRole | View                       |
       | password        | %public%                   |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -3021,12 +3021,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | NewSpace      |
-      | permissionsRole | edit          |
+      | permissionsRole | Edit          |
       | password        | %public%      |
     And user "Alice" has created the following resource link share:
       | resource        | parent/FolderToShare |
       | space           | NewSpace             |
-      | permissionsRole | view                 |
+      | permissionsRole | View                 |
       | password        | %public%             |
     When user "Alice" lists the shares shared by her using the Graph API
     Then the HTTP status code should be "200"
@@ -3173,12 +3173,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | NewSpace     |
-      | permissionsRole | edit         |
+      | permissionsRole | Edit         |
       | password        | %public%     |
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | NewSpace     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     And user "Alice" has removed the last link share of file "textfile.txt" from space "NewSpace"
     When user "Alice" lists the shares shared by her using the Graph API
@@ -3249,12 +3249,12 @@ Feature: resources shared by user
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | NewSpace      |
-      | permissionsRole | edit          |
+      | permissionsRole | Edit          |
       | password        | %public%      |
     And user "Alice" has created the following resource link share:
       | resource        | FolderToShare |
       | space           | NewSpace      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
       | password        | %public%      |
     And user "Alice" has removed the last link share of folder "FolderToShare" from space "NewSpace"
     When user "Alice" lists the shares shared by her using the Graph API

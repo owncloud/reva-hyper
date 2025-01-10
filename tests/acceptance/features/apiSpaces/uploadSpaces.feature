@@ -101,7 +101,7 @@ Feature: Upload files into a space
     And user "Alice" has created the following resource link share:
       | resource        | uploadFolder |
       | space           | Personal     |
-      | permissionsRole | createOnly   |
+      | permissionsRole | File Drop    |
       | password        | %public%     |
     When the public uploads file "filesForUpload/zerobyte.txt" to "textfile.txt" inside last link shared folder with password "%public%" using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -118,7 +118,7 @@ Feature: Upload files into a space
     And user "Alice" has created the following resource link share:
       | resource        | uploadFolder  |
       | space           | Project Ceres |
-      | permissionsRole | createOnly    |
+      | permissionsRole | File Drop     |
       | password        | %public%      |
     When the public uploads file "filesForUpload/zerobyte.txt" to "textfile.txt" inside last link shared folder with password "%public%" using the public WebDAV API
     Then the HTTP status code should be "201"

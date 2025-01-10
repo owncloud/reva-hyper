@@ -20,11 +20,11 @@ Feature: Remove access to a drive item
     Then the HTTP status code should be "204"
     Examples:
       | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | View             |
+      | Edit             |
+      | Upload           |
+      | File Drop        |
+      | Secure View      |
 
 
   Scenario Outline: user removes access to a file in link share
@@ -38,9 +38,9 @@ Feature: Remove access to a drive item
     Then the HTTP status code should be "204"
     Examples:
       | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | View             |
+      | Edit             |
+      | Secure View      |
 
 
   Scenario Outline: user removes access to a folder in project space in link share
@@ -56,11 +56,11 @@ Feature: Remove access to a drive item
     Then the HTTP status code should be "204"
     Examples:
       | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | View             |
+      | Edit             |
+      | Upload           |
+      | File Drop        |
+      | Secure View      |
 
 
   Scenario Outline: user removes access to a file in project space in link share
@@ -76,6 +76,6 @@ Feature: Remove access to a drive item
     Then the HTTP status code should be "204"
     Examples:
       | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | View             |
+      | Edit             |
+      | Secure View      |

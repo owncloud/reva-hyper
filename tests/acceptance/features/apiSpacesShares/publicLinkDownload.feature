@@ -39,7 +39,7 @@ Feature: Public can download folders from project space public link
       | resource        | NewFolder   |
       | space           | new-space   |
       | displayName     | public link |
-      | permissionsRole | view        |
+      | permissionsRole | View        |
     When public downloads the folder "folder" from the last created public link using the public files API
     Then the HTTP status code should be "200"
     And the downloaded zip archive should contain these files:

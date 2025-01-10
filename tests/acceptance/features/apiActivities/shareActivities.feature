@@ -273,7 +273,7 @@ Feature: check share activity
     Given user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     When user "Alice" lists the activities of file "textfile.txt" from space "Personal" using the Graph API
     Then the HTTP status code should be "200"
@@ -378,7 +378,7 @@ Feature: check share activity
     Given user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     And user "Alice" has removed the last link share of file "textfile.txt" from space "Personal"
     When user "Alice" lists the activities of file "textfile.txt" from space "Personal" using the Graph API
@@ -1071,7 +1071,7 @@ Feature: check share activity
       | password        | %public%  |
     And user "Alice" has updated the last resource link share with
       | space              | new-space                |
-      | permissionsRole    | edit                     |
+      | permissionsRole    | Edit                     |
       | expirationDateTime | 2200-07-15T14:00:00.000Z |
     And user "Alice" has set the following password for the last link share:
       | resource |               |
@@ -1543,12 +1543,12 @@ Feature: check share activity
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | new-space    |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     And user "Alice" has updated the last resource link share with
       | resource           | textfile.txt             |
       | space              | new-space                |
-      | permissionsRole    | edit                     |
+      | permissionsRole    | Edit                     |
       | expirationDateTime | 2200-07-15T14:00:00.000Z |
     And user "Alice" has set the following password for the last link share:
       | resource | textfile.txt  |
@@ -1853,7 +1853,7 @@ Feature: check share activity
       | password        | %public%  |
     And user "Alice" has updated the last resource link share with
       | space              | new-space                |
-      | permissionsRole    | edit                     |
+      | permissionsRole    | Edit                     |
       | expirationDateTime | 2200-07-15T14:00:00.000Z |
     And user "Alice" has set the following password for the last link share:
       | resource |               |
@@ -1871,12 +1871,12 @@ Feature: check share activity
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | new-space    |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     And user "Alice" has updated the last resource link share with
       | resource           | textfile.txt             |
       | space              | new-space                |
-      | permissionsRole    | edit                     |
+      | permissionsRole    | Edit                     |
       | expirationDateTime | 2200-07-15T14:00:00.000Z |
     And user "Alice" has set the following password for the last link share:
       | resource | textfile.txt  |
@@ -1894,12 +1894,12 @@ Feature: check share activity
     And user "Alice" has created the following resource link share:
       | resource        | project-folder |
       | space           | new-space      |
-      | permissionsRole | view           |
+      | permissionsRole | View           |
       | password        | %public%       |
     And user "Alice" has updated the last resource link share with
       | resource           | project-folder           |
       | space              | new-space                |
-      | permissionsRole    | edit                     |
+      | permissionsRole    | Edit                     |
       | expirationDateTime | 2200-07-15T14:00:00.000Z |
     And user "Alice" has set the following password for the last link share:
       | resource | project-folder |
@@ -1958,7 +1958,7 @@ Feature: check share activity
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | edit         |
+      | permissionsRole | Edit         |
       | password        | %public%     |
     And the public has uploaded file "textfile.txt" with content "public test" and password "%public%" to the last link share using the public WebDAV API
     When user "Alice" lists the activities of file "textfile.txt" from space "Personal" using the Graph API
@@ -2098,7 +2098,7 @@ Feature: check share activity
     And user "Alice" has created the following resource link share:
       | resource        | /FOLDER  |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     And the public has uploaded file "text.txt" with content "added by public user" and password "%public%" to the last link share using the public WebDAV API
     And the public has uploaded file "text.txt" with content "updated by public user" and password "%public%" to the last link share using the public WebDAV API

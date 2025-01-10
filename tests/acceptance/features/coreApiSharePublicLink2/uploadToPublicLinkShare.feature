@@ -16,7 +16,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     And user "Alice" has deleted folder "/FOLDER"
     When the public uploads file "test.txt" with password "%public%" and content "test-file" using the public WebDAV API
@@ -35,7 +35,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When the public uploads file "test.txt" with password "%public%" and content "test-file" using the public WebDAV API
     And the HTTP status code should be "403"
@@ -46,7 +46,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     When the public uploads file "test.txt" with password "%public%" and content "test-file" using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -60,7 +60,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     When the public uploads file "test.txt" with password "%public%" and content "test-file" using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -72,7 +72,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public uploads file "test.txt" with password "%public%" and content "test-file" using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -84,7 +84,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     And user "Admin" has changed the quota of the personal space of "Alice Hansen" space to "1"
     When the public uploads file "test.txt" with password "%public%" and content "test2" using the public WebDAV API
@@ -96,7 +96,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     And user "Admin" has changed the quota of the personal space of "Alice Hansen" space to "1"
     When the public uploads file "test.txt" with password "%public%" and content "test2" using the public WebDAV API
@@ -108,7 +108,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     When the public uploads file "test.txt" with password "%public%" and content "test2" using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -120,7 +120,7 @@ Feature: upload to a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     When the public uploads file "test.txt" with password "%public%" and content "test" using the public WebDAV API
     Then the HTTP status code should be "201"

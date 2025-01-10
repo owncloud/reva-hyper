@@ -115,7 +115,7 @@ Feature: propagation of etags when creating folders
     And user "Alice" has created the following resource link share:
       | resource        | folder     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/folder"
     When the public creates folder "created-by-public" using the public WebDAV API

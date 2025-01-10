@@ -719,7 +719,7 @@ Feature: user GDPR (General Data Protection Regulation) report
     And user "Alice" has created the following resource link share:
       | resource        | folderMain |
       | space           | Personal   |
-      | permissionsRole | view       |
+      | permissionsRole | View       |
       | password        | %public%   |
       | displayName     | sharedlink |
     When user "Alice" exports her GDPR report to "/.personal_data_export.json" using the Graph API

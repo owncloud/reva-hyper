@@ -44,7 +44,7 @@ Feature: PROPFIND
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When the public sends "PROPFIND" request to the last public link share using the public WebDAV API with password "%public%"
     Then the HTTP status code should be "207"
@@ -59,7 +59,7 @@ Feature: PROPFIND
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When the public sends "PROPFIND" request to the last public link share using the public WebDAV API
     Then the HTTP status code should be "401"
@@ -73,7 +73,7 @@ Feature: PROPFIND
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When the public sends "PROPFIND" request to the last public link share using the public WebDAV API with password "1234"
     Then the HTTP status code should be "401"
