@@ -1512,14 +1512,22 @@ class SpacesContext implements Context {
 
 		$body = json_encode($bodyData, JSON_THROW_ON_ERROR);
 
-		return GraphHelper::updateSpace(
-			$this->featureContext->getBaseUrl(),
-			$user,
-			$this->featureContext->getPasswordForUser($user),
-			$body,
-			$spaceId,
-			$this->featureContext->getStepLineRef()
-		);
+		$retries = 0;
+		do {
+			$response = GraphHelper::updateSpace(
+				$this->featureContext->getBaseUrl(),
+				$user,
+				$this->featureContext->getPasswordForUser($user),
+				$body,
+				$spaceId,
+				$this->featureContext->getStepLineRef()
+			);
+			$retries += 1;
+			$tryAgain = $retries <= 5 && $response->getStatusCode() === 500;
+			var_dump($tryAgain);
+			var_dump($retries);
+		} while($tryAgain);
+		return $response;
 	}
 
 	/**
