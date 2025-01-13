@@ -29,6 +29,7 @@ var EnvConfigs = []string{}
 var runningServices = make(map[string]int)
 
 func Start(envMap []string) {
+	log.Println("Starting oCIS service........")
 	StartService("", envMap)
 }
 
@@ -188,21 +189,14 @@ func RunCommand(command string, inputs []string) (int, string) {
 	return c.ProcessState.ExitCode(), cmdOutput
 }
 
-func RunOcisService(service string, envMap []string) {
-	log.Println(fmt.Sprintf("Environment variable envMap: %s\n", envMap))
-	StartService(service, envMap)
-}
-
-// startService is a common function for starting a service (ocis or other)
 func StartService(service string, envMap []string) {
-	log.Println(fmt.Sprintf("Start service: %s with Environment variable envMap: %s\n", service, envMap))
 	// Initialize command args based on service presence
 	cmdArgs := []string{"server"} // Default command args
 
 	if service != "" {
 		cmdArgs = append([]string{service}, cmdArgs...)
 	}
-
+	// wait for the log scanner to finish
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -244,8 +238,8 @@ func StartService(service string, envMap []string) {
 		runningServices[service] = cmd.Process.Pid
 	}
 
-	for listservice, pid := range runningServices {
-		log.Println(fmt.Sprintf("Service started: %s with process and id: %v\n", listservice, pid))
+	for listService, pid := range runningServices {
+		log.Println(fmt.Sprintf("%s service started with process id %v\n", listService, pid))
 	}
 
 	// Read the logs when the 'ocis server' command is running
@@ -303,7 +297,7 @@ func StartService(service string, envMap []string) {
 func StopService(service string) (bool, string) {
 	pid, exists := runningServices[service]
 	if !exists {
-		return false, fmt.Sprintf("Service %s is not running", service)
+		return false, fmt.Sprintf("Running service doesn't not include %s service", service)
 	}
 
 	process, err := os.FindProcess(pid)

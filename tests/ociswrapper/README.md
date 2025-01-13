@@ -125,7 +125,7 @@ Also, see `./bin/ociswrapper help` for more information.
     - `200 OK` - oCIS server is stopped
     - `500 Internal Server Error` - Unable to stop oCIS server
 
-6. `POST /services/<service-name>`
+6. `POST /services/{service-name}`
 
     Restart oCIS with service excluded and start excluded oCIS service individually, not covered by the oCIS supervisor.
 
@@ -143,7 +143,7 @@ Also, see `./bin/ociswrapper help` for more information.
     - `200 OK` - oCIS server is stopped
     - `500 Internal Server Error` - Unable to stop oCIS server
 
-7. `DELETE /services/<service-name>`
+7. `DELETE /services/{service-name}`
 
    Stop individually running oCIS service
 
