@@ -1,0 +1,45 @@
+directives:
+  child-src:
+    - '''self'''
+  connect-src:
+    - '''self'''
+    - 'blob:'
+    - 'https://${COMPANION_DOMAIN|companion.owncloud.test}/'
+    - 'wss://${COMPANION_DOMAIN|companion.owncloud.test}/'
+    - 'https://raw.githubusercontent.com/owncloud/awesome-ocis/'
+  default-src:
+    - '''none'''
+  font-src:
+    - '''self'''
+  frame-ancestors:
+    - '''self'''
+  frame-src:
+    - '''self'''
+    - 'blob:'
+    - 'https://embed.diagrams.net/'
+    # In contrary to bash and docker the default is given after the | character
+    - 'https://${ONLYOFFICE_DOMAIN|onlyoffice.owncloud.test}/'
+    - 'https://${COLLABORA_DOMAIN|collabora.owncloud.test}/'
+    # This is needed for the external-sites web extension when embedding sites
+    - 'https://owncloud.dev'
+  img-src:
+    - '''self'''
+    - 'data:'
+    - 'blob:'
+    - 'https://raw.githubusercontent.com/owncloud/awesome-ocis/'
+    # In contrary to bash and docker the default is given after the | character
+    - 'https://${ONLYOFFICE_DOMAIN|onlyoffice.owncloud.test}/'
+    - 'https://${COLLABORA_DOMAIN|collabora.owncloud.test}/'
+  manifest-src:
+    - '''self'''
+  media-src:
+    - '''self'''
+  object-src:
+    - '''self'''
+    - 'blob:'
+  script-src:
+    - '''self'''
+    - '''unsafe-inline'''
+  style-src:
+    - '''self'''
+    - '''unsafe-inline'''
