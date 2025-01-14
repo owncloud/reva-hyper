@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"github.com/cs3org/reva/v2/pkg/events"
 	"github.com/cs3org/reva/v2/pkg/events/stream"
 	"github.com/owncloud/ocis/v2/services/notifications/pkg/config"
@@ -51,6 +52,7 @@ func SendEmail(cfg *config.Config) *cli.Command {
 					return err
 				}
 			}
+			fmt.Println("successfully sent SendEmailsEvent")
 			return nil
 		},
 	}

@@ -21,7 +21,8 @@ func (s eventsNotifier) sendGroupedEmailsJob(sendEmailsEvent events.SendEmailsEv
 		return
 	}
 
-	keys, err := s.userEventStore.listKeys(sendEmailsEvent.Interval)
+	prefix := sendEmailsEvent.Interval + "_"
+	keys, err := s.userEventStore.listKeys(prefix)
 	if err != nil {
 		logger.Error().Err(err).Msg("could not get list of keys")
 		return
@@ -130,6 +131,10 @@ func (s eventsNotifier) createGroupedMail(ctx context.Context, logger zerolog.Lo
 				"ExpiredAt":   te.ExpiredAt.Format("2006-01-02 15:04:05"),
 			})
 		}
+	}
+	if len(mts) == 0 && len(mtsVars) == 0 {
+		logger.Error().Msg("no body content for grouped email present")
+		return
 	}
 
 	rendered, err := email.RenderGroupedEmailTemplate(email.Grouped, map[string]string{

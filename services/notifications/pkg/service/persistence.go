@@ -39,7 +39,7 @@ func newUserEventStore(l log.Logger, s store.Store, hc ehsvc.EventHistoryService
 func (s *userEventStore) persist(interval string, eventId string, users []*user.User) []*user.User {
 	var errorUsers []*user.User
 	for _, u := range users {
-		key := interval + u.Id.OpaqueId
+		key := interval + "_" + u.Id.OpaqueId
 
 		// Note: This is not thread safe and can result in missing events
 		records, err := s.store.Read(key)
@@ -80,8 +80,8 @@ func (s *userEventStore) persist(interval string, eventId string, users []*user.
 	return errorUsers
 }
 
-func (s *userEventStore) listKeys(interval string) ([]string, error) {
-	return s.store.List(store.ListPrefix(interval))
+func (s *userEventStore) listKeys(prefix string) ([]string, error) {
+	return s.store.List(store.ListPrefix(prefix))
 }
 
 func (s *userEventStore) pop(ctx context.Context, key string) (*userEvents, error) {
