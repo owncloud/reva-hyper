@@ -47,7 +47,7 @@ func DefaultConfig() *config.Config {
 			JSONCS3: config.UserSharingJSONCS3Driver{
 				ProviderAddr:   "com.owncloud.api.storage-system",
 				SystemUserIDP:  "internal",
-				MaxConcurrency: 1,
+				MaxConcurrency: 5,
 			},
 			OwnCloudSQL: config.UserSharingOwnCloudSQLDriver{
 				DBUsername: "owncloud",
