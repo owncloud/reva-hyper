@@ -299,7 +299,7 @@ class TUSContext implements Context {
 		array   $uploadMetadata = [],
 		int     $noOfChunks = 1,
 		int     $bytes = null,
-		string  $checksum = ''
+		string  $checksum = '',
 	): ResponseInterface {
 		$user = $this->featureContext->getActualUsername($user);
 		$password = $this->featureContext->getUserPassword($user);
@@ -320,7 +320,7 @@ class TUSContext implements Context {
 			$headers = \array_merge($headers, $checksumHeader);
 		}
 
-		$tusClient = new TusClient(
+		$client = new TusClient(
 			$this->featureContext->getBaseUrl(),
 			[
 				'verify' => false,
@@ -333,26 +333,32 @@ class TUSContext implements Context {
 		if ($davPathVersion === WebDavHelper::DAV_VERSION_SPACES) {
 			$suffixPath = $spaceId ?: $this->featureContext->getPersonalSpaceIdForUser($user);
 		}
-
-		$tusClient->setChecksumAlgorithm('sha1');
-		$tusClient->setApiPath(WebDavHelper::getDavPath($davPathVersion, $suffixPath));
-		$tusClient->setMetadata($uploadMetadata);
 		$sourceFile = $this->featureContext->acceptanceTestsDirLocation() . $source;
-		$tusClient->setKey((string)rand())->file($sourceFile, $destination);
+
+		$client = $this->createTusClient(
+			$this->featureContext->getBaseUrl(),
+			$headers,
+			$sourceFile,
+			$destination,
+			WebDavHelper::getDavPath($davPathVersion, $suffixPath)
+		);
+
+		$client->setChecksumAlgorithm('sha1');
+		$client->setMetadata($uploadMetadata);
 		$this->featureContext->pauseUploadDelete();
 		$response = null;
 
 		if ($bytes !== null) {
-			return $tusClient->file($sourceFile, $destination)
-				->createUploadWithResponse($tusClient->getKey(), $bytes);
+			return $client->file($sourceFile, $destination)
+				->createUploadWithResponse($client->getKey(), $bytes);
 		} elseif (\filesize($sourceFile) === 0) {
-			return $tusClient->file($sourceFile, $destination)->createUploadWithResponse($tusClient->getKey(), 0);
+			return $client->file($sourceFile, $destination)->createUploadWithResponse($client->getKey(), 0);
 		} elseif ($noOfChunks === 1) {
-			return $tusClient->file($sourceFile, $destination)->uploadWithResponse();
+			return $client->file($sourceFile, $destination)->uploadWithResponse();
 		} else {
 			$bytesPerChunk = (int)\ceil(\filesize($sourceFile) / $noOfChunks);
 			for ($i = 0; $i < $noOfChunks; $i++) {
-				$response = $tusClient->uploadWithResponse($bytesPerChunk);
+				$response = $client->uploadWithResponse($bytesPerChunk);
 			}
 			return $response;
 		}
@@ -383,19 +389,44 @@ class TUSContext implements Context {
 		];
 		$sourceFile = $this->featureContext->acceptanceTestsDirLocation() . $source;
 		$url = WebdavHelper::getDavPath(WebDavHelper::DAV_VERSION_SPACES, $token, "public-files");
-
-		$tusClient = new TusClient(
+		$client = $this->createTusClient(
 			$this->featureContext->getBaseUrl(),
+			$headers,
+			$sourceFile,
+			$destination,
+			$url
+		);
+		$response = $client->createUploadWithResponse("", 0);
+		return $response;
+	}
+
+	/**
+	 * @param string $baseUrl
+	 * @param array $headers
+	 * @param string $sourceFile
+	 * @param string $destination
+	 * @param string $path
+	 *
+	 * @return TusClient
+	 * @throws ReflectionException
+	 */
+	private function createTusClient(
+		string $baseUrl,
+		array $headers,
+		string $sourceFile,
+		string $destination,
+		string $path
+	): TusClient {
+		$client = new TusClient(
+			$baseUrl,
 			[
 				'verify' => false,
-				'headers' => $headers
+				'headers' => $headers,
 			]
 		);
-
-		$tusClient->setApiPath($url);
-		$tusClient->setKey((string)rand())->file($sourceFile, $destination);
-		$response = $tusClient->file($sourceFile, $destination)->createUploadWithResponse("", 0);
-		return $response;
+		$client->setApiPath($path);
+		$client->setKey((string)rand())->file($sourceFile, $destination);
+		return $client;
 	}
 
 	/**
