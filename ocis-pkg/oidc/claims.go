@@ -1,7 +1,6 @@
 package oidc
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -30,47 +29,4 @@ func SplitWithEscaping(s string, separator string, escapeString string) []string
 		}
 	}
 	return a
-}
-
-// WalkSegments uses the given array of segments to walk the claims and return whatever interface was found
-func WalkSegments(segments []string, claims map[string]interface{}) (interface{}, error) {
-	i := 0
-	for ; i < len(segments)-1; i++ {
-		switch castedClaims := claims[segments[i]].(type) {
-		case map[string]interface{}:
-			claims = castedClaims
-		case map[interface{}]interface{}:
-			claims = make(map[string]interface{}, len(castedClaims))
-			for k, v := range castedClaims {
-				if s, ok := k.(string); ok {
-					claims[s] = v
-				} else {
-					return nil, fmt.Errorf("could not walk claims path, key '%v' is not a string", k)
-				}
-			}
-		default:
-			return nil, fmt.Errorf("unsupported type '%v'", castedClaims)
-		}
-	}
-	return claims[segments[i]], nil
-}
-
-// ReadStringClaim returns the string obtained by following the . seperated path in the claims
-func ReadStringClaim(path string, claims map[string]interface{}) (string, error) {
-	// check the simple case first
-	value, _ := claims[path].(string)
-	if value != "" {
-		return value, nil
-	}
-
-	claim, err := WalkSegments(SplitWithEscaping(path, ".", "\\"), claims)
-	if err != nil {
-		return "", err
-	}
-
-	if value, _ = claim.(string); value != "" {
-		return value, nil
-	}
-
-	return value, fmt.Errorf("claim path '%s' not set or empty", path)
 }

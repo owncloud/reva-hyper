@@ -8,8 +8,8 @@ import (
 
 	cs3 "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
 	"github.com/cs3org/reva/v2/pkg/utils"
+	"github.com/jmespath/go-jmespath"
 	"github.com/owncloud/ocis/v2/ocis-pkg/middleware"
-	"github.com/owncloud/ocis/v2/ocis-pkg/oidc"
 	settingssvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
 	"go-micro.dev/v4/metadata"
 )
@@ -32,20 +32,13 @@ func NewOIDCRoleAssigner(opts ...Option) UserRoleAssigner {
 
 func extractRoles(rolesClaim string, claims map[string]interface{}) (map[string]struct{}, error) {
 
-	claimRoles := map[string]struct{}{}
-	// happy path
-	value, _ := claims[rolesClaim].(string)
-	if value != "" {
-		claimRoles[value] = struct{}{}
-		return claimRoles, nil
-	}
-
-	claim, err := oidc.WalkSegments(oidc.SplitWithEscaping(rolesClaim, ".", "\\"), claims)
+	result, err := jmespath.Search(rolesClaim, claims)
 	if err != nil {
 		return nil, err
 	}
+	claimRoles := map[string]struct{}{}
 
-	switch v := claim.(type) {
+	switch v := result.(type) {
 	case []string:
 		for _, cr := range v {
 			claimRoles[cr] = struct{}{}

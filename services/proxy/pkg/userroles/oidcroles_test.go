@@ -92,7 +92,7 @@ func TestExtractEscapedRolesPathString(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	roles, err := extractRoles("sub\\.roles", claims)
+	roles, err := extractRoles("\"sub.roles\"", claims)
 	if err != nil {
 		t.Fatal(err)
 	}

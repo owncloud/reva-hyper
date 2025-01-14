@@ -1,8 +1,6 @@
 package oidc_test
 
 import (
-	"encoding/json"
-	"reflect"
 	"testing"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/oidc"
@@ -72,108 +70,6 @@ func TestSplitWithEscaping(t *testing.T) {
 			seperator:     ".",
 			escape:        "\\",
 			expectedParts: []string{"my", "other.roles"},
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, test.run)
-	}
-}
-
-type walkSegmentsTest struct {
-	// Name of the subtest.
-	name string
-
-	// path segments to walk
-	segments []string
-
-	// seperator to use
-	claims map[string]interface{}
-
-	expected interface{}
-
-	wantErr bool
-}
-
-func (wst walkSegmentsTest) run(t *testing.T) {
-	v, err := oidc.WalkSegments(wst.segments, wst.claims)
-	if err != nil && !wst.wantErr {
-		t.Errorf("%v", err)
-	}
-	if err == nil && wst.wantErr {
-		t.Errorf("expected error")
-	}
-	if !reflect.DeepEqual(v, wst.expected) {
-		t.Errorf("expected %v got %v", wst.expected, v)
-	}
-}
-
-func TestWalkSegments(t *testing.T) {
-	byt := []byte(`{"first":{"second":{"third":["value1","value2"]},"foo":"bar"},"fizz":"buzz"}`)
-	var dat map[string]interface{}
-	if err := json.Unmarshal(byt, &dat); err != nil {
-		t.Errorf("%v", err)
-	}
-
-	tests := []walkSegmentsTest{
-		{
-			name:     "one segment, single value",
-			segments: []string{"first"},
-			claims: map[string]interface{}{
-				"first": "value",
-			},
-			expected: "value",
-			wantErr:  false,
-		},
-		{
-			name:     "one segment, array value",
-			segments: []string{"first"},
-			claims: map[string]interface{}{
-				"first": []string{"value1", "value2"},
-			},
-			expected: []string{"value1", "value2"},
-			wantErr:  false,
-		},
-		{
-			name:     "two segments, single value",
-			segments: []string{"first", "second"},
-			claims: map[string]interface{}{
-				"first": map[string]interface{}{
-					"second": "value",
-				},
-			},
-			expected: "value",
-			wantErr:  false,
-		},
-		{
-			name:     "two segments, array value",
-			segments: []string{"first", "second"},
-			claims: map[string]interface{}{
-				"first": map[string]interface{}{
-					"second": []string{"value1", "value2"},
-				},
-			},
-			expected: []string{"value1", "value2"},
-			wantErr:  false,
-		},
-		{
-			name:     "three segments, array value from json",
-			segments: []string{"first", "second", "third"},
-			claims:   dat,
-			expected: []interface{}{"value1", "value2"},
-			wantErr:  false,
-		},
-		{
-			name:     "three segments, array value with interface key",
-			segments: []string{"first", "second", "third"},
-			claims: map[string]interface{}{
-				"first": map[interface{}]interface{}{
-					"second": map[interface{}]interface{}{
-						"third": []string{"value1", "value2"},
-					},
-				},
-			},
-			expected: []string{"value1", "value2"},
-			wantErr:  false,
 		},
 	}
 	for _, test := range tests {
