@@ -14,7 +14,8 @@ Feature: upload resources using TUS protocol
   Scenario: upload a file within the set quota to a project space
     Given user "Alice" has created a space "Project Jupiter" of type "project" with quota "10000"
     When user "Alice" uploads a file with content "uploaded content" to "/upload.txt" via TUS inside of the space "Project Jupiter" using the WebDAV API
-    Then for user "Alice" the space "Project Jupiter" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" the space "Project Jupiter" should contain these entries:
       | upload.txt |
 
 
@@ -36,7 +37,8 @@ Feature: upload resources using TUS protocol
     Given user "Alice" has uploaded a file with content "uploaded content" to "/upload.txt" via TUS inside of the space "Alice Hansen"
     And user "Alice" has moved file "upload.txt" to "test.txt" in space "Alice Hansen"
     When user "Alice" uploads a file with content "uploaded content" to "/upload.txt" via TUS inside of the space "Alice Hansen" using the WebDAV API
-    Then for user "Alice" the space "Alice Hansen" should contain these entries:
+    Then the HTTP status code should be "204"
+    And for user "Alice" the space "Alice Hansen" should contain these entries:
       | test.txt   |
       | upload.txt |
 
@@ -53,7 +55,8 @@ Feature: upload resources using TUS protocol
       | permissionsRole | Editor     |
     And user "Brian" has a share "testFolder" synced
     When user "Brian" uploads file "filesForUpload/zerobyte.txt" to "Shares/testFolder/textfile.txt" using the TUS protocol on the WebDAV API
-    Then the content of file "Shares/testFolder/textfile.txt" for user "Brian" should be ""
+    Then the HTTP status code should be "201"
+    And the content of file "Shares/testFolder/textfile.txt" for user "Brian" should be ""
     And the content of file "testFolder/textfile.txt" for user "Alice" should be ""
     Examples:
       | dav-path-version |
@@ -73,7 +76,8 @@ Feature: upload resources using TUS protocol
       | permissionsRole | Editor     |
     And user "Brian" has a share "testFolder" synced
     When user "Brian" uploads a file from "filesForUpload/zerobyte.txt" to "testFolder/textfile.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Brian" the content of the file "testFolder/textfile.txt" of the space "Shares" should be ""
+    Then the HTTP status code should be "201"
+    And for user "Brian" the content of the file "testFolder/textfile.txt" of the space "Shares" should be ""
     And for user "Alice" the content of the file "testFolder/textfile.txt" of the space "Personal" should be ""
 
 
@@ -82,7 +86,8 @@ Feature: upload resources using TUS protocol
     And the administrator has assigned the role "Space Admin" to user "Alice" using the Graph API
     And user "Alice" has created a space "new-space" with the default quota using the Graph API
     When user "Alice" uploads a file from "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside of the space "new-space" using the WebDAV API
-    Then for user "Alice" the content of the file "textfile.txt" of the space "new-space" should be ""
+    Then the HTTP status code should be "201"
+    And for user "Alice" the content of the file "textfile.txt" of the space "new-space" should be ""
 
   @issue-8003 @issue-10346
   Scenario Outline: replace a shared file with zero-byte file
@@ -97,7 +102,8 @@ Feature: upload resources using TUS protocol
       | permissionsRole | File Editor  |
     And user "Brian" has a share "textfile.txt" synced
     When user "Brian" uploads file "filesForUpload/zerobyte.txt" to "Shares/textfile.txt" using the TUS protocol on the WebDAV API
-    Then the content of file "Shares/textfile.txt" for user "Brian" should be ""
+    Then the HTTP status code should be "201"
+    And the content of file "Shares/textfile.txt" for user "Brian" should be ""
     And the content of file "textfile.txt" for user "Alice" should be ""
     Examples:
       | dav-path-version |
@@ -117,7 +123,8 @@ Feature: upload resources using TUS protocol
       | permissionsRole | File Editor  |
     And user "Brian" has a share "textfile.txt" synced
     When user "Brian" uploads a file from "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside of the space "Shares" using the WebDAV API
-    Then for user "Brian" the content of the file "textfile.txt" of the space "Shares" should be ""
+    Then the HTTP status code should be "201"
+    And for user "Brian" the content of the file "textfile.txt" of the space "Shares" should be ""
     And for user "Alice" the content of the file "textfile.txt" of the space "Personal" should be ""
 
   @issue-8003
@@ -127,7 +134,8 @@ Feature: upload resources using TUS protocol
     And user "Alice" has created a space "new-space" with the default quota using the Graph API
     And user "Alice" has uploaded a file inside space "new-space" with content "This is TUS upload" to "textfile.txt"
     When user "Alice" uploads a file from "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside of the space "new-space" using the WebDAV API
-    Then for user "Alice" the content of the file "textfile.txt" of the space "new-space" should be ""
+    Then the HTTP status code should be "201"
+    And for user "Alice" the content of the file "textfile.txt" of the space "new-space" should be ""
 
   @issue-8003
   Scenario: replace a file inside a shared project space with zero-byte file
@@ -142,5 +150,6 @@ Feature: upload resources using TUS protocol
       | shareType       | user         |
       | permissionsRole | Space Editor |
     When user "Brian" uploads a file from "filesForUpload/zerobyte.txt" to "textfile.txt" via TUS inside of the space "new-space" using the WebDAV API
-    Then for user "Brian" the content of the file "textfile.txt" of the space "new-space" should be ""
+    Then the HTTP status code should be "201"
+    And for user "Brian" the content of the file "textfile.txt" of the space "new-space" should be ""
     And for user "Alice" the content of the file "textfile.txt" of the space "new-space" should be ""

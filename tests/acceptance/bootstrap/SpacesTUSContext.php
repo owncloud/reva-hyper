@@ -14,6 +14,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Exception\GuzzleException;
 use PHPUnit\Framework\Assert;
+use Psr\Http\Message\ResponseInterface;
 use TestHelpers\WebDavHelper;
 use TestHelpers\BehatHelper;
 use TestHelpers\GraphHelper;
@@ -68,8 +69,13 @@ class SpacesTUSContext implements Context {
 		string $spaceName
 	): void {
 		$spaceId = $this->spacesContext->getSpaceIdByName($user, $spaceName);
-		$this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
+		$response = $this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
 		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->theHTTPStatusCodeShouldBe(
+			["201", "204"],
+			"HTTP status code was not 201 or 204 while trying to upload file '$destination' for user '$user'",
+			$response
+		);
 	}
 
 	/**
@@ -91,8 +97,29 @@ class SpacesTUSContext implements Context {
 		string $spaceName
 	): void {
 		$spaceId = $this->spacesContext->getSpaceIdByName($user, $spaceName);
-		$this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
+		$response = $this->tusContext->uploadFileUsingTus($user, $source, $destination, $spaceId);
 		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->setResponse($response);
+	}
+
+	/**
+	 * @When the public uploads file :source to :destination via TUS inside last link shared folder with password :password using the WebDAV API
+	 *
+	 * @param string $source
+	 * @param string $destination
+	 * @param string $password
+	 *
+	 * @return void
+	 * @throws Exception|GuzzleException
+	 */
+	public function thePublicUploadsFileViaTusInsideLastSharedFolderWithPasswordUsingTheWebdavApi(
+		string $source,
+		string $destination,
+		string $password
+	): void {
+		$response = $this->tusContext->publicUploadFileUsingTus($source, $destination, $password);
+		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->setResponse($response);
 	}
 
 	/**
@@ -149,24 +176,26 @@ class SpacesTUSContext implements Context {
 	 * @param string $resource
 	 * @param string $spaceName
 	 *
-	 * @return void
+	 * @return ResponseInterface
 	 * @throws Exception|GuzzleException
 	 */
-	private function uploadFileViaTus(string $user, string $content, string $resource, string $spaceName): void {
+	private function uploadFileViaTus(
+		string $user,
+		string $content,
+		string $resource,
+		string $spaceName
+	): ResponseInterface {
 		$spaceId = $this->spacesContext->getSpaceIdByName($user, $spaceName);
 		$tmpFile = $this->tusContext->writeDataToTempFile($content);
-		try {
-			$this->tusContext->uploadFileUsingTus(
-				$user,
-				\basename($tmpFile),
-				$resource,
-				$spaceId
-			);
-			$this->featureContext->setLastUploadDeleteTime(\time());
-		} catch (Exception $e) {
-			Assert::assertStringContainsString('Unable to create resource', (string)$e);
-		}
+		$response = $this->tusContext->uploadFileUsingTus(
+			$user,
+			\basename($tmpFile),
+			$resource,
+			$spaceId
+		);
+		$this->featureContext->setLastUploadDeleteTime(\time());
 		\unlink($tmpFile);
+		return $response;
 	}
 
 	/**
@@ -189,7 +218,7 @@ class SpacesTUSContext implements Context {
 		$remoteItemId = $this->spacesContext->getSharesRemoteItemId($user, $destination);
 		$remoteItemId = \rawurlencode($remoteItemId);
 		$tmpFile = $this->tusContext->writeDataToTempFile($content);
-		$this->tusContext->uploadFileUsingTus(
+		$response = $this->tusContext->uploadFileUsingTus(
 			$user,
 			\basename($tmpFile),
 			$file,
@@ -197,6 +226,7 @@ class SpacesTUSContext implements Context {
 		);
 		$this->featureContext->setLastUploadDeleteTime(\time());
 		\unlink($tmpFile);
+		$this->featureContext->setResponse($response);
 	}
 
 	/**
@@ -216,7 +246,7 @@ class SpacesTUSContext implements Context {
 		string $resource,
 		string $spaceName
 	): void {
-		$this->uploadFileViaTus($user, $content, $resource, $spaceName);
+		$this->featureContext->setResponse($this->uploadFileViaTus($user, $content, $resource, $spaceName));
 	}
 
 	/**
@@ -236,7 +266,12 @@ class SpacesTUSContext implements Context {
 		string $resource,
 		string $spaceName
 	): void {
-		$this->uploadFileViaTus($user, $content, $resource, $spaceName);
+		$response = $this->uploadFileViaTus($user, $content, $resource, $spaceName);
+		$this->featureContext->theHTTPStatusCodeShouldBe(
+			["201", "204"],
+			"HTTP status code was not 201 or 204 while trying to upload file '$resource' for user '$user'",
+			$response
+		);
 	}
 
 	/**
@@ -282,7 +317,7 @@ class SpacesTUSContext implements Context {
 		$mtime = new DateTime($mtime);
 		$mtime = $mtime->format('U');
 		$user = $this->featureContext->getActualUsername($user);
-		$this->tusContext->uploadFileUsingTus(
+		$response = $this->tusContext->uploadFileUsingTus(
 			$user,
 			$source,
 			$destination,
@@ -290,6 +325,7 @@ class SpacesTUSContext implements Context {
 			['mtime' => $mtime]
 		);
 		$this->featureContext->setLastUploadDeleteTime(\time());
+		$this->featureContext->setResponse($response);
 	}
 
 	/**

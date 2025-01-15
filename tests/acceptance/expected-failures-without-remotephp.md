@@ -199,6 +199,9 @@
 - [apiSpaces/uploadSpaces.feature:115](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/uploadSpaces.feature#L115)
 - [apiSpaces/uploadSpaces.feature:132](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/uploadSpaces.feature#L132)
 - [apiSpacesShares/shareSpacesViaLink.feature:61](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpacesShares/shareSpacesViaLink.feature#L61)
+- [apiSpacesShares/shareUploadTUS.feature:421](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpacesShares/shareUploadTUS.feature#L421)
+- [apiSpacesShares/shareUploadTUS.feature:438](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpacesShares/shareUploadTUS.feature#L438)
+- [apiSpacesShares/shareUploadTUS.feature:457](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpacesShares/shareUploadTUS.feature#L457)
 - [apiDepthInfinity/propfind.feature:74](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiDepthInfinity/propfind.feature#L74)
 - [apiDepthInfinity/propfind.feature:124](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiDepthInfinity/propfind.feature#L124)
 - [apiLocks/lockFiles.feature:490](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiLocks/lockFiles.feature#L490)
@@ -320,8 +323,8 @@
 
 #### [Cannot create new TUS upload resource using /webdav without remote.php - returns html instead](https://github.com/owncloud/ocis/issues/10346)
 
-- [apiSpaces/tusUpload.feature:60](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L60)
-- [apiSpaces/tusUpload.feature:104](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L104)
+- [apiSpaces/tusUpload.feature:63](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L63)
+- [apiSpaces/tusUpload.feature:110](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/apiSpaces/tusUpload.feature#L110)
 - [coreApiWebdavUploadTUS/creationWithUploadExtension.feature:38](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/coreApiWebdavUploadTUS/creationWithUploadExtension.feature#L38)
 - [coreApiWebdavUploadTUS/uploadFile.feature:16](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/coreApiWebdavUploadTUS/uploadFile.feature#L16)
 - [coreApiWebdavUploadTUS/uploadFile.feature:17](https://github.com/owncloud/ocis/blob/master/tests/acceptance/features/coreApiWebdavUploadTUS/uploadFile.feature#L17)
