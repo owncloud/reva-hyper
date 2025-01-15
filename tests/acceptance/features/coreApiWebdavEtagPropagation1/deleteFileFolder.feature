@@ -223,7 +223,7 @@ Feature: propagation of etags when deleting a file or folder
     And user "Alice" has created the following resource link share:
       | resource        | upload   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
@@ -247,7 +247,7 @@ Feature: propagation of etags when deleting a file or folder
     And user "Alice" has created the following resource link share:
       | resource        | upload   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"

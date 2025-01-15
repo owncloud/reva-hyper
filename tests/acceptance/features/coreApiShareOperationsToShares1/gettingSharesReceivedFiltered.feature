@@ -32,7 +32,7 @@ Feature: get the received shares filtered by type (user, group etc)
     And user "Alice" has created the following resource link share:
       | resource        | folderToShareWithPublic |
       | space           | Personal                |
-      | permissionsRole | view                    |
+      | permissionsRole | View                    |
       | password        | %public%                |
     And user "Alice" has sent the following resource share invitation:
       | resource        | fileToShareWithUser.txt |
@@ -49,7 +49,7 @@ Feature: get the received shares filtered by type (user, group etc)
     And user "Alice" has created the following resource link share:
       | resource        | fileToShareWithPublic.txt |
       | space           | Personal                  |
-      | permissionsRole | view                      |
+      | permissionsRole | View                      |
       | password        | %public%                  |
 
 

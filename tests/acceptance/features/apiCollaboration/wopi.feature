@@ -181,7 +181,7 @@ Feature: collaboration (wopi)
     And user "Alice" has created the following resource link share:
       | resource        | simple.odt |
       | space           | Personal   |
-      | permissionsRole | view       |
+      | permissionsRole | View       |
       | password        | %public%   |
     When the public sends HTTP method "POST" to URL "<app-endpoint>" with password "%public%"
     Then the HTTP status code should be "200"
@@ -411,7 +411,7 @@ Feature: collaboration (wopi)
     And user "Alice" has created the following resource link share:
       | resource        | simple.odt |
       | space           | Personal   |
-      | permissionsRole | view       |
+      | permissionsRole | View       |
       | password        | %public%   |
     When the public sends HTTP method "POST" to URL "<app-endpoint>" with password "%public%"
     Then the HTTP status code should be "200"
@@ -953,9 +953,9 @@ Feature: collaboration (wopi)
     And as "Alice" file "publicFolder/simple.odt" should exist
     Examples:
       | permissions-role |
-      | edit             |
-      | upload           |
-      | createOnly       |
+      | Edit             |
+      | Upload           |
+      | File Drop        |
 
   @issue-10126 @issue-10331
   Scenario: public user with permission view tries to creates odt file inside public folder using wopi endpoint
@@ -963,7 +963,7 @@ Feature: collaboration (wopi)
     And user "Alice" has created the following resource link share:
       | resource        | publicFolder |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     When the public tries to create a file "simple.odt" inside the last shared public link folder with password "%public%" using wopi endpoint
     Then the HTTP status code should be "403"

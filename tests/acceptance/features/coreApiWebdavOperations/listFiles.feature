@@ -120,7 +120,7 @@ Feature: list files
     And user "Alice" has created the following resource link share:
       | resource        | simple-folder |
       | space           | Personal      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
     When the public lists the resources in the last created public link with depth "0" using the WebDAV API
     Then the HTTP status code should be "207"
     And the last public link DAV response should not contain these nodes
@@ -148,7 +148,7 @@ Feature: list files
     And user "Alice" has created the following resource link share:
       | resource        | simple-folder |
       | space           | Personal      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
     When the public lists the resources in the last created public link with depth "1" using the WebDAV API
     Then the HTTP status code should be "207"
     And the last public link DAV response should contain these nodes

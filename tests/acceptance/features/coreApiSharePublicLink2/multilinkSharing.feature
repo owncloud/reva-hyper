@@ -15,21 +15,21 @@ Feature: multi-link sharing
     And user "Alice" has created the following resource link share:
       | resource           | FOLDER      |
       | space              | Personal    |
-      | permissionsRole    | edit        |
+      | permissionsRole    | Edit        |
       | expirationDateTime | +3 days     |
       | displayName        | sharedlink1 |
       | password           | %public%    |
     And user "Alice" has created the following resource link share:
       | resource           | FOLDER      |
       | space              | Personal    |
-      | permissionsRole    | edit        |
+      | permissionsRole    | Edit        |
       | expirationDateTime | +3 days     |
       | displayName        | sharedlink2 |
       | password           | %public%    |
     And user "Alice" has created the following resource link share:
       | resource           | FOLDER      |
       | space              | Personal    |
-      | permissionsRole    | edit        |
+      | permissionsRole    | Edit        |
       | expirationDateTime | +3 days     |
       | displayName        | sharedlink3 |
       | password           | %public%    |
@@ -55,21 +55,21 @@ Feature: multi-link sharing
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink1   |
       | password           | %public%      |
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink2   |
       | password           | %public%      |
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink3   |
       | password           | %public%      |
@@ -95,14 +95,14 @@ Feature: multi-link sharing
     And user "Alice" has created the following resource link share:
       | resource           | FOLDER      |
       | space              | Personal    |
-      | permissionsRole    | edit        |
+      | permissionsRole    | Edit        |
       | expirationDateTime | +3 days     |
       | displayName        | sharedlink1 |
       | password           | %public%    |
     And user "Alice" has created the following resource link share:
       | resource           | FOLDER      |
       | space              | Personal    |
-      | permissionsRole    | edit        |
+      | permissionsRole    | Edit        |
       | expirationDateTime | +3 days     |
       | displayName        | sharedlink2 |
       | password           | %public%    |
@@ -127,14 +127,14 @@ Feature: multi-link sharing
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink1   |
       | password           | %public%      |
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink2   |
       | password           | %public%      |
@@ -155,21 +155,21 @@ Feature: multi-link sharing
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink1   |
       | password           | %public%      |
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink2   |
       | password           | %public%      |
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink3   |
       | password           | %public%      |
@@ -193,14 +193,14 @@ Feature: multi-link sharing
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink1   |
       | password           | %public%      |
     And user "Alice" has created the following resource link share:
       | resource           | textfile0.txt |
       | space              | Personal      |
-      | permissionsRole    | view          |
+      | permissionsRole    | View          |
       | expirationDateTime | +3 days       |
       | displayName        | sharedlink2   |
       | password           | %public%      |
@@ -224,14 +224,14 @@ Feature: multi-link sharing
     And user "Alice" has created the following resource link share:
       | resource           | FOLDER      |
       | space              | Personal    |
-      | permissionsRole    | edit        |
+      | permissionsRole    | Edit        |
       | expirationDateTime | +3 days     |
       | displayName        | sharedlink1 |
       | password           | %public%    |
     And user "Alice" has created the following resource link share:
       | resource           | FOLDER      |
       | space              | Personal    |
-      | permissionsRole    | edit        |
+      | permissionsRole    | Edit        |
       | expirationDateTime | +3 days     |
       | displayName        | sharedlink2 |
       | password           | %public%    |

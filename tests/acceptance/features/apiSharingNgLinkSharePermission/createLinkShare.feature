@@ -52,7 +52,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -64,12 +64,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
   @issue-8619
   Scenario: create an internal link share of a folder using permissions endpoint
@@ -77,7 +77,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | folder   |
       | space           | Personal |
-      | permissionsRole | internal |
+      | permissionsRole | Internal |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
       """
@@ -134,7 +134,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | folder   |
       | space           | Personal |
-      | permissionsRole | internal |
+      | permissionsRole | Internal |
       | password        | %public% |
     Then the HTTP status code should be "400"
 
@@ -184,7 +184,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -196,10 +196,10 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Secure View      | blocksDownload         |
 
   @issue-8619
   Scenario: create an internal link share of a file using permissions endpoint
@@ -207,7 +207,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | textfile1.txt |
       | space           | Personal      |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
       """
@@ -264,7 +264,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | textfile1.txt |
       | space           | Personal      |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
       | password        | %public%      |
     Then the HTTP status code should be "400"
 
@@ -320,7 +320,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -332,12 +332,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
   @issue-7879
   Scenario Outline: create a link share of a file with display name and expiry date using permissions endpoint
@@ -391,7 +391,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -403,10 +403,10 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Secure View      | blocksDownload         |
 
   @env-config @issue-7879
   Scenario Outline: create a link share of a file without password using permissions endpoint
@@ -456,7 +456,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -468,11 +468,11 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | internal         |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Internal         | internal               |
+      | Secure View      | blocksDownload         |
 
   @env-config @issue-9724 @issue-10331
   Scenario: set password on a file's link share using permissions endpoint
@@ -483,7 +483,7 @@ Feature: Create a link share for a resource
     And user "Alice" has created the following resource link share:
       | resource        | textfile1.txt |
       | space           | Personal      |
-      | permissionsRole | view          |
+      | permissionsRole | View          |
     When user "Alice" sets the following password for the last link share using the Graph API:
       | resource | textfile1.txt |
       | space    | Personal      |
@@ -512,7 +512,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | text.txt          |
       | space           | Personal          |
-      | permissionsRole | view              |
+      | permissionsRole | View              |
       | password        | <banned-password> |
     Then the HTTP status code should be "400"
     And the JSON data of the response should match
@@ -597,7 +597,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -609,12 +609,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario: create an internal link share of a folder inside project-space using permissions endpoint
@@ -625,7 +625,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | folderToShare |
       | space           | projectSpace  |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
       """
@@ -684,7 +684,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | folderToShare |
       | space           | projectSpace  |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
       | password        | %public%      |
     Then the HTTP status code should be "400"
 
@@ -743,7 +743,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -755,12 +755,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario Outline: create a link share of a folder inside project-space with a password that is listed in the Banned-Password-List using permissions endpoint
@@ -804,21 +804,21 @@ Feature: Create a link share for a resource
       """
     Examples:
       | banned-password | permissions-role |
-      | 123             | view             |
-      | password        | view             |
-      | ownCloud        | view             |
-      | 123             | edit             |
-      | password        | edit             |
-      | ownCloud        | edit             |
-      | 123             | upload           |
-      | password        | upload           |
-      | ownCloud        | upload           |
-      | 123             | createOnly       |
-      | password        | createOnly       |
-      | ownCloud        | createOnly       |
-      | 123             | blocksDownload   |
-      | password        | blocksDownload   |
-      | ownCloud        | blocksDownload   |
+      | 123             | View             |
+      | password        | View             |
+      | ownCloud        | View             |
+      | 123             | Edit             |
+      | password        | Edit             |
+      | ownCloud        | Edit             |
+      | 123             | Upload           |
+      | password        | Upload           |
+      | ownCloud        | Upload           |
+      | 123             | File Drop        |
+      | password        | File Drop        |
+      | ownCloud        | File Drop        |
+      | 123             | Secure View      |
+      | password        | Secure View      |
+      | ownCloud        | Secure View      |
 
   @env-config @issue-7879
   Scenario Outline: create a link share of a file inside project-space without password using permissions endpoint
@@ -871,7 +871,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -883,12 +883,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
   @issue-7879
   Scenario Outline: create a link share of a file inside project-space using permissions endpoint
@@ -939,7 +939,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -951,10 +951,10 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Secure View      | blocksDownload         |
 
   @issue-8619
   Scenario: create an internal link share of a file inside project-space using permissions endpoint
@@ -965,7 +965,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | textfile.txt |
       | space           | projectSpace |
-      | permissionsRole | internal     |
+      | permissionsRole | Internal     |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
       """
@@ -1025,7 +1025,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | textfile.txt |
       | space           | projectSpace |
-      | permissionsRole | internal     |
+      | permissionsRole | Internal     |
       | password        | %public%     |
     Then the HTTP status code should be "400"
 
@@ -1084,7 +1084,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "pattern": "^%base_url%/s/[a-zA-Z]{15}$"
@@ -1095,10 +1095,10 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Secure View      | blocksDownload         |
 
   @env-config @issue-7879
   Scenario Outline: create a link share of a file inside project-space without password using permissions endpoint
@@ -1151,7 +1151,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -1163,11 +1163,11 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | internal         |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Internal         | internal               |
+      | Secure View      | blocksDownload         |
 
 
   Scenario Outline: create a link share of a file inside project-space with a password that is listed in the Banned-Password-List using permissions endpoint
@@ -1211,15 +1211,15 @@ Feature: Create a link share for a resource
       """
     Examples:
       | banned-password | permissions-role |
-      | 123             | view             |
-      | password        | view             |
-      | ownCloud        | view             |
-      | 123             | edit             |
-      | password        | edit             |
-      | ownCloud        | edit             |
-      | 123             | blocksDownload   |
-      | password        | blocksDownload   |
-      | ownCloud        | blocksDownload   |
+      | 123             | View             |
+      | password        | View             |
+      | ownCloud        | View             |
+      | 123             | Edit             |
+      | password        | Edit             |
+      | ownCloud        | Edit             |
+      | 123             | Secure View      |
+      | password        | Secure View      |
+      | ownCloud        | Secure View      |
 
   @env-config @issue-9724 @issue-10331
   Scenario: set password on a existing link share of a file inside project-space using permissions endpoint
@@ -1233,7 +1233,7 @@ Feature: Create a link share for a resource
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | projectSpace |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
     When user "Alice" sets the following password for the last link share using the Graph API:
       | resource | textfile.txt |
       | space    | projectSpace |
@@ -1296,16 +1296,16 @@ Feature: Create a link share for a resource
       """
     Examples:
       | permissions-role | drive    | message                                   |
-      | view             | Shares   | no share permission                       |
-      | edit             | Shares   | no share permission                       |
-      | upload           | Shares   | no share permission                       |
-      | createOnly       | Shares   | no share permission                       |
-      | blocksDownload   | Shares   | invalid link type                         |
-      | view             | Personal | cannot create link on personal space root |
-      | edit             | Personal | cannot create link on personal space root |
-      | upload           | Personal | cannot create link on personal space root |
-      | createOnly       | Personal | cannot create link on personal space root |
-      | blocksDownload   | Personal | invalid link type                         |
+      | View             | Shares   | no share permission                       |
+      | Edit             | Shares   | no share permission                       |
+      | Upload           | Shares   | no share permission                       |
+      | File Drop        | Shares   | no share permission                       |
+      | Secure View      | Shares   | invalid link type                         |
+      | View             | Personal | cannot create link on personal space root |
+      | Edit             | Personal | cannot create link on personal space root |
+      | Upload           | Personal | cannot create link on personal space root |
+      | File Drop        | Personal | cannot create link on personal space root |
+      | Secure View      | Personal | invalid link type                         |
 
   @issue-7879
   Scenario Outline: create a link share of a project-space drive using permissions endpoint
@@ -1354,7 +1354,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -1366,18 +1366,18 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario Outline: try to create an internal link share of a Personal and Shares drives using permissions endpoint
     When user "Alice" tries to create the following space link share using permissions endpoint of the Graph API:
       | space           | <drive>  |
-      | permissionsRole | internal |
+      | permissionsRole | Internal |
     Then the HTTP status code should be "400"
     And the JSON data of the response should match
       """
@@ -1419,7 +1419,7 @@ Feature: Create a link share for a resource
   Scenario Outline: try to create an internal link share with password of a Personal and Shares drives using permissions endpoint
     When user "Alice" tries to create the following space link share using permissions endpoint of the Graph API:
       | space           | <drive>  |
-      | permissionsRole | internal |
+      | permissionsRole | Internal |
       | password        | %public% |
     Then the HTTP status code should be "400"
     And the JSON data of the response should match
@@ -1466,7 +1466,7 @@ Feature: Create a link share for a resource
     And user "Alice" has created a space "projectSpace" with the default quota using the Graph API
     When user "Alice" creates the following space link share using permissions endpoint of the Graph API:
       | space           | projectSpace  |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
       """
@@ -1523,7 +1523,7 @@ Feature: Create a link share for a resource
     And user "Alice" has created a space "projectSpace" with the default quota using the Graph API
     When user "Alice" creates the following space link share using permissions endpoint of the Graph API:
       | space           | projectSpace  |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
       | password        | %public%      |
     Then the HTTP status code should be "400"
     And the JSON data of the response should match
@@ -1612,7 +1612,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -1624,12 +1624,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario Outline: try to create a link share of a project-space with a password that is listed in the Banned-Password-List using permissions endpoint
@@ -1671,21 +1671,21 @@ Feature: Create a link share for a resource
       """
     Examples:
       | banned-password | permissions-role |
-      | 123             | view             |
-      | password        | view             |
-      | ownCloud        | view             |
-      | 123             | edit             |
-      | password        | edit             |
-      | ownCloud        | edit             |
-      | 123             | upload           |
-      | password        | upload           |
-      | ownCloud        | upload           |
-      | 123             | createOnly       |
-      | password        | createOnly       |
-      | ownCloud        | createOnly       |
-      | 123             | blocksDownload   |
-      | password        | blocksDownload   |
-      | ownCloud        | blocksDownload   |
+      | 123             | View             |
+      | password        | View             |
+      | ownCloud        | View             |
+      | 123             | Edit             |
+      | password        | Edit             |
+      | ownCloud        | Edit             |
+      | 123             | Upload           |
+      | password        | Upload           |
+      | ownCloud        | Upload           |
+      | 123             | File Drop        |
+      | password        | File Drop        |
+      | ownCloud        | File Drop        |
+      | 123             | Secure View      |
+      | password        | Secure View      |
+      | ownCloud        | Secure View      |
 
 
   Scenario Outline: create a link share of a project-space without password using permissions endpoint
@@ -1736,7 +1736,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -1748,12 +1748,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario Outline: create a quick link share of a folder using permissions endpoint
@@ -1802,7 +1802,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -1814,12 +1814,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario: create an internal quick link share of a folder using permissions endpoint
@@ -1827,7 +1827,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | folder   |
       | space           | Personal |
-      | permissionsRole | internal |
+      | permissionsRole | Internal |
       | quickLink       | true     |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
@@ -1926,7 +1926,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -1938,10 +1938,10 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Secure View      | blocksDownload         |
 
 
   Scenario: create an internal quick link share of a file using permissions endpoint
@@ -1949,7 +1949,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | textfile1.txt |
       | space           | Personal      |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
       | quickLink       | true          |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
@@ -2051,7 +2051,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -2063,12 +2063,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario: create an internal quick link share of a folder inside project-space using permissions endpoint
@@ -2079,7 +2079,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | folderToShare |
       | space           | projectSpace  |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
       | quickLink       | true          |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
@@ -2180,7 +2180,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -2192,10 +2192,10 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Secure View      | blocksDownload         |
 
   @issue-8619
   Scenario: create an internal quick link share of a file inside project-space using permissions endpoint
@@ -2206,7 +2206,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | textfile.txt |
       | space           | projectSpace |
-      | permissionsRole | internal     |
+      | permissionsRole | Internal     |
       | quickLink       | true         |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
@@ -2306,7 +2306,7 @@ Feature: Create a link share for a resource
                 "const": false
               },
               "type": {
-                "const": "<permissions-role>"
+                "const": "<permissions-role-value>"
               },
               "webUrl": {
                 "type": "string",
@@ -2318,12 +2318,12 @@ Feature: Create a link share for a resource
       }
       """
     Examples:
-      | permissions-role |
-      | view             |
-      | edit             |
-      | upload           |
-      | createOnly       |
-      | blocksDownload   |
+      | permissions-role | permissions-role-value |
+      | View             | view                   |
+      | Edit             | edit                   |
+      | Upload           | upload                 |
+      | File Drop        | createOnly             |
+      | Secure View      | blocksDownload         |
 
 
   Scenario: create an internal quick link share of a project-space using permissions endpoint
@@ -2332,7 +2332,7 @@ Feature: Create a link share for a resource
     And user "Alice" has created a space "projectSpace" with the default quota using the Graph API
     When user "Alice" creates the following space link share using permissions endpoint of the Graph API:
       | space           | projectSpace  |
-      | permissionsRole | internal      |
+      | permissionsRole | Internal      |
       | quickLink       | true          |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
@@ -2466,7 +2466,7 @@ Feature: Create a link share for a resource
       | permissionsRole | <permissions-role> |
     When user "Brian" creates the following space link share using permissions endpoint of the Graph API:
       | space           | projectSpace |
-      | permissionsRole | internal     |
+      | permissionsRole | Internal     |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
       """
@@ -2607,7 +2607,7 @@ Feature: Create a link share for a resource
       | quickLink       | true               |
     When user "Brian" creates the following space link share using permissions endpoint of the Graph API:
       | space           | projectSpace |
-      | permissionsRole | internal     |
+      | permissionsRole | Internal     |
       | quickLink       | true         |
     Then the HTTP status code should be "200"
     And the JSON data of the response should match
@@ -2728,7 +2728,7 @@ Feature: Create a link share for a resource
       | permissionsRole | <permissions-role> |
     When user "Brian" creates the following space link share using permissions endpoint of the Graph API:
       | space           | projectSpace |
-      | permissionsRole | internal     |
+      | permissionsRole | Internal     |
       | quickLink       | true         |
       | password        | %public%     |
     Then the HTTP status code should be "400"
@@ -2773,7 +2773,7 @@ Feature: Create a link share for a resource
     When user "Alice" creates the following resource link share using the Graph API:
       | resource        | FolderToShare |
       | space           | Personal      |
-      | permissionsRole | denied        |
+      | permissionsRole | Denied        |
       | password        | %public%      |
     Then the HTTP status code should be "400"
     And the JSON data of the response should match

@@ -16,7 +16,7 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When user "Alice" updates the last public link share using the sharing API with
       | expireDate | 2040-01-01T23:59:59+0100 |
@@ -60,7 +60,7 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     And user "Alice" has updated the last resource link share with
       | resource           | FOLDER                   |
@@ -99,7 +99,7 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | randomfile.txt |
       | space           | Personal       |
-      | permissionsRole | view           |
+      | permissionsRole | View           |
       | password        | %public%       |
     When user "Alice" updates the last public link share using the sharing API with
       | expireDate | 2040-01-01T23:59:59+0100 |
@@ -119,7 +119,7 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     And user "Alice" has set the following password for the last link share:
       | resource | FOLDER   |
@@ -157,12 +157,12 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     And user "Alice" has updated the last resource link share with
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When user "Alice" gets the info of the last public link share using the sharing API
     Then the OCS status code should be "<ocs-status-code>"
     And the HTTP status code should be "200"
@@ -195,12 +195,12 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     And user "Alice" has updated the last resource link share with
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | upload   |
+      | permissionsRole | Upload   |
     When user "Alice" gets the info of the last public link share using the sharing API
     Then the OCS status code should be "<ocs-status-code>"
     And the HTTP status code should be "200"
@@ -235,12 +235,12 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     And user "Alice" has updated the last resource link share with
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
     When the public deletes file "CHILD/child.txt" from the last link share with password "%public%" using the public WebDAV API
     Then the HTTP status code of responses on all endpoints should be "403"
     And as "Alice" file "PARENT/CHILD/child.txt" should exist
@@ -260,12 +260,12 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     And user "Alice" has updated the last resource link share with
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public deletes file "CHILD/child.txt" from the last link share with password "%public%" using the public WebDAV API
     And the public deletes file "parent.txt" from the last link share with password "%public%" using the public WebDAV API
     Then the HTTP status code of responses on all endpoints should be "204"
@@ -285,7 +285,7 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     And user "Alice" has moved folder "/FOLDER" to "/RENAMED_FOLDER"
     When user "Alice" gets the info of the last public link share using the sharing API
@@ -331,7 +331,7 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | lorem.txt |
       | space           | Personal  |
-      | permissionsRole | view      |
+      | permissionsRole | View      |
       | password        | %public%  |
     And user "Alice" has moved file "/lorem.txt" to "/new-lorem.txt"
     When user "Alice" gets the info of the last public link share using the sharing API
@@ -377,7 +377,7 @@ Feature: update a public link share
     And user "Alice" has created the following resource link share:
       | resource        | textfile.txt |
       | space           | Personal     |
-      | permissionsRole | view         |
+      | permissionsRole | View         |
       | password        | %public%     |
     When user "Alice" updates the last public link share using the sharing API with
       | permissions | 0 |

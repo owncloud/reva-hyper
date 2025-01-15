@@ -456,10 +456,10 @@ Feature: sharing
     And the OCS status message should be "missing required password"
     Examples:
       | ocs-api-version | permissions-role | permissions | http-status-code |
-      | 1               | edit             | change      | 200              |
-      | 2               | edit             | change      | 400              |
-      | 1               | createOnly       | create      | 200              |
-      | 2               | createOnly       | create      | 400              |
+      | 1               | Edit             | change      | 200              |
+      | 2               | Edit             | change      | 400              |
+      | 1               | File Drop        | create      | 200              |
+      | 2               | File Drop        | create      | 400              |
 
 
   Scenario Outline: space admin removes password of a public link share (read permission)
@@ -471,7 +471,7 @@ Feature: sharing
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When user "Alice" updates the last public link share using the sharing API with
       | path        | /FOLDER |

@@ -475,7 +475,7 @@ Feature: lock files
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public locks "textfile0.txt" in the last public link shared folder using the public WebDAV API setting the following properties
       | lockscope | <lock-scope> |
@@ -498,7 +498,7 @@ Feature: lock files
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When the public tries to lock "textfile0.txt" in the last public link shared folder using the public WebDAV API setting the following properties
       | lockscope | <lock-scope> |

@@ -101,7 +101,7 @@ Feature: antivirus
     And user "Alice" has created the following resource link share:
       | resource           | uploadFolder             |
       | space              | Personal                 |
-      | permissionsRole    | edit                     |
+      | permissionsRole    | Edit                     |
       | expirationDateTime | 2040-01-01T23:59:59.000Z |
     When the public uploads file "filesForUpload/filesWithVirus/<file-name>" to "<new-file-name>" inside last link shared folder using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -126,7 +126,7 @@ Feature: antivirus
     And user "Alice" has created the following resource link share:
       | resource           | uploadFolder             |
       | space              | Personal                 |
-      | permissionsRole    | edit                     |
+      | permissionsRole    | Edit                     |
       | password           | %public%                 |
       | expirationDateTime | 2040-01-01T23:59:59.000Z |
     When the public uploads file "filesForUpload/filesWithVirus/<file-name>" to "<new-file-name>" inside last link shared folder with password "%public%" using the public WebDAV API
@@ -344,7 +344,7 @@ Feature: antivirus
     And user "Alice" has created the following resource link share:
       | resource        | test.txt |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public overwrites file "test.txt" with content "X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*" using the public WebDAV API
     Then the HTTP status code should be "204"
     And user "Alice" should get a notification with subject "Virus found" and message:

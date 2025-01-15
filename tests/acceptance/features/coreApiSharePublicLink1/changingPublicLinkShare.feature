@@ -24,10 +24,10 @@ Feature: changing a public link share
     And as "Alice" file "PARENT/parent.txt" <should-or-not> exist
     Examples:
       | permissions-role | http-status-code | should-or-not |
-      | view             | 403              | should        |
-      | upload           | 403              | should        |
-      | createOnly       | 403              | should        |
-      | edit             | 204              | should not    |
+      | View             | 403              | should        |
+      | Upload           | 403              | should        |
+      | File Drop        | 403              | should        |
+      | Edit             | 204              | should not    |
 
   @issue-10331
   Scenario: public link share permissions work correctly for renaming and share permissions edit using the public WebDAV API
@@ -35,7 +35,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public renames file "parent.txt" to "newparent.txt" from the last public link share using the password "%public%" and the public WebDAV API
     Then the HTTP status code should be "201"
@@ -48,7 +48,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public uploads file "lorem.txt" with password "%public%" and content "test" using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -60,7 +60,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public deletes file "parent.txt" from the last link share with password "invalid" using the public WebDAV API
     Then the HTTP status code should be "401"
@@ -72,7 +72,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public deletes file "parent.txt" from the last link share with password "%public%" using the public WebDAV API
     Then the HTTP status code should be "204"
@@ -84,7 +84,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public renames file "parent.txt" to "newparent.txt" from the last public link share using the password "invalid" and the public WebDAV API
     Then the HTTP status code should be "401"
@@ -97,7 +97,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public renames file "parent.txt" to "newparent.txt" from the last public link share using the password "%public%" and the public WebDAV API
     Then the HTTP status code should be "201"
@@ -110,7 +110,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public uploads file "lorem.txt" with password "invalid" and content "test" using the public WebDAV API
     Then the HTTP status code should be "401"
@@ -122,7 +122,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When the public uploads file "lorem.txt" with password "%public%" and content "test" using the public WebDAV API
     Then the HTTP status code should be "201"
@@ -134,7 +134,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     When the public renames file "parent.txt" to "newparent.txt" from the last public link share using the password "%public%" and the public WebDAV API
     Then the HTTP status code should be "403"
@@ -147,7 +147,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     When the public deletes file "parent.txt" from the last link share with password "%public%" using the public WebDAV API
     Then the HTTP status code should be "403"
@@ -171,10 +171,10 @@ Feature: changing a public link share
     And the OCS status message should be "missing required password"
     Examples:
       | ocs-api-version | permissions | permissions-role | http-status-code |
-      | 1               | change      | edit             | 200              |
-      | 2               | change      | edit             | 400              |
-      | 1               | create      | createOnly       | 200              |
-      | 2               | create      | createOnly       | 400              |
+      | 1               | change      | Edit             | 200              |
+      | 2               | change      | Edit             | 400              |
+      | 1               | create      | File Drop        | 200              |
+      | 2               | create      | File Drop        | 400              |
 
   @issue-7821
   Scenario Outline: normal user tries to remove password of a public link (update without sending permissions)
@@ -183,7 +183,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When user "Alice" updates the last public link share using the sharing API with
       | path     | /PARENT |
@@ -205,7 +205,7 @@ Feature: changing a public link share
     And user "Admin" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | view     |
+      | permissionsRole | View     |
       | password        | %public% |
     When user "Admin" updates the last public link share using the sharing API with
       | path        | /PARENT |
@@ -238,10 +238,10 @@ Feature: changing a public link share
     And the OCS status message should be "missing required password"
     Examples:
       | ocs-api-version | permissions | permissions-role | http-status-code |
-      | 1               | change      | edit             | 200              |
-      | 2               | change      | edit             | 400              |
-      | 1               | create      | createOnly       | 200              |
-      | 2               | create      | createOnly       | 400              |
+      | 1               | change      | Edit             | 200              |
+      | 2               | change      | Edit             | 400              |
+      | 1               | create      | File Drop        | 200              |
+      | 2               | create      | File Drop        | 400              |
 
   @issue-web-10473
   Scenario: user tries to download public link file using own basic auth
@@ -251,7 +251,7 @@ Feature: changing a public link share
     And user "Alice" has created the following resource link share:
       | resource        | FOLDER   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
       | password        | %public% |
     When user "Alice" tries to download file "textfile.txt" from the last public link using own basic auth and public WebDAV API
     Then the HTTP status code should be "401"

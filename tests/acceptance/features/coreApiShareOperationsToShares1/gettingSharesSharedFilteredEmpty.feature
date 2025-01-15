@@ -30,7 +30,7 @@ Feature: get shares filtered by type (user, group etc)
     And user "Alice" has created the following resource link share:
       | resource        | folderToShareWithPublic |
       | space           | Personal                |
-      | permissionsRole | view                    |
+      | permissionsRole | View                    |
       | password        | %public%                |
     And user "Alice" has sent the following resource share invitation:
       | resource        | fileToShareWithGroup.txt |
@@ -41,7 +41,7 @@ Feature: get shares filtered by type (user, group etc)
     And user "Alice" has created the following resource link share:
       | resource        | fileToShareWithPublic.txt |
       | space           | Personal                  |
-      | permissionsRole | view                      |
+      | permissionsRole | View                      |
       | password        | %public%                  |
     When user "Alice" gets the user shares shared by her using the sharing API
     Then the OCS status code should be "<ocs-status-code>"
@@ -64,7 +64,7 @@ Feature: get shares filtered by type (user, group etc)
     And user "Alice" has created the following resource link share:
       | resource        | folderToShareWithPublic |
       | space           | Personal                |
-      | permissionsRole | view                    |
+      | permissionsRole | View                    |
       | password        | %public%                |
     And user "Alice" has sent the following resource share invitation:
       | resource        | fileToShareWithUser.txt |
@@ -75,7 +75,7 @@ Feature: get shares filtered by type (user, group etc)
     And user "Alice" has created the following resource link share:
       | resource        | fileToShareWithPublic.txt |
       | space           | Personal                  |
-      | permissionsRole | view                      |
+      | permissionsRole | View                      |
       | password        | %public%                  |
     When user "Alice" gets the group shares shared by her using the sharing API
     Then the OCS status code should be "<ocs-status-code>"

@@ -173,7 +173,7 @@ Feature: propagation of etags when uploading data
     And user "Alice" has created the following resource link share:
       | resource        | upload     |
       | space           | Personal   |
-      | permissionsRole | createOnly |
+      | permissionsRole | File Drop  |
       | password        | %public%   |
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"

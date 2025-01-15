@@ -90,8 +90,11 @@ class SharingNgContext implements Context {
 		$bodyRows['expirationDateTime'] = \array_key_exists('expirationDateTime', $bodyRows)
 		? \date('Y-m-d', \strtotime($bodyRows['expirationDateTime'])) . 'T14:00:00.000Z' : null;
 		$bodyRows['password'] = $bodyRows['password'] ?? null;
+		$permissionsRole = $bodyRows['permissionsRole'];
+
+		$type = GraphHelper::PERMISSIONS_ROLES_MAPPINGS[$permissionsRole] ?? $permissionsRole;
 		$body = [
-			'type' => $bodyRows['permissionsRole'],
+			'type' => $type,
 			"@libre.graph.quickLink" => filter_var($bodyRows['quickLink'], FILTER_VALIDATE_BOOLEAN),
 			'displayName' => $bodyRows['displayName'],
 			'expirationDateTime' => $bodyRows['expirationDateTime'],
@@ -842,7 +845,7 @@ class SharingNgContext implements Context {
 		$body = [];
 
 		if (\array_key_exists('permissionsRole', $bodyRows)) {
-			$body['link']['type'] = $bodyRows['permissionsRole'];
+			$body['link']['type'] = GraphHelper::PERMISSIONS_ROLES_MAPPINGS[$bodyRows['permissionsRole']];
 		}
 
 		if (\array_key_exists('expirationDateTime', $bodyRows)) {

@@ -205,7 +205,7 @@ Feature: get file properties
     And user "Alice" has created the following resource link share:
       | resource        | <resource> |
       | space           | Personal   |
-      | permissionsRole | edit       |
+      | permissionsRole | Edit       |
       | password        | %public%   |
     When user "Alice" gets the following properties of folder "<resource>" using the WebDAV API
       | propertyName   |
@@ -244,7 +244,7 @@ Feature: get file properties
     And user "Alice" has created the following resource link share:
       | resource        | <resource> |
       | space           | Personal   |
-      | permissionsRole | edit       |
+      | permissionsRole | Edit       |
       | password        | %public%   |
     When user "Alice" gets the following properties of folder "<resource>" using the WebDAV API
       | propertyName   |

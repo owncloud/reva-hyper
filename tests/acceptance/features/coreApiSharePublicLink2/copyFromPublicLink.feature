@@ -16,7 +16,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/copy1.txt" using the public WebDAV API
     Then the HTTP status code should be "201"
     And as "Alice" file "/PARENT/testfile.txt" should exist
@@ -32,7 +32,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies folder "/testFolder" to "/testFolder-copy" using the public WebDAV API
     Then the HTTP status code should be "201"
     And as "Alice" folder "/PARENT/testFolder" should exist
@@ -48,7 +48,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/testFolder/copy1.txt" using the public WebDAV API
     Then the HTTP status code should be "201"
     And as "Alice" file "/PARENT/testfile.txt" should exist
@@ -64,7 +64,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/copy1.txt" using the public WebDAV API
     Then the HTTP status code should be "204"
     And as "Alice" file "/PARENT/testfile.txt" should exist
@@ -80,7 +80,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies folder "/testFolder" to "/copy1.txt" using the public WebDAV API
     Then the HTTP status code should be "204"
     And as "Alice" folder "/PARENT/testFolder" should exist
@@ -95,7 +95,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/copy1.txt" using the public WebDAV API
     And user "Alice" deletes file "/PARENT/copy1.txt" using the WebDAV API
     Then the HTTP status code should be "204"
@@ -110,7 +110,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/new-folder" using the public WebDAV API
     Then the HTTP status code should be "204"
     And the content of file "/PARENT/testfile.txt" for user "Alice" should be "some data"
@@ -125,7 +125,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/<file-name>" to "/copy1.txt" using the public WebDAV API
     Then the HTTP status code should be "201"
     And as "Alice" file "/PARENT/<file-name>" should exist
@@ -146,7 +146,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/<destination-file-name>" using the public WebDAV API
     Then the HTTP status code should be "201"
     And as "Alice" file "/PARENT/testfile.txt" should exist
@@ -168,7 +168,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/<destination-folder-name>/copy1.txt" using the public WebDAV API
     Then the HTTP status code should be "201"
     And as "Alice" file "/PARENT/testfile.txt" should exist
@@ -189,7 +189,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/testfile.txt" using the public WebDAV API
     Then the HTTP status code should be "204"
     And the content of file "/PARENT/testfile.txt" for user "Alice" should be "some data"
@@ -202,7 +202,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies folder "/testFolder" to "/testFolder" using the public WebDAV API
     Then the HTTP status code should be "204"
     And as "Alice" folder "/PARENT/testFolder" should exist
@@ -215,7 +215,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies file "/testfile.txt" to "/" using the public WebDAV API
     Then the HTTP status code should be "409"
     And as "Alice" file "/PARENT/testfile.txt" should exist
@@ -229,7 +229,7 @@ Feature: copying from public link share
     And user "Alice" has created the following resource link share:
       | resource        | PARENT   |
       | space           | Personal |
-      | permissionsRole | edit     |
+      | permissionsRole | Edit     |
     When the public copies folder "/testFolder" to "/" using the public WebDAV API
     Then the HTTP status code should be "409"
     And as "Alice" folder "/PARENT/testFolder" should exist
