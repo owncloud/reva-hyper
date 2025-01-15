@@ -23,6 +23,7 @@
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use TestHelpers\BehatHelper;
+use PHPUnit\Framework\Assert;
 use TestHelpers\AuthAppHelper;
 
 require_once 'bootstrap.php';
@@ -153,5 +154,30 @@ class AuthAppContext implements Context {
 				],
 			)
 		);
+	}
+
+	/**
+	 * @When user :user deletes all created auth-app token
+	 *
+	 * @param string $user
+	 *
+	 * @return void
+	 */
+	public function userDeletesAllCreatedAuthAppToken(string $user): void {
+		$response = AuthAppHelper::listAllAppAuthTokensForUser(
+			$this->featureContext->getBaseUrl(),
+			$this->featureContext->getActualUsername($user),
+			$this->featureContext->getPasswordForUser($user),
+		);
+		$authAppTokens = json_decode($response->getBody()->getContents());
+		foreach ($authAppTokens as $response) {
+			$deleteResponse = AuthAppHelper::deleteAppAuthToken(
+				$this->featureContext->getBaseUrl(),
+				$this->featureContext->getActualUsername($user),
+				$this->featureContext->getPasswordForUser($user),
+				$response->token
+			);
+			$this->featureContext->pushToLastHttpStatusCodesArray((string)$deleteResponse->getStatusCode());
+		}
 	}
 }
