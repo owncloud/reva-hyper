@@ -566,7 +566,7 @@ class SettingsContext implements Context {
 			$this->featureContext->getBaseUrl(),
 			$this->featureContext->getActualUsername($user),
 			$this->featureContext->getPasswordForUser($user),
-			json_encode($this->getBodyForNotificationSetting($user)),
+			json_encode($this->getBodyForNotificationSetting($user, "Disable Email Notifications")),
 			$this->featureContext->getStepLineRef(),
 		);
 		$this->featureContext->setResponse($response);
@@ -574,10 +574,11 @@ class SettingsContext implements Context {
 
 	/**
 	 * @param string $user
+	 * @param string $event
 	 *
 	 * @return array
 	 */
-	public function getBodyForNotificationSetting(string $user): array {
+	public function getBodyForNotificationSetting(string $user, string $event): array {
 		$settingsValues = (json_decode(
 			SettingsHelper::getBundlesList(
 				$this->featureContext->getBaseUrl(),
@@ -587,7 +588,7 @@ class SettingsContext implements Context {
 			)->getBody()->getContents()
 		));
 		foreach ($settingsValues->bundles[0]->settings as $settingsValue) {
-			if ($settingsValue->name === "disable-email-notifications") {
+			if ($settingsValue->displayName	=== $event) {
 				return [
 					"value" => [
 						"account_uuid" => "me",
@@ -596,11 +597,46 @@ class SettingsContext implements Context {
 						"resource" => [
 							"type" => $settingsValue->resource->type
 						],
-						"boolValue" => true
 					]
 				];
 			}
 		}
-		throw new Exception(('`disable-email-notifications` not found in the setting list'));
+		throw new Exception("'$event' not found in the setting list");
+	}
+
+	/**
+	 * @When /^user "([^"]*)" (disables|enables) notification for following event using the Settings API:$/
+	 *
+	 * @param string $user
+	 * @param string $enableOrDisable
+	 * @param TableNode $table
+	 *
+	 * @return void
+	 */
+	public function userDisablesNotificationForFollowingEventUsingSettingsApi(
+		string $user,
+		string $enableOrDisable,
+		TableNode $table
+	): void {
+		$settings = $table->getRowsHash();
+		foreach ($settings as $event => $value) {
+			$body = $this->getBodyForNotificationSetting($user, $event);
+			if (str_contains($value, "mail")) {
+				$body["value"]["collectionValue"]["values"][]
+					= ["key" => "mail","boolValue" => $enableOrDisable === "enables"];
+			}
+			if (str_contains($value, "in-app")) {
+				$body["value"]["collectionValue"]["values"][]
+					= ["key" => "in-app","boolValue" => $enableOrDisable === "enables"];
+			}
+			$response = SettingsHelper::updateSettings(
+				$this->featureContext->getBaseUrl(),
+				$this->featureContext->getActualUsername($user),
+				$this->featureContext->getPasswordForUser($user),
+				json_encode($body),
+				$this->featureContext->getStepLineRef(),
+			);
+			$this->featureContext->setResponse($response);
+		}
 	}
 }
