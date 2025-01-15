@@ -120,4 +120,19 @@ class OcisConfigHelper {
 		$url = self::getWrapperUrl() . "/start";
 		return self::sendRequest($url, "POST");
 	}
+
+	/**
+	 * this method stops the running oCIS instance,
+	 * restarts it while excluding specific services,
+	 * and then starts the excluded services separately.
+	 *
+	 * @param string $service
+	 *
+	 * @return ResponseInterface
+	 * @throws GuzzleException
+	 */
+	public static function startService(string $service): ResponseInterface {
+		$url = self::getWrapperUrl() . "/services/" . $service;
+		return self::sendRequest($url, "POST");
+	}
 }

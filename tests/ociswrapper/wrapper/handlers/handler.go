@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"ociswrapper/common"
 	"ociswrapper/ocis"
-	"os"
 )
 
 type BasicResponse struct {
@@ -113,7 +113,8 @@ func RollbackHandler(res http.ResponseWriter, req *http.Request) {
 
 	var message string
 	ocis.EnvConfigs = []string{}
-	success, _ := ocis.Restart(os.Environ())
+
+	success, _ := ocis.Restart()
 	if success {
 		message = "oCIS configuration rolled back successfully"
 		sendResponse(res, http.StatusOK, message)
@@ -201,4 +202,51 @@ func CommandHandler(res http.ResponseWriter, req *http.Request) {
 
 	exitCode, output := ocis.RunCommand(command, stdIn)
 	sendCmdResponse(res, exitCode, output)
+}
+
+func OcisServiceHandler(res http.ResponseWriter, req *http.Request) {
+	serviceName := req.PathValue("service")
+	envMap := []string{fmt.Sprintf("OCIS_EXCLUDE_RUN_SERVICES=%s", serviceName)}
+
+	if req.Method == http.MethodPost {
+		// restart oCIS without service that need to start separately
+		success, _ := ocis.Restart(envMap)
+		if success {
+			var envBody map[string]interface{}
+			var serviceEnvMap []string
+
+			if req.Body != nil && req.ContentLength > 0 {
+ 			   var err error
+ 			   envBody, err = parseJsonBody(req.Body)
+ 			   if err != nil {
+ 			       sendResponse(res, http.StatusBadRequest, "Invalid json body")
+ 			       return
+ 			   }
+			}
+
+			for key, value := range envBody {
+			    serviceEnvMap = append(serviceEnvMap, fmt.Sprintf("%s=%v", key, value))
+			}
+
+			log.Println(fmt.Sprintf("Starting oCIS service %s......", serviceName))
+
+			go ocis.StartService(serviceName, serviceEnvMap)
+			success, _ := ocis.WaitForConnection()
+			if success {
+				sendResponse(res, http.StatusOK, fmt.Sprintf("oCIS service %s started successfully", serviceName))
+				return
+			}
+		}
+		sendResponse(res, http.StatusInternalServerError, fmt.Sprintf("Failed to restart oCIS without service %s", serviceName))
+		return
+	} else if req.Method == http.MethodDelete {
+		success, message := ocis.StopService(serviceName)
+		if success {
+			sendResponse(res, http.StatusOK, fmt.Sprintf("oCIS service %s stopped successfully", serviceName))
+		} else {
+			sendResponse(res, http.StatusInternalServerError, message)
+		}
+		return
+	}
+	sendResponse(res, http.StatusMethodNotAllowed, "Invalid method requested")
 }

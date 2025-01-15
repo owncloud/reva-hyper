@@ -26,110 +26,21 @@ var cmd *exec.Cmd
 var retryCount = 0
 var stopSignal = false
 var EnvConfigs = []string{}
+var runningServices = make(map[string]int)
 
 func Start(envMap []string) {
-	// wait for the log scanner to finish
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	stopSignal = false
-	if retryCount == 0 {
-		defer common.Wg.Done()
-	}
-
-	cmd = exec.Command(config.Get("bin"), "server")
-	if envMap == nil {
-		cmd.Env = append(os.Environ(), EnvConfigs...)
-	} else {
-		cmd.Env = append(os.Environ(), envMap...)
-	}
-
-	logs, err := cmd.StderrPipe()
-	if err != nil {
-		log.Panic(err)
-	}
-	output, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = cmd.Start()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	logScanner := bufio.NewScanner(logs)
-	outputScanner := bufio.NewScanner(output)
-	outChan := make(chan string)
-
-	// Read the logs when the 'ocis server' command is running
-	go func() {
-		defer wg.Done()
-		for logScanner.Scan() {
-			outChan <- logScanner.Text()
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		for outputScanner.Scan() {
-			outChan <- outputScanner.Text()
-		}
-	}()
-
-	// Fetch logs from the channel and print them
-	go func() {
-		for s := range outChan {
-			fmt.Println(s)
-		}
-	}()
-
-	if err := cmd.Wait(); err != nil {
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			status := exitErr.Sys().(syscall.WaitStatus)
-			// retry only if oCIS server exited with code > 0
-			// -1 exit code means that the process was killed by a signal (syscall.SIGINT)
-			if status.ExitStatus() > 0 && !stopSignal {
-				waitUntilCompleteShutdown()
-
-				log.Println(fmt.Sprintf("oCIS server exited with code %v", status.ExitStatus()))
-
-				// retry to start oCIS server
-				retryCount++
-				maxRetry, _ := strconv.Atoi(config.Get("retry"))
-				if retryCount <= maxRetry {
-					wg.Wait()
-					close(outChan)
-					log.Println(fmt.Sprintf("Retry starting oCIS server... (retry %v)", retryCount))
-					// wait 500 milliseconds before retrying
-					time.Sleep(500 * time.Millisecond)
-					Start(envMap)
-					return
-				}
-			}
-		}
-	}
-	wg.Wait()
-	close(outChan)
+	log.Println("Starting oCIS service........")
+	StartService("", envMap)
 }
 
 func Stop() (bool, string) {
 	log.Println("Stopping oCIS server...")
 	stopSignal = true
 
-	if cmd == nil {
-		return true, "oCIS server is not running"
+	for service := range runningServices {
+		StopService(service)
 	}
 
-	err := cmd.Process.Signal(syscall.SIGINT)
-	if err != nil {
-		if !strings.HasSuffix(err.Error(), "process already finished") {
-			log.Fatalln(err)
-		} else {
-			return true, "oCIS server is already stopped"
-		}
-	}
-	cmd.Process.Wait()
 	success, message := waitUntilCompleteShutdown()
 
 	cmd = nil
@@ -147,10 +58,16 @@ func Restart(envMap []string) (bool, string) {
 }
 
 func IsOcisRunning() bool {
-	if cmd != nil {
-		return cmd.Process.Pid > 0
+	if runningServices["ocis"] == 0 {
+		return false
 	}
-	return false
+
+	_, err := os.FindProcess(runningServices["ocis"])
+	if err != nil {
+		delete(runningServices, "ocis")
+		return false
+	}
+	return true
 }
 
 func waitAllServices(startTime time.Time, timeout time.Duration) {
@@ -270,4 +187,132 @@ func RunCommand(command string, inputs []string) (int, string) {
 	cmdOutput = strings.TrimLeft(cmdOutput, strings.Join(inputs, "\r\n"))
 
 	return c.ProcessState.ExitCode(), cmdOutput
+}
+
+func StartService(service string, envMap []string) {
+	// Initialize command args based on service presence
+	cmdArgs := []string{"server"} // Default command args
+
+	if service != "" {
+		cmdArgs = append([]string{service}, cmdArgs...)
+	}
+	// wait for the log scanner to finish
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	stopSignal = false
+	if retryCount == 0 {
+		defer common.Wg.Done()
+	}
+
+	cmd = exec.Command(config.Get("bin"), cmdArgs...)
+
+	if len(envMap) == 0 {
+		cmd.Env = append(os.Environ(), EnvConfigs...)
+	} else {
+		cmd.Env = append(os.Environ(), envMap...)
+	}
+
+	logs, err := cmd.StderrPipe()
+	if err != nil {
+		log.Panic(err)
+	}
+	output, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = cmd.Start()
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	logScanner := bufio.NewScanner(logs)
+	outputScanner := bufio.NewScanner(output)
+	outChan := make(chan string)
+
+	if service == "" {
+		runningServices["ocis"] = cmd.Process.Pid
+	} else {
+		runningServices[service] = cmd.Process.Pid
+	}
+
+	for listService, pid := range runningServices {
+		log.Println(fmt.Sprintf("%s service started with process id %v\n", listService, pid))
+	}
+
+	// Read the logs when the 'ocis server' command is running
+	go func() {
+		defer wg.Done()
+		for logScanner.Scan() {
+			outChan <- logScanner.Text()
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for outputScanner.Scan() {
+			outChan <- outputScanner.Text()
+		}
+	}()
+
+	// Fetch logs from the channel and print them
+	go func() {
+		for s := range outChan {
+			fmt.Println(s)
+		}
+	}()
+
+	if err := cmd.Wait(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			status := exitErr.Sys().(syscall.WaitStatus)
+			// retry only if oCIS server exited with code > 0
+			// -1 exit code means that the process was killed by a signal (syscall.SIGINT)
+			if status.ExitStatus() > 0 && !stopSignal {
+				waitUntilCompleteShutdown()
+
+				log.Println(fmt.Sprintf("oCIS server exited with code %v", status.ExitStatus()))
+
+				// retry to start oCIS server
+				retryCount++
+				maxRetry, _ := strconv.Atoi(config.Get("retry"))
+				if retryCount <= maxRetry {
+					wg.Wait()
+					close(outChan)
+					log.Println(fmt.Sprintf("Retry starting oCIS server... (retry %v)", retryCount))
+					// wait 500 milliseconds before retrying
+					time.Sleep(500 * time.Millisecond)
+					StartService(service, envMap)
+					return
+				}
+			}
+		}
+	}
+	wg.Wait()
+	close(outChan)
+}
+
+// Stop oCIS service or a specific service by its unique identifier
+func StopService(service string) (bool, string) {
+	pid, exists := runningServices[service]
+	if !exists {
+		return false, fmt.Sprintf("Running service doesn't not include %s service", service)
+	}
+
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return false, fmt.Sprintf("Failed to find service %s process running with ID %d", service, pid)
+	}
+
+	pKillError := process.Signal(syscall.SIGINT)
+	if pKillError != nil {
+		return false, fmt.Sprintf("Failed to stop service with process id %d", pid)
+	} else {
+		delete(runningServices, service)
+
+		log.Println(fmt.Sprintf("oCIS service %s has been stopped successfully", service))
+	}
+
+	return true, fmt.Sprintf("Service %s stopped successfully", service)
 }
